@@ -19,7 +19,7 @@ function loginViaToken(){
 
     // If token is not null, saves securely token to cokie and redirects to voting page
     if(token != null){
-        document.cookie = "token=" + token + "; HttpOnly; path=/"
+        document.cookie = "token=" + token + "; path=/"
         window.location.href = websiteUrl + "/voting";
     }
 }
