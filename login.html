@@ -10,7 +10,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scoreboard</title>
+    <title>Login</title>
 </head>
 <body>
     <div class="main-container">
@@ -19,16 +19,18 @@
             <div class="login-container">
                 <div class="option-container">
                     <p>Username</p>
-                    <input placeholder="Enter username">
+                    <input id="username" placeholder="Enter username">
                     </input>
                 </div>
                 <div class="option-container">
                     <p>Password</p>
-                    <input placeholder="Enter password"></input>
+                    <input id="password" type="password" placeholder="Enter password"></input>
                 </div>
-                <button>Login</button>
+                <button onclick="login()">Login</button>
             </div>
         </div>
     </div>
+    <script src="js/login.js">
+    </script>
 </body>
 </html>
