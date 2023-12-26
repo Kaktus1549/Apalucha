@@ -19,7 +19,7 @@ function loginViaToken(){
 
     // If token is not null, saves securely token to cokie and redirects to voting page
     if(token != null){
-        document.cookie = "token=" + token + "; path=/"
+        localStorage.setItem('token', token);
         window.location.href = websiteUrl + "/voting";
     }
 }
@@ -45,7 +45,7 @@ function login(){
     .then(data => {
         // If login is successful, saves token securely to cookie and redirects to scoreboard
         if(data["success"]){
-            document.cookie = "token=" + data["token"] + "; HttpOnly; path=/"
+            localStorage.setItem('token', token);
             window.location.href = websiteUrl + "/scoreboard";
         }
         // If login is not successful, shows the error
