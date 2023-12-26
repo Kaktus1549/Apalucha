@@ -23,6 +23,16 @@ h1{
     padding: 0;
     margin-top: 50px;
 }
+h2{
+    font-weight: 700;
+    font-size: 5vw;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    margin-top: 50px;
+    align-self: center;
+    text-align: center;
+}
 .options-container{
     max-width: 90vw;
     width: 500px;
@@ -31,7 +41,7 @@ h1{
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-bottom: var(--height);
+    margin-bottom: calc(var(--height) + 50px);
     gap: 30px;
 }
 .option{
@@ -91,6 +101,7 @@ footer{
     position: fixed;
     bottom: 0;
     left: 0;
+    transition: all 0.4s ease-in-out;
 }
 footer button{
     border-radius: 1.25rem;
@@ -103,6 +114,14 @@ footer button{
     flex-direction: row;
     justify-content: center;
     align-items: center;
+}
+footer button:disabled{
+    border: 4px solid #6F7372;
+    background: #484B4A;
+}
+footer button:disabled:hover{
+    border: 4px solid #6F7372;
+    background: #484B4A;
 }
 footer button:hover{
     border-radius: 1.25rem;
@@ -117,6 +136,17 @@ footer button p{
 }
 .none{
     display: none;
+}
+.element-appear{
+    animation: appear 0.7s ease-in-out forwards;
+}
+@keyframes appear{
+    0%{
+      opacity: 0;
+    }
+    100%{
+      opacity: 1;
+    }
 }
 @media screen and (max-width:500px) {
     .option .film p{
