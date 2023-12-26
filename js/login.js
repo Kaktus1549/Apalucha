@@ -19,10 +19,8 @@ function loginViaToken(){
 
     // If token is not null, saves securely token to cokie and redirects to voting page
     if(token != null){
-        console.log(token);
         document.cookie = "token=" + token + "; HttpOnly; path=/"
         window.location.href = websiteUrl + "/voting";
-        console.log(document.cookie);
     }
 }
 // Login button click event (for scoreboard)
