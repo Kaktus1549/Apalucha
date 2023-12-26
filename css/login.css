@@ -87,6 +87,9 @@ h1{
     height: 60px;
     font-size: 2rem;
 }
+.login-container button:hover{
+    background: rgba(255, 0, 0, 0.9);
+}
 @media screen and (max-width: 360px){
     .login-container button{
         width: 90%;
