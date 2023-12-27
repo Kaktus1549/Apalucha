@@ -2,4 +2,5 @@
     "apiEndpoint":"https://api.kaktusgame.eu",
     "websiteUrl":"http://127.0.0.1",
     "tooFastMessage":"Ještě jsme nezačali"
+    "scoreBoardHeader": ["Pořadí", "Jméno filmu", "Počet hlasů"]
 }
