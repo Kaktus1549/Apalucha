@@ -1,0 +1,5 @@
+{
+    "apiEndpoint":"https://api.kaktusgame.eu",
+    "websiteUrl":"http://127.0.0.1",
+    "scoreBoardHeader": ["Pořadí", "Jméno filmu", "Počet hlasů"]
+}
