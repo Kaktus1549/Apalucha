@@ -1,0 +1,11 @@
+pymysql
+sqlalchemy
+PyJWT
+bcrypt
+reportlab
+qrcode
+pypdf2
+flask 
+flask_cors
+user_agents
+cryptography
