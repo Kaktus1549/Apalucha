@@ -3,6 +3,7 @@ from flask_cors import CORS
 from user_agents import parse
 import datetime
 import sys
+from apscheduler.schedulers.background import BackgroundScheduler
 import json
 from sqlalchemy import *
 from sqlalchemy.orm import *
@@ -43,10 +44,33 @@ config_file = "./config.json"
 with open(config_file) as f:
     config = json.load(f)
 
+# Scheduler
+scheduler = BackgroundScheduler()
+scheduler.start()
+
 database = config["database"]
 jwt_settings = config["jwt"]
 pdfs_settings = config["pdfs"]
-voting = config["voting"]
+
+def end_voting():
+    global config
+
+    config["voting"]['voteInProgress'] = False
+    config["voting"]['voteEnd'] = False
+
+    # save config
+    with open(config_file, 'w') as f:
+        json.dump(config, f, indent=4)
+
+if config["voting"]['voteEnd'] != None and config["voting"]['voteEnd'] != False:
+    # If voteEnd is in the past, end voting
+    # Else, schedule the end of voting
+    vote_end = datetime.datetime.strptime(config["voting"]['voteEnd'].split('.')[0], "%Y-%m-%d %H:%M:%S")
+    if vote_end < datetime.datetime.now():
+        end_voting()
+    else:
+        scheduler.add_job(end_voting, 'date', run_date=vote_end)
+
 
 # Engine
 engine = make_engine(database)
@@ -78,7 +102,7 @@ def vote():
         return jsonify({"error": "Failed to authenticate"}), 401
     
     if request.method == 'GET':
-        if voting['voteInProgress'] == False:
+        if config["voting"]['voteInProgress'] == False:
             return jsonify({"error": "Voting has not started"}), 425
         # Returns json with all films
         session = sessionmaker(bind=engine)()
@@ -90,7 +114,7 @@ def vote():
     elif request.method == 'POST':
         if isAdmin:
             return jsonify({"error": "Admins can't vote"}), 403
-        if voting['voteInProgress'] == False:
+        if config["voting"]['voteInProgress'] == False:
             return jsonify({"error": "Voting has not started"}), 425
         # User sends a vote -> {"vote": 1}
         data = request.get_json()
@@ -120,23 +144,28 @@ def scoreboard():
 
     session = sessionmaker(bind=engine)()
 
-    if voting['voteEnd'] == None:
-        voting['voteInProgress'] = True
-        end = datetime.datetime.now() + datetime.timedelta(seconds=voting["voteDuration"])
-        voting['voteEnd'] = end
+    if config["voting"]['voteEnd'] == None:
+        config["voting"]['voteInProgress'] = True
+        end = datetime.datetime.now() + datetime.timedelta(seconds=config["voting"]["voteDuration"])
+        config["voting"]['voteEnd'] = end
         films = unsorted_films(session)
         session.close()
+        # save config
+        with open(config_file, 'w') as f:
+            json.dump(config, f, indent=4)
+        # schedule end of voting
+        scheduler.add_job(end_voting, 'date', run_date=end)
         if films == False:
             return jsonify({"error": "Failed to retrieve films"}), 500
-        return jsonify({"voteEnd": end, "voteDuration": voting["voteDuration"], "films": films}), 200
-    elif voting['voteEnd'] > datetime.datetime.now():
+        return jsonify({"voteEnd": end, "voteDuration": config["voting"]["voteDuration"], "films": films}), 200
+    elif config["voting"]['voteEnd'] > datetime.datetime.now():
         films = unsorted_films(session)
         session.close()
-        remaining = voting['voteEnd'] - datetime.datetime.now()
+        remaining = config["voting"]['voteEnd'] - datetime.datetime.now()
         remaining = remaining.total_seconds()
         if films == False:
             return jsonify({"error": "Failed to retrieve films"}), 500
-        return jsonify({"voteEnd": voting['voteEnd'], "voteDuration": remaining, "films": films}), 200
+        return jsonify({"voteEnd": config["voting"]['voteEnd'], "voteDuration": remaining, "films": films}), 200
     else:
         films = sorted_films(session)
         session.close()

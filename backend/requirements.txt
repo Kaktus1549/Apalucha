@@ -9,3 +9,4 @@ flask
 flask_cors
 user_agents
 cryptography
+APScheduler
