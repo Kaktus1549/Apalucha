@@ -1,6 +1,5 @@
 import jwt
 import datetime
-import secrets
 from sys import path
 from os import getenv
 from sqlalchemy import *
@@ -11,8 +10,6 @@ if apalucha is None:
 path.append(apalucha)
 from sql.sql_init import Admin, User
 
-def generate_secret(length=64):
-    return secrets.token_urlsafe(length)
 def generate_jwt(secret, expiration, issuer, algorithm, userId, isAdmin=False):
     try:
         payload = {

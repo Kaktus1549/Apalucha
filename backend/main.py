@@ -15,6 +15,8 @@ This site was created by Kaktus1549 from KaktusGame.eu
 Some cool ascii art :D
 """
 import json
+import secrets
+from sqlalchemy.orm import Session
 from sys import path
 
 from os import getenv
@@ -34,6 +36,9 @@ apalucha_ascii_art = """
       /_/               
 """
 
+def generate_secret(length=64):
+    return secrets.token_urlsafe(length)
+
 try:
     with open("./config.json", 'r') as f:
         config = json.load(f)
@@ -41,8 +46,6 @@ except FileNotFoundError:
     with open("./config.json", "w") as f:
         json.dump({"setuped": False}, f, indent=4)
         config = {"setuped": False}
-
-from auth.tokens import generate_secret
 
 # Checks if config is set up
 if config['setuped'] == False:
@@ -59,6 +62,10 @@ if config['setuped'] == False:
     adminTable = getenv("DB_TABLE_ADMIN", "Admins")
     userTable = getenv("DB_TABLE_USER", "Users")
     filmsTable = getenv("DB_TABLE_FILMS", "Films")
+
+    # Master user
+    masterUsername = getenv("MASTER_USERNAME", "admin")
+    masterPassword = getenv("MASTER_PASSWORD", "klfdjlajflculakjfa099_")
 
     # JWT
     secret = getenv("JWT_SECRET", generate_secret())
@@ -120,11 +127,31 @@ if config['setuped'] == False:
         "flask":{
             "address": web_address,
             "port": web_port,
-            "debug": debug
+            "debug": debug,
+            "masterUsername": masterUsername,
+            "masterPassword": masterPassword
         }
     }
     with open("./config.json", "w") as f:
         json.dump(config, f, indent=4)
+
+    # Create master user
+    from sql.sql_config import make_engine
+    from auth.login import create_admin
+
+    db_config = {
+        "address": db_address,
+        "port": db_port,
+        "username": username,
+        "password": password,
+        "name": name,
+        "poolSize": poolSize
+    }
+    engine = make_engine(db_config)
+    session = Session(engine)
+    create_admin(masterUsername, masterPassword, session)
+    session.close()
+    print(f"Master user created! Username: {masterUsername}, Password: {masterPassword}")
 
     print("Config saved! You can now run the website.")
     print("If you want to change the configuration, please edit the config.json file.")
@@ -141,4 +168,5 @@ if __name__ == "__main__":
     # Clear the terminal
     print("\033c")
     print(apalucha_ascii_art)
+    print(f"Master user: {config['flask']['masterUsername']}, Password: {config['flask']['masterPassword']}")
     app.run(host=config["flask"]["address"], port=config["flask"]["port"], debug=config["flask"]["debug"])
