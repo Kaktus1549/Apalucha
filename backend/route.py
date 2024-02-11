@@ -66,17 +66,6 @@ def login():
         return jsonify({"error": "Invalid username or password"}), 401
     return jsonify({"token": token}), 200
 
-
-# REMOVES THIS ROUTES IN PRODUCTION
-@app.route('/testing', methods=['GET'])
-def testing():
-    token = generate_jwt(jwt_settings["secret"], jwt_settings["expiration"], jwt_settings["issuer"], jwt_settings["algorithm"], "3")
-    return jsonify({"token": token})
-@app.route('/atesting', methods=['GET'])
-def atesting():
-    token = generate_jwt(jwt_settings["secret"], jwt_settings["expiration"], jwt_settings["issuer"], jwt_settings["algorithm"], "admin", True)
-    return jsonify({"token": token})
-
 @app.route('/voting', methods=['POST', 'GET'])
 def vote():
     token = request.cookies.get("token")
