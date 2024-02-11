@@ -28,8 +28,8 @@ read -p "Enter PDF URL (default: https://apalucha.kaktusgame.eu/pdf): " PDF_URL
 PDF_URL=${PDF_URL:-https://apalucha.kaktusgame.eu/pdf} # Default value if none provided
 read -p "Enter vote duration in seconds (default: 180): " VOTE_DURATION
 VOTE_DURATION=${VOTE_DURATION:-180} # Default value if none provided
-read -p "Enter web port (default: 5000): " WEB_PORT
-WEB_PORT=${WEB_PORT:-5000} # Default value if none provided
+read -p "Enter web port (default: 5000): " DOCKER_WEB_PORT
+DOCKER_WEB_PORT=${DOCKER_WEB_PORT:-5000} # Default value if none provided
 read -p "Is debug mode on? (true/false, default: false): " DEBUG
 DEBUG=${DEBUG:-false} # Default value if none provided
 
@@ -54,7 +54,7 @@ JWT_ALGORITHM=HS256
 PDF_LOGIN_URL=$PDF_LOGIN_URL
 PDF_URL=$PDF_URL
 VOTE_DURATION=$VOTE_DURATION
-WEB_PORT=$WEB_PORT
+DOCKER_WEB_PORT=$DOCKER_WEB_PORT
 DEBUG=$DEBUG
 EOF
 
