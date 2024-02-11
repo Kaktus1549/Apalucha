@@ -78,7 +78,11 @@ if config['setuped'] == False:
     # Flask
     web_address = getenv("WEB_ADDRESS", "0.0.0.0")
     web_port = int(getenv("WEB_PORT", 5000))
-    debug = bool(getenv("DEBUG", False))
+    debug = getenv("DEBUG", False)
+    if debug in ["True", "true", "1"]:
+        debug = True
+    else:
+        debug = False
 
     # Save to config
     config = {

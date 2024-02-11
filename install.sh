@@ -15,6 +15,8 @@ read -p "Enter database password: (default: jkklf84ZZFaIkcula#_??) " DATABASE_PA
 DATABASE_PASSWORD=${DATABASE_PASSWORD:-jkklf84ZZFaIkcula#_??} # Default value if none provided
 read -p "Enter pool size (default: 20): " POOL_SIZE
 POOL_SIZE=${POOL_SIZE:-20} # Default value if none provided
+read -p "Enter database port (default: 3306): " DATABASE_PORT
+DATABASE_PORT=${DATABASE_PORT:-3306} # Default value if none provided
 read -p "Enter JWT secret: " JWT_SECRET
 read -p "Enter JWT expiration time in days (default: 10): " JWT_EXPIRATION
 JWT_EXPIRATION=${JWT_EXPIRATION:-10} # Default value if none provided
@@ -43,6 +45,7 @@ DB_PASSWORD=$DATABASE_PASSWORD
 DB_USERNAME=$DATABASE_USER
 DATABASE_USER=$DATABASE_USER
 DATABASE_PASSWORD=$DATABASE_PASSWORD
+DATABASE_PORT=$DATABASE_PORT
 POOL_SIZE=$POOL_SIZE
 JWT_SECRET=$JWT_SECRET
 JWT_EXPIRATION=$JWT_EXPIRATION
