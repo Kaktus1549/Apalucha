@@ -7,3 +7,5 @@ Website for film voting
 Pridat overeni ze dany uzivatel opravdu existuje v db, JINAK 401!!
 
 Better error messages
+
+Vote time (zacatek, konec etc)
