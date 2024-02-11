@@ -83,7 +83,8 @@ def vote():
     if token == None:
         pass
         return jsonify({"error": "401"}), 401
-    user, isAdmin = decode_jwt(jwt_settings["secret"], token, jwt_settings["algorithm"], jwt_settings["issuer"])
+    session = sessionmaker(bind=engine)()
+    user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
     if user == None:
         return jsonify({"error": "401"}), 401
     
@@ -117,7 +118,8 @@ def scoreboard():
     token = request.cookies.get("token")
     if token == None:
         return jsonify({"error": "401"}), 401
-    user, isAdmin = decode_jwt(jwt_settings["secret"], token, jwt_settings["algorithm"], jwt_settings["issuer"])
+    session = sessionmaker(bind=engine)()
+    user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
     if user == None:
         return jsonify({"error": "401"}), 401
     if isAdmin == False:
@@ -161,7 +163,8 @@ def pdf():
     token = request.cookies.get("token")
     if token == None:
         return jsonify({"error": "401"}), 401
-    user, isAdmin = decode_jwt(jwt_settings["secret"], token, jwt_settings["algorithm"], jwt_settings["issuer"])
+    session = sessionmaker(bind=engine)()
+    user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
     if user == None:
         return jsonify({"error": "401"}), 401
     if isAdmin == False:
@@ -182,7 +185,8 @@ def managment():
     token = request.cookies.get("token")
     if token == None:
         return jsonify({"error": "401"}), 401
-    user, isAdmin = decode_jwt(jwt_settings["secret"], token, jwt_settings["algorithm"], jwt_settings["issuer"])
+    session = sessionmaker(bind=engine)()
+    user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
     if user == None:
         return jsonify({"error": "401"}), 401
     if isAdmin == False:

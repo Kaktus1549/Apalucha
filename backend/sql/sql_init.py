@@ -2,6 +2,12 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.ext.declarative import declarative_base
 import json
+from os import getenv
+from sys import path
+apalucha = getenv("apalucha")
+if apalucha is None:
+    apalucha = "."
+path.append(apalucha)
 from sql.sql_config import make_engine
 
 config_file = "./config.json"

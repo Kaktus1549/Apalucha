@@ -1,8 +1,15 @@
 import jwt
 import datetime
-import json
 import secrets
-import os
+from sys import path
+from os import getenv
+from sqlalchemy import *
+from sqlalchemy.orm import *
+apalucha = getenv("apalucha")
+if apalucha is None:
+    apalucha = "."
+path.append(apalucha)
+from sql.sql_init import Admin, User
 
 def generate_secret(length=64):
     return secrets.token_urlsafe(length)
@@ -18,11 +25,26 @@ def generate_jwt(secret, expiration, issuer, algorithm, userId, isAdmin=False):
         token =  jwt.encode(payload, secret, algorithm=algorithm)
     except Exception as e:
         token = None
+        print(e)
     return token
-def decode_jwt(secret, token, algorithm="HS256", issuer=None):
+def check_user(user, isAdmin, session):
+    if isAdmin:
+        result = session.query(Admin).filter_by(Username=user).first()
+        if result == None:
+            return False
+        return True
+    else:
+        result = session.query(User).filter_by(ID=user).first()
+        if result == None:
+            return False
+        return True
+def decode_jwt(secret, token, session, algorithm="HS256", issuer=None):
     try:
         payload = jwt.decode(token, secret, algorithms=algorithm, issuer=issuer)
         if payload["iss"] != issuer:
+            return None, None
+        user_check = check_user(payload["sub"], payload["admin"], session)
+        if user_check == False:
             return None, None
         return payload["sub"], payload["admin"]
     except jwt.ExpiredSignatureError:
