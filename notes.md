@@ -170,6 +170,16 @@
 }
 ```
 
+### reset
+    
+```json
+{
+    "action": "reset",
+    "data": {
+        "reset_secret": True/False
+    }
+}
+```
 
 ## /pdf
 

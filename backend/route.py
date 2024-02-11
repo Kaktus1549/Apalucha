@@ -215,6 +215,10 @@ def managment():
     action = request_data["action"]
     action_data = request_data["data"]
     if action == "reset":
+        if action_data["reset_secret"] == True:
+            config["jwt"]["secret"] = generate_secret()
+            with open(config_file, 'w') as f:
+                json.dump(config, f, indent=4)
         session = sessionmaker(bind=engine)()
         film = film_reset(session)
         user = user_reset(session)
