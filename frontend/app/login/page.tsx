@@ -1,6 +1,12 @@
+'use client';
+
 import '../style/login.css'
+import { redirect, useSearchParams } from 'next/navigation'
 
 export default function Voting(){
+    const searchParams = useSearchParams();
+    const token = searchParams.get('token');
+
     return(
         <div className="main-container">
         <div className="login">

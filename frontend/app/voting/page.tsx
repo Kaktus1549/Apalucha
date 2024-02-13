@@ -1,6 +1,7 @@
 import '../style/voting.css'
 
-export default function Voting(){
+export  default async function Voting(){
+    
     return(
         <div className="main-container">
         <h1>Koho dnes zvolíš?</h1>
