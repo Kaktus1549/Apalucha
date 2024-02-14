@@ -223,12 +223,10 @@ First POST, server will return:
 {
     "voteEnd": "<time>",
     "voteDuration": "<time>",
-    "films": [
-        {
+    "films": {
             "1": "Film 1",
             "2": "Film 2"
         }
-    ]
 }
 ```
 
@@ -237,12 +235,10 @@ When voting is in progress, server will return:
 {
     "voteEnd": "<time>",
     "voteDuration": "<remaining_time>",
-    "films": [
-        {
+    "films":{
             "1": "Film 1",
             "2": "Film 2"
         }
-    ]
 }
 ```
 
@@ -250,11 +246,9 @@ When voting ends, server will return:
 ```json
 {
     "voteEnd": false,
-    "films": [
-        {
+    "films":{
             "1": "Film 2",
             "2": "Film 1"
         }
-    ]
 }
 ```
