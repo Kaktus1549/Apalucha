@@ -127,8 +127,7 @@ def vote():
         return jsonify({"message": "OK"}), 200
 
 @app.route('/scoreboard', methods=['POST'])
-def scoreboard():
-    """     
+def scoreboard(): 
     token = request.cookies.get("token")
     if token == None:
         return jsonify({"error": "Token not found"}), 401
@@ -138,7 +137,6 @@ def scoreboard():
         return jsonify({"error": "Failed to authenticate"}), 401
     if isAdmin == False:
         return jsonify({"error": "Access denied"}), 403 
-    """
     
     # if voteEnd is null, start voting and returns unsorted films
     # if voteEnd is not null, and voteEnd is in future, returns unsorted films + remaining time
@@ -170,11 +168,11 @@ def scoreboard():
             return jsonify({"error": "Failed to retrieve films"}), 500
         return jsonify({"voteEnd": config["voting"]['voteEnd'], "voteDuration": remaining, "films": films}), 200
     else:
-        films = sorted_films(session)
+        films, votes = sorted_films(session)
         session.close()
         if films == False:
             return jsonify({"error": "Failed to retrieve films"}), 500
-        return jsonify({"voteEnd": False, "films": films}), 200
+        return jsonify({"voteEnd": False, "films": films, "votes": votes}), 200
 
 @app.route('/pdf', methods=['GET'])
 def pdf():

@@ -51,9 +51,11 @@ def sorted_films(session):
     try:
         films = session.query(Films).order_by(Films.FinalVoteCount.desc()).all()
         film_dict = {}
+        final_votes = []
         for i in range(len(films)):
             film_dict[i+1] = films[i].Title
-        return film_dict
+            final_votes.append(films[i].FinalVoteCount)
+        return film_dict, final_votes
     except Exception as e:
         print(e)
-        return False
+        return False, False
