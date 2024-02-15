@@ -218,6 +218,8 @@ def managment():
     action_data = request_data["data"]
     if action == "reset":
         print(action_data)
+        config["voting"]['voteInProgress'] = False
+        config["voting"]['voteEnd'] = False
         if action_data["reset_secret"] == True:
             config["jwt"]["secret"] = generate_secret()
             with open(config_file, 'w') as f:
@@ -238,6 +240,8 @@ def managment():
             if film_status == False:
                 return jsonify({"error": "Failed to reset films"}), 500
         session.close()
+        with open(config_file, 'w') as f:
+            json.dump(config, f, indent=4)
         return jsonify({"message": "OK"}), 200
     if action == "remove_film":
         film_id = action_data["film_id"]
