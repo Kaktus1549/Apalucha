@@ -7,13 +7,12 @@ export default function StartButton() {
     const router = useRouter();
     const [time, setTime] = useState<number | string>("Start");
     const [films, setFilms] = useState<Films>({});
-    const [ended, setEnded] = useState<boolean>(false);
+    const [ended, setEnded] = useState<boolean | null>(null);
     const [votes, setVotes] = useState<number[]>([]);
 
   async function Countdown(time: number) {
     if (time === 0) {
       setTime("Show results");
-      setEnded(true);
       return;
     }
     setTime(time);
@@ -31,6 +30,15 @@ export default function StartButton() {
       data.error === "Access denied"
     ) {
       router.push("/login");
+    }
+    if (data.voteEnd === false){
+      setEnded(true);
+      setFilms(data.films);
+      setVotes(data.votes);
+      return;
+    }
+    else{
+      setEnded(false);
     }
 
     Countdown(Math.round(data.voteDuration));
@@ -171,7 +179,13 @@ export default function StartButton() {
 
   return (
     <>
-      {ended === false ? (
+      {
+      ended === null ? (
+        <button id="start" onClick={startButton}>
+          {time}
+        </button>
+      ):
+      ended === false ? (
         <>
           <button id="start" onClick={startButton}>
             {time}
