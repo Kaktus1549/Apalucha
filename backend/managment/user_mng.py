@@ -64,12 +64,18 @@ def remove_user(session, user_id, isAdmin=False):
     except Exception as e:
         print(f"Got exception while removing user {user_id}: {e}")
         return False
-def user_reset(session):
+def user_reset(session, deletion=False):
     try:
-        # sets users vote count to null
-        session.query(User).update({User.Vote: None})
-        session.commit()
-        return True
+        if deletion == False:
+            # sets users vote count to null
+            session.query(User).update({User.Vote: None})
+            session.commit()
+            return True
+        else:
+            # deletes all users
+            session.query(User).delete()
+            session.commit()
+            return True
     except Exception as e:
         print(f"Got exception while resetting users: {e}")
         return False

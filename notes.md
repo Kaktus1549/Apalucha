@@ -176,7 +176,8 @@
 {
     "action": "reset",
     "data": {
-        "reset_secret": True/False
+        "reset_secret": True/False,
+        "full_reset": True/False
     }
 }
 ```

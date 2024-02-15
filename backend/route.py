@@ -204,28 +204,40 @@ def managment():
     token = request.cookies.get("token")
     if token == None:
         return jsonify({"error": "Token not found"}), 401
-    session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
     if isAdmin == False:
         return jsonify({"error": "Access denied"}), 403
+    session = sessionmaker(bind=engine)()
     request_data = request.get_json()
     if request_data == None:
         return jsonify({"error": "The request does not contain a JSON body"}), 400
+
     action = request_data["action"]
     action_data = request_data["data"]
     if action == "reset":
+        print(action_data)
         if action_data["reset_secret"] == True:
             config["jwt"]["secret"] = generate_secret()
             with open(config_file, 'w') as f:
                 json.dump(config, f, indent=4)
-        session = sessionmaker(bind=engine)()
-        film = film_reset(session)
-        user = user_reset(session)
+            status = user_reset(session, deletion=True)
+            if status == False:
+                return jsonify({"error": "Failed to reset users"}), 500
+        else:
+            user_status = user_reset(session)
+            if user_status == False:
+                return jsonify({"error": "Failed to reset users"}), 500
+        if action_data["full_reset"] == True:
+            status = film_reset(session, deletion=True)
+            if status == False:
+                return jsonify({"error": "Failed to reset films"}), 500
+        else:
+            film_status = film_reset(session)
+            if film_status == False:
+                return jsonify({"error": "Failed to reset films"}), 500
         session.close()
-        if film == False or user == False:
-            return jsonify({"error": "Failed to reset"}), 500
         return jsonify({"message": "OK"}), 200
     if action == "remove_film":
         film_id = action_data["film_id"]

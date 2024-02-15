@@ -31,12 +31,18 @@ def remove_film(session, film_id):
     except Exception as e:
         print(f"Got exception while removing film {film_id}: {e}")
         return False
-def film_reset(session):
+def film_reset(session, deletion=False):
     try:
-        # Sets films final vote count to 0
-        session.query(Films).update({Films.FinalVoteCount: 0})
-        session.commit()
-        return True
+        if deletion == False:
+            # Sets films final vote count to 0
+            session.query(Films).update({Films.FinalVoteCount: 0})
+            session.commit()
+            return True
+        else:
+            # Deletes all films
+            session.query(Films).delete()
+            session.commit()
+            return True
     except Exception as e:
         print(f"Got exception while resetting films: {e}")
         return False
