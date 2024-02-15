@@ -2,6 +2,7 @@
 application
 frontend_old
 node_modules
+backend
 # Logs
 logs
 *.log
