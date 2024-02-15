@@ -204,12 +204,12 @@ def managment():
     token = request.cookies.get("token")
     if token == None:
         return jsonify({"error": "Token not found"}), 401
+    session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
     if isAdmin == False:
         return jsonify({"error": "Access denied"}), 403
-    session = sessionmaker(bind=engine)()
     request_data = request.get_json()
     if request_data == None:
         return jsonify({"error": "The request does not contain a JSON body"}), 400
