@@ -54,7 +54,10 @@ def sorted_films(session):
         final_votes = []
         for i in range(len(films)):
             film_dict[i+1] = films[i].Title
-            final_votes.append(films[i].FinalVoteCount)
+            if films[i].FinalVoteCount != null:
+                final_votes.append(films[i].FinalVoteCount)
+            else:
+                final_votes.append(0)
         return film_dict, final_votes
     except Exception as e:
         print(e)
