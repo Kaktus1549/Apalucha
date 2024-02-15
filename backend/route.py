@@ -287,6 +287,3 @@ def managment():
         if user == False:
             return jsonify({"error": "Failed to add user"}), 500
         return jsonify(message), 200
-    
-if __name__ == '__main__':
-    app.run(host=config["flask"]["address"], port=config["flask"]["port"], debug=config["flask"]["debug"])
