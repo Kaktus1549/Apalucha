@@ -128,6 +128,7 @@ def vote():
 
 @app.route('/scoreboard', methods=['POST'])
 def scoreboard():
+    """     
     token = request.cookies.get("token")
     if token == None:
         return jsonify({"error": "Token not found"}), 401
@@ -136,18 +137,20 @@ def scoreboard():
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
     if isAdmin == False:
-        return jsonify({"error": "Access denied"}), 403
+        return jsonify({"error": "Access denied"}), 403 
+    """
     
     # if voteEnd is null, start voting and returns unsorted films
     # if voteEnd is not null, and voteEnd is in future, returns unsorted films + remaining time
     # if voteEnd is not null, and voteEnd is in past, returns sorted films
 
     session = sessionmaker(bind=engine)()
+    voteEnd = config["voting"]['voteEnd']
 
-    if config["voting"]['voteEnd'] == None:
+    if voteEnd == None:
         config["voting"]['voteInProgress'] = True
         end = datetime.datetime.now() + datetime.timedelta(seconds=config["voting"]["voteDuration"])
-        config["voting"]['voteEnd'] = end
+        config["voting"]['voteEnd'] = str(end)
         films = unsorted_films(session)
         session.close()
         # save config
@@ -158,10 +161,10 @@ def scoreboard():
         if films == False:
             return jsonify({"error": "Failed to retrieve films"}), 500
         return jsonify({"voteEnd": end, "voteDuration": config["voting"]["voteDuration"], "films": films}), 200
-    elif config["voting"]['voteEnd'] > datetime.datetime.now():
+    elif voteEnd != False and datetime.datetime.strptime(voteEnd.split('.')[0], "%Y-%m-%d %H:%M:%S") > datetime.datetime.now():
         films = unsorted_films(session)
         session.close()
-        remaining = config["voting"]['voteEnd'] - datetime.datetime.now()
+        remaining = datetime.datetime.strptime(config["voting"]['voteEnd'].split('.')[0], "%Y-%m-%d %H:%M:%S") - datetime.datetime.now()
         remaining = remaining.total_seconds()
         if films == False:
             return jsonify({"error": "Failed to retrieve films"}), 500
@@ -274,3 +277,6 @@ def managment():
         if user == False:
             return jsonify({"error": "Failed to add user"}), 500
         return jsonify(message), 200
+    
+if __name__ == '__main__':
+    app.run(host=config["flask"]["address"], port=config["flask"]["port"], debug=config["flask"]["debug"])
