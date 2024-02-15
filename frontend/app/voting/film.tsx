@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from 'next/navigation'
 
-export default function Film({ data, token }: { data: APIResponse, token: string | undefined }) {
+export default function Film({ data }: { data: APIResponse}) {
     const [disabledButton, setDisabledButton] = useState<string | null>(null) //tak stejně jako tady
     const [sending, setSending] = useState<boolean>(false)
     const router = useRouter()
