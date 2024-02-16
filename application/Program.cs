@@ -31,21 +31,21 @@ namespace ApaluchaApplication{
             HttpResponseMessage response = await loginClient.PostAsync(url, content);
 
             if(response.IsSuccessStatusCode){
-                string responseString = await response.Content.ReadAsStringAsync();
-                try{
-                    var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
-                    string? token = responseJson.GetProperty("token").GetString();
-                    if(token == null){
-                        Console.WriteLine("Error: Token not found in response");
-                        return "500";
+                if (response.Headers.TryGetValues("Set-Cookie", out IEnumerable<string>? values)){
+                    foreach (string value in values){
+                        if (value.StartsWith("token=")){
+                            string token = value.Split(';')[0].Split('=')[1];
+                            return token;
+                        }
                     }
-                    return token;
+                    Console.WriteLine("An error occured while getting token. Maybe misspelled URL?");
+                    return "False";
                 }
-                catch{
-                    Console.WriteLine($"An error occured while getting token. Maybe misspelled URL?\nError: {responseString}");
-                    return "500";
+                else{
+                    Console.WriteLine("An error occured while getting token. Maybe misspelled URL?");
+                    return "False";
                 }
-                }
+            }
             else{
                 Console.WriteLine($"An error occured while getting token. Maybe misspelled URL?\nError: {response.StatusCode}");
                 return "False";
