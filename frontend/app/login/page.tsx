@@ -33,13 +33,22 @@ async function login(username: string | null, password: string | null, token: st
             window.location.href = '/voting';
         }
         else{
-            window.location.href = '/voting';
+            window.location.href = '/scoreboard';
         }
     }
     else{
+        if (data.error == "Invalid username or password"){
+            alert("Špatné uživatelské jméno nebo heslo");
+            return;
+        }
         alert("Něco se pokazilo, zkuste to prosím znovu");
         console.error(data.error);
     }
+}
+function loginButton(){
+    const username = (document.getElementById('username') as HTMLInputElement).value;
+    const password = (document.getElementById('password') as HTMLInputElement).value;
+    login(username, password, null);
 }
 
 export default function Voting(){
@@ -64,7 +73,7 @@ export default function Voting(){
                     <p>Password</p>
                     <input id="password" type="password" placeholder="Enter password"></input>
                 </div>
-                <button>Login</button>
+                <button onClick={loginButton}>Login</button>
             </div>
         </div>
     </div>
