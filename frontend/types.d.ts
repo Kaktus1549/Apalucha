@@ -14,3 +14,4 @@ interface ScoreboardAPI{
     error: string,
     votes: number[]
 }
+declare module 'js-cookie';
