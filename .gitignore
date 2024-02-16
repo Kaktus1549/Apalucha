@@ -5,3 +5,8 @@ config.json
 .vscode
 frontend
 application
+config.json
+.vscode
+bin
+obj
+backend
