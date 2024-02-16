@@ -19,31 +19,37 @@ export default function StartButton() {
     setTimeout(() => Countdown(time - 1), 1000);
   }
   async function startButton() {
-    let result = await fetch("/api/scoreboard", {
-      method: "POST",
-    });
+    try{
+      let result = await fetch("/api/scoreboard", {
+        method: "POST",
+      });
 
-    let data: ScoreboardAPI = (await result.json()) as ScoreboardAPI;
-    if (
-      data.error === "Failed to authenticate" ||
-      data.error === "Token not found" ||
-      data.error === "Access denied"
-    ) {
-      router.push("/login");
-    }
-    if (data.voteEnd === false){
-      setEnded(true);
+      let data: ScoreboardAPI = (await result.json()) as ScoreboardAPI;
+      if (
+        data.error === "Failed to authenticate" ||
+        data.error === "Token not found" ||
+        data.error === "Access denied"
+      ) {
+        router.push("/login");
+      }
+      if (data.voteEnd === false){
+        setEnded(true);
+        setFilms(data.films);
+        setVotes(data.votes);
+        return;
+      }
+      else{
+        setEnded(false);
+      }
+
+      Countdown(Math.round(data.voteDuration));
       setFilms(data.films);
       setVotes(data.votes);
-      return;
     }
-    else{
-      setEnded(false);
+    catch(e){
+      console.error(e);
+      alert("Něco se pokazilo, zkuste to prosím znovu");
     }
-
-    Countdown(Math.round(data.voteDuration));
-    setFilms(data.films);
-    setVotes(data.votes);
   }
   function DisplayFilms({ inputFilms }: { inputFilms: Films }) {
     let returnFilms = [];
