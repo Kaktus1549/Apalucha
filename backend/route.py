@@ -81,14 +81,24 @@ CORS(app)
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    username = data['username']
-    password = data['password']
+    token = None
+    try:
+        username = data['username']
+        password = data['password']
+    except KeyError:
+        try:
+            token = data['token']
+        except KeyError:
+            return jsonify({"error": "Missing username or password"}), 400
+    if token != None:
+        # Returns token as Set-Cookie
+        return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly"}
     session = sessionmaker(bind=engine)()
     token = login_admin(username, password, session, jwt_settings)
     session.close()
     if token == False:
         return jsonify({"error": "Invalid username or password"}), 401
-    return jsonify({"token": token}), 200
+    return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly"}
 
 @app.route('/voting', methods=['POST', 'GET'])
 def vote():
