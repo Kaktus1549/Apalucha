@@ -3,7 +3,6 @@
 import '../style/login.css'
 import { useSearchParams } from 'next/navigation'
 
-
 async function login(username: string | null, password: string | null, token: string | null){
     if (username === null && password === null && token === null){
         return;
@@ -20,7 +19,7 @@ async function login(username: string | null, password: string | null, token: st
             password: password
         }
     }
-    const response = await fetch('https://apalucha.kaktusgame.eu/api/login', {
+    const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

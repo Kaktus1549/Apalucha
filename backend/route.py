@@ -92,13 +92,13 @@ def login():
             return jsonify({"error": "Missing username or password"}), 400
     if token != None:
         # Returns token as Set-Cookie
-        return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly"}
+        return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly; Path=/"}
     session = sessionmaker(bind=engine)()
     token = login_admin(username, password, session, jwt_settings)
     session.close()
     if token == False:
         return jsonify({"error": "Invalid username or password"}), 401
-    return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly"}
+    return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly; Path=/"}
 
 @app.route('/voting', methods=['POST', 'GET'])
 def vote():
