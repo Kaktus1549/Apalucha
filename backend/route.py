@@ -55,6 +55,13 @@ pdfs_settings = config["pdfs"]
 def end_voting():
     global config
 
+    session = sessionmaker(bind=engine)()
+    status = count_votes(session)
+    session.close()
+    if status == False:
+        print("Failed to count votes")
+        return
+
     config["voting"]['voteInProgress'] = False
     config["voting"]['voteEnd'] = False
 
@@ -229,7 +236,7 @@ def managment():
     if action == "reset":
         print(action_data)
         config["voting"]['voteInProgress'] = False
-        config["voting"]['voteEnd'] = False
+        config["voting"]['voteEnd'] = None
         if action_data["reset_secret"] == True:
             config["jwt"]["secret"] = generate_secret()
             with open(config_file, 'w') as f:
