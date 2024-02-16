@@ -11,7 +11,8 @@ export default async function Voting() {
     let data: APIResponse
 
     try{
-        let response = await fetch('https://apalucha.kaktusgame.eu/api/voting', { headers: { 'Cookie': `token=${token?.value}` } })
+        let api_url = process.env.BACKEND_URL + '/voting'
+        let response = await fetch(api_url, { headers: { 'Cookie': `token=${token?.value}` } })
         data = await response.json() as APIResponse
     }
     catch (error){

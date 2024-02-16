@@ -71,9 +71,15 @@ namespace ApaluchaApplication{
             else{
                 string responseString = await result.Content.ReadAsStringAsync();
                 Console.WriteLine(result.StatusCode);
-                var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
-                string? message = responseJson.GetProperty("error").GetString();
-                return message ?? "False";
+                try{
+                    var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
+                    string? message = responseJson.GetProperty("error").GetString();
+                    return message ?? "False";
+                }
+                catch(Exception e){
+                    Console.WriteLine($"An error occured while parsing response: {e} \nResponse: {responseString}");
+                    return "False";
+                }
             }
         }
         public static async Task<string> RemoveFilm(HttpClient managmentClient, string url, string title){
@@ -94,9 +100,15 @@ namespace ApaluchaApplication{
             }
             else{
                 string responseString = await result.Content.ReadAsStringAsync();
-                var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
-                string? message = responseJson.GetProperty("error").GetString();
-                return message ?? "False";
+                try{
+                    var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
+                    string? message = responseJson.GetProperty("error").GetString();
+                    return message ?? "False";
+                }
+                catch(Exception e){
+                    Console.WriteLine($"An error occured while parsing response: {e} \nResponse: {responseString}");
+                    return "False";
+                }
             }
         }
         public static async Task<string> RemoveUser(HttpClient managmentClient, bool isAdmin, string url, string username){
@@ -118,9 +130,15 @@ namespace ApaluchaApplication{
             }
             else{
                 string responseString = await result.Content.ReadAsStringAsync();
-                var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
-                string? message = responseJson.GetProperty("error").GetString();
-                return message ?? "False";
+                try{ 
+                    var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
+                    string? message = responseJson.GetProperty("error").GetString();
+                    return message ?? "False";
+                }
+                catch(Exception e){
+                    Console.WriteLine($"An error occured while parsing response: {e} \nResponse: {responseString}");
+                    return "False";
+                }
             }
         }
         public static async Task<string> AddUser(HttpClient managmentClient, bool isAdmin, string url, string? username=null, string? password=null){
@@ -142,21 +160,63 @@ namespace ApaluchaApplication{
                 if(isAdmin == false){
                     // if its not admin, server also returns pdfUrl
                     string responseString = await result.Content.ReadAsStringAsync();
-                    var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
-                    string? pdfUrl = responseJson.GetProperty("pdfUrl").GetString();
-                    if(pdfUrl == null){
-                        Console.WriteLine("Error: pdfUrl not found in response");
+                    try{
+                        var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
+                        string? pdfUrl = responseJson.GetProperty("pdfUrl").GetString();
+                        if(pdfUrl == null){
+                            Console.WriteLine("Error: pdfUrl not found in response");
+                            return "500";
+                        }
+                        return pdfUrl;
+                    }
+                    catch(Exception e){
+                        Console.WriteLine($"An error occured while parsing response: {e} \nResponse: {responseString}");
                         return "500";
                     }
-                    return pdfUrl;
                 }
                 return "True";   
             }
             else{
                 string responseString = await result.Content.ReadAsStringAsync();
-                var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
-                string? message = responseJson.GetProperty("error").GetString();
-                return message ?? "False";
+                try{ 
+                    var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
+                    string? message = responseJson.GetProperty("error").GetString();
+                    return message ?? "False";
+                }
+                catch(Exception e){
+                    Console.WriteLine($"An error occured while parsing response: {e} \nResponse: {responseString}");
+                    return "False";
+                }
+            }
+        }
+        public static async Task<string> Reset(HttpClient managmentClient, string url, bool resetSecret=false, bool fullReset=false){
+            var resetData = new {
+                action = "reset",
+                data = new{
+                    reset_secret = resetSecret,
+                    full_reset = fullReset
+                }
+            };
+
+            string jsonData = JsonSerializer.Serialize(resetData);
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage result = await managmentClient.PostAsync(url, content);
+
+            if(result.IsSuccessStatusCode){
+                return "True";   
+            }
+            else{
+                string responseString = await result.Content.ReadAsStringAsync();
+                try{
+                    var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
+                    string? message = responseJson.GetProperty("error").GetString();
+                    return message ?? "False";
+                }
+                catch(Exception e){
+                    Console.WriteLine($"An error occured while parsing response: {e} \nResponse: {responseString}");
+                    return "False";
+                }
             }
         }
         public static List<string> OnStartUp(){
@@ -387,6 +447,66 @@ namespace ApaluchaApplication{
                 }
             }
         }
+        public static async Task ConsoleReset(HttpClient managementClient, string url){
+            string? resetSecretString;
+            string? fullResetString;
+            bool resetSecret;
+            bool fullReset;
+
+            string resetSecretQuestion = "Do you want to remove all voting users? (yes/no): ";
+            string fullResetQuestion = "Do you want to do full reset? => Remove all films, etc? (yes/no): ";
+
+            Console.Write(resetSecretQuestion);
+            resetSecretString = Console.ReadLine();
+
+            while(string.IsNullOrEmpty(resetSecretString)){
+                Console.WriteLine("Please enter some answer!");
+                Console.Write(resetSecretQuestion);
+                resetSecretString = Console.ReadLine();
+            }
+
+            if(resetSecretString.ToLower() == "yes"){
+                resetSecret = true;
+            }
+            else if(resetSecretString.ToLower() == "no"){
+                resetSecret = false;
+            }
+            else{
+                Console.WriteLine("Invalid answer, please try again!");
+                return;
+            }
+
+            Console.Write(fullResetQuestion);
+            fullResetString = Console.ReadLine();
+
+            while(string.IsNullOrEmpty(fullResetString)){
+                Console.WriteLine("Please enter some answer!");
+                Console.Write(fullResetQuestion);
+                fullResetString = Console.ReadLine();
+            }
+
+            if(fullResetString.ToLower() == "yes"){
+                fullReset = true;
+            }
+            else if(fullResetString.ToLower() == "no"){
+                fullReset = false;
+            }
+            else{
+                Console.WriteLine("Invalid answer, please try again!");
+                return;
+            }
+
+            string result = await Reset(managementClient, url, resetSecret, fullReset);
+
+            if(result == "True"){
+                Console.WriteLine("Reset was successful!");
+                return;
+            }
+            else{
+                Console.WriteLine($"There was an error while resetting: {result}");
+                return;
+            }
+        }
         public static void Help(){
             Console.WriteLine("Available commands:");
             Console.WriteLine("add_film - Adds film to database");
@@ -395,6 +515,7 @@ namespace ApaluchaApplication{
             Console.WriteLine("remove_user - Removes user from database");
             Console.WriteLine("help - Shows this message");
             Console.WriteLine("clear - Clears console");
+            Console.WriteLine("reset - Resets the voting");
             Console.WriteLine("exit - Exits application");
         }
         public static void Clear(){
@@ -451,6 +572,10 @@ namespace ApaluchaApplication{
                 else if(command == "remove_user"){
                     Clear();
                     await ConsoleRemoveUser(apaluchaClient, apiUrl);
+                }
+                else if(command == "reset"){
+                    Clear();
+                    await ConsoleReset(apaluchaClient, apiUrl);
                 }
                 else if(command == "help"){
                     Help();

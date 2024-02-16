@@ -2,7 +2,7 @@
 
 import '../style/login.css'
 import { useSearchParams } from 'next/navigation'
-
+import { Suspense } from 'react';
 
 async function login(username: string | null, password: string | null, token: string | null){
     if (username === null && password === null && token === null){
@@ -20,7 +20,7 @@ async function login(username: string | null, password: string | null, token: st
             password: password
         }
     }
-    const response = await fetch('https://apalucha.kaktusgame.eu/api/login', {
+    const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -60,22 +60,24 @@ export default function Voting(){
     }
 
     return(
-        <div className="main-container">
-        <div className="login">
-            <h1>Login</h1>
-            <div className="login-container">
-                <div className="option-container">
-                    <p>Username</p>
-                    <input id="username" placeholder="Enter username">
-                    </input>
+        <Suspense>
+            <div className="main-container">
+                <div className="login">
+                    <h1>Login</h1>
+                    <div className="login-container">
+                        <div className="option-container">
+                            <p>Username</p>
+                            <input id="username" placeholder="Enter username">
+                            </input>
+                        </div>
+                        <div className="option-container">
+                            <p>Password</p>
+                            <input id="password" type="password" placeholder="Enter password"></input>
+                        </div>
+                        <button onClick={loginButton}>Login</button>
+                    </div>
                 </div>
-                <div className="option-container">
-                    <p>Password</p>
-                    <input id="password" type="password" placeholder="Enter password"></input>
-                </div>
-                <button onClick={loginButton}>Login</button>
             </div>
-        </div>
-    </div>
+        </Suspense>
     );
 }
