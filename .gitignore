@@ -1,4 +1,10 @@
 .DS_Store
+__pycache__/
+pdfs/*
+config.json
+.vscode
+frontend
+application
 config.json
 .vscode
 bin
