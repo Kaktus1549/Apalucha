@@ -11,7 +11,7 @@ export default async function Voting() {
     let data: APIResponse
 
     try{
-        let api_url = process.env.URL + '/api/voting'
+        let api_url = process.env.BACKEND_URL + '/voting'
         let response = await fetch(api_url, { headers: { 'Cookie': `token=${token?.value}` } })
         data = await response.json() as APIResponse
     }

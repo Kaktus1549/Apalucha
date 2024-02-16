@@ -102,6 +102,7 @@ EOF
 
 cat << EOF > ./frontend/.env
 URL=$WEBSITE_URL
+BACKEND_URL=http://apalucha-backend:5000
 EOF
 
 cd Docker
