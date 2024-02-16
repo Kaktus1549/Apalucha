@@ -1,2 +1,2 @@
-# Apaluch
+# Apalucha
 Website for film voting

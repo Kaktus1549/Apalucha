@@ -1,8 +1,6 @@
 .DS_Store
-application
 frontend_old
 node_modules
-backend
 # Logs
 logs
 *.log
@@ -27,3 +25,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+__pycache__/
+pdfs/*
+config.json
+.vscode
+config.json
+.vscode
+bin
+obj
