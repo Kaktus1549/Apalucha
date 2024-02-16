@@ -8,7 +8,7 @@ body{
     overflow-x: hidden;
     color: white;
 }
-button{
+a, button{
     border-radius: 35px;
     border: 4px solid #203966;
     background: #042331;
@@ -17,7 +17,7 @@ button{
     color: white;
     cursor: pointer;
 }
-button:hover{
+a:hover, button:hover{
     background: #203966;
     border: 4px solid #042331;
 }
