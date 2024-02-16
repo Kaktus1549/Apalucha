@@ -14,11 +14,11 @@ services:
       - db-data:/var/lib/mysql
   
   apalucha-backend:
-    build: .
+    build: ../backend/.
     ports:
       - "${DOCKER_WEB_PORT}:5000"
     env_file:
-      - .env
+      - ../backend/.env
     environment:
       DB_ADDRESS: db
       DB_PORT: 3306
@@ -27,6 +27,14 @@ services:
       DB_NAME: apalucha
     depends_on:
       - db 
-
+  apalucha-frontend:
+    depends_on:
+      - apalucha-backend
+    build: ../frontend/.
+    env_file:
+      - ../frontend/.env
+    ports:
+      - "${DOCKER_FRONTEND_PORT}:3000"
+    
 volumes:
   db-data:

@@ -10,6 +10,8 @@ module.exports = {
           destination: path
         }
       ]
+    },
+    experimental: {
+      missingSuspenseWithCSRBailout: false,
     }
 }
-
