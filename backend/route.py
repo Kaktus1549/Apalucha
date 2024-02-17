@@ -129,6 +129,8 @@ def vote():
     session.close()
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
+    if isAdmin:
+            return jsonify({"error": "Admins can't vote"}), 403
     
     if request.method == 'GET':
         if config["voting"]['voteInProgress'] == False:
@@ -141,8 +143,6 @@ def vote():
             return jsonify({"error": "Could not retrieve films"}), 500
         return jsonify(films), 200
     elif request.method == 'POST':
-        if isAdmin:
-            return jsonify({"error": "Admins can't vote"}), 403
         if config["voting"]['voteInProgress'] == False:
             return jsonify({"error": "Voting has not started"}), 425
         # User sends a vote -> {"vote": 1}
