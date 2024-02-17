@@ -1,19 +1,19 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
+using Spectre.Console;
 
 namespace ApaluchaApplication{
     class Program{
-        public static string apaluchaAsciiArt = $@"
+        public static string apaluchaAsciiArt = $@"[green3]
     ___                __           __             ___   ____ ___  __ __
    /   |  ____  ____ _/ /_  _______/ /_  ____ _   |__ \ / __ \__ \/ // /
   / /| | / __ \/ __ `/ / / / / ___/ __ \/ __ `/   __/ // / / /_/ / // /_
  / ___ |/ /_/ / /_/ / / /_/ / /__/ / / / /_/ /   / __// /_/ / __/__  __/
 /_/  |_/ .___/\__,_/_/\__,_/\___/_/ /_/\__,_/   /____/\____/____/ /_/   
       /_/               
-
-
-            ";
+[/]
+";
 
         // API methods
         static async Task<string> Login(string username, string password, string url){
@@ -38,16 +38,17 @@ namespace ApaluchaApplication{
                             return token;
                         }
                     }
-                    Console.WriteLine("An error occured while getting token. Maybe misspelled URL?");
+                    AnsiConsole.Markup("\n[white on red]An error occured while getting token. Maybe misspelled URL?[/]\n");
                     return "False";
                 }
                 else{
-                    Console.WriteLine("An error occured while getting token. Maybe misspelled URL?");
+                    AnsiConsole.Markup("\n[white on red]An error occured while getting token. Maybe misspelled URL?[/]\n");
                     return "False";
                 }
             }
             else{
-                Console.WriteLine($"An error occured while getting token. Maybe misspelled URL?\nError: {response.StatusCode}");
+                Clear(false);
+                AnsiConsole.Markup($"[white on red]An error occured while getting token. Maybe misspelled URL?[/][red]\nError:\n[/] {response.ToString()}\n");
                 return "False";
             }
         }
@@ -77,7 +78,7 @@ namespace ApaluchaApplication{
                     return message ?? "False";
                 }
                 catch(Exception e){
-                    Console.WriteLine($"An error occured while parsing response: {e} \nResponse: {responseString}");
+                    AnsiConsole.Markup($"[white on red]An error occured while parsing response: {e} \nResponse: {responseString}[/]\n");
                     return "False";
                 }
             }
@@ -106,7 +107,7 @@ namespace ApaluchaApplication{
                     return message ?? "False";
                 }
                 catch(Exception e){
-                    Console.WriteLine($"An error occured while parsing response: {e} \nResponse: {responseString}");
+                    AnsiConsole.Markup($"[white on red]An error occured while parsing response: {e} \nResponse: {responseString}[/]\n");
                     return "False";
                 }
             }
@@ -136,7 +137,7 @@ namespace ApaluchaApplication{
                     return message ?? "False";
                 }
                 catch(Exception e){
-                    Console.WriteLine($"An error occured while parsing response: {e} \nResponse: {responseString}");
+                    AnsiConsole.Markup($"[white on red]An error occured while parsing response: {e} \nResponse: {responseString}[/]\n");
                     return "False";
                 }
             }
@@ -164,13 +165,13 @@ namespace ApaluchaApplication{
                         var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
                         string? pdfUrl = responseJson.GetProperty("pdfUrl").GetString();
                         if(pdfUrl == null){
-                            Console.WriteLine("Error: pdfUrl not found in response");
+                            AnsiConsole.Markup($"[white on red]Can't find pdfUrl in response: {responseString}[/]\n");
                             return "500";
                         }
                         return pdfUrl;
                     }
                     catch(Exception e){
-                        Console.WriteLine($"An error occured while parsing response: {e} \nResponse: {responseString}");
+                        AnsiConsole.Markup($"[white on red]An error occured while parsing response: {e} \nResponse: {responseString}[/]\n");
                         return "500";
                     }
                 }
@@ -184,7 +185,7 @@ namespace ApaluchaApplication{
                     return message ?? "False";
                 }
                 catch(Exception e){
-                    Console.WriteLine($"An error occured while parsing response: {e} \nResponse: {responseString}");
+                    AnsiConsole.Markup($"[white on red]An error occured while parsing response: {e} \nResponse: {responseString}[/]\n");
                     return "False";
                 }
             }
@@ -214,7 +215,7 @@ namespace ApaluchaApplication{
                     return message ?? "False";
                 }
                 catch(Exception e){
-                    Console.WriteLine($"An error occured while parsing response: {e} \nResponse: {responseString}");
+                    AnsiConsole.Markup($"[white on red]An error occured while parsing response: {e} \nResponse: {responseString}[/]\n");
                     return "False";
                 }
             }
@@ -227,39 +228,39 @@ namespace ApaluchaApplication{
             string? username;
             string? password;
 
-            string apiQuestion = "Enter URL address of website (Example: https://apalucha.kaktusgame.eu): ";
-            string usernameQuestion = "Enter username of admin (Example: admin): ";
-            string passwordQuestion = "Enter password of admin account (Example: admin): ";
+            string apiQuestion = "[bold]Enter URL address of the website API[/] (example: https://apalucha.kaktusgame.eu/api): ";
+            string usernameQuestion = "[bold]Enter username of admin[/] (Example: admin): ";
+            string passwordQuestion = "[bold]Enter password of admin account[/] (Example: admin): ";
 
             Console.Clear();
-            Console.WriteLine(apaluchaAsciiArt);
+            AnsiConsole.Markup(apaluchaAsciiArt);
 
-            Console.Write(apiQuestion);
+            AnsiConsole.Markup(apiQuestion);
             apiUrl = Console.ReadLine();
             while(true){
                 bool uriTest = Uri.TryCreate(apiUrl, UriKind.Absolute, out Uri? urlResult);
                 if(uriTest != false && apiUrl != null){
                     break;
                 }
-                Console.WriteLine("Invalid URL address, please try again!");
-                Console.Write(apiQuestion);
+                AnsiConsole.Markup("[white on red]Invalid URL, please try again![/]\n\n");
+                AnsiConsole.Markup(apiQuestion);
                 apiUrl = Console.ReadLine();
             }
 
-            Console.Write(usernameQuestion);
+            AnsiConsole.Markup(usernameQuestion);
             username = Console.ReadLine();
 
             while(string.IsNullOrEmpty(username)){
-                Console.WriteLine("Please enter some username!");
-                Console.Write(usernameQuestion);
+                AnsiConsole.Markup("[white on red]Please enter some username![/]\n\n");
+                AnsiConsole.Markup(usernameQuestion);
                 username = Console.ReadLine();
             }
 
-            Console.Write(passwordQuestion);
+            AnsiConsole.Markup(passwordQuestion);
             password = Console.ReadLine();
             while(string.IsNullOrEmpty(password)){
-                Console.WriteLine("Please enter some password!");
-                Console.Write(passwordQuestion);
+                AnsiConsole.Markup("[white on red]Please enter some password![/]\n\n");
+                AnsiConsole.Markup(passwordQuestion);
                 password = Console.ReadLine();
             }
 
@@ -273,60 +274,60 @@ namespace ApaluchaApplication{
             string? title;
             string? team;
 
-            string titleQuestion = "Enter title of film: ";
-            string teamQuestion = "Enter team of film: ";
+            string titleQuestion = "[bold]Enter title of film: [/]";
+            string teamQuestion = "[bold]Enter team of film: [/]";
 
-            Console.Write(titleQuestion);
+            AnsiConsole.Markup(titleQuestion);
             title = Console.ReadLine();
 
             while(string.IsNullOrEmpty(title)){
-                Console.WriteLine("Please enter some title!");
-                Console.Write(titleQuestion);
+                AnsiConsole.Markup("[white on red]Please enter some title![/]\n\n");
+                AnsiConsole.Markup(titleQuestion);
                 title = Console.ReadLine();
             }
 
-            Console.Write(teamQuestion);
+            AnsiConsole.Markup(teamQuestion);
             team = Console.ReadLine();
 
             while(string.IsNullOrEmpty(team)){
-                Console.WriteLine("Please enter some team!");
-                Console.Write(teamQuestion);
+                AnsiConsole.Markup("[white on red]Please enter some team![/]\n\n");
+                AnsiConsole.Markup(teamQuestion);
                 team = Console.ReadLine();
             }
 
             string result = await AddFilm(managmentClient, url, title, team);
 
             if(result == "True"){
-                Console.WriteLine($"Film {title} was added successfully!");
+                AnsiConsole.Markup($"[green]Film {title} was added successfully![/]\n\n");
                 return;
             }
             else{
-                Console.WriteLine($"There was an error while adding film {title}: {result}");
+                AnsiConsole.Markup($"[white on red]There was an error while adding film {title}: {result}[/]\n\n");
                 return;
             }
         }
         public static async Task ConsoleRemoveFilm(HttpClient managmentClient, string url){
             string? title;
 
-            string titleQuestion = "Enter title of film to remove: ";
+            string titleQuestion = "[bold]Enter title of film to remove: [/]";
 
-            Console.Write(titleQuestion);
+            AnsiConsole.Markup(titleQuestion);
             title = Console.ReadLine();
 
             while(string.IsNullOrEmpty(title)){
-                Console.WriteLine("Please enter some title!");
-                Console.Write(titleQuestion);
+                AnsiConsole.Markup("[white on red]Please enter some title![/]\n\n");
+                AnsiConsole.Markup(titleQuestion);
                 title = Console.ReadLine();
             }
 
             string result = await RemoveFilm(managmentClient, url, title);
 
             if(result == "True"){
-                Console.WriteLine($"Film {title} was removed successfully!");
+                AnsiConsole.Markup($"[green]Film {title} was removed successfully![/]\n\n");
                 return;
             }
             else{
-                Console.WriteLine($"There was an error while removing film {title}: {result}");
+                AnsiConsole.Markup($"[white on red]There was an error while removing film {title}: {result}[/]\n\n");
                 return;
             }
         }
@@ -335,24 +336,24 @@ namespace ApaluchaApplication{
             string? isAdminString;
             bool isAdmin;
 
-            string usernameQuestion = "Enter username of user to remove: ";
-            string isAdminQuestion = "Is user admin? (yes/no): ";
+            string usernameQuestion = "[bold]Enter username of user to remove: [/]";
+            string isAdminQuestion = "[bold]Is user admin? (yes/no): [/]";
 
-            Console.Write(usernameQuestion);
+            AnsiConsole.Markup(usernameQuestion);
             username = Console.ReadLine();
 
             while(string.IsNullOrEmpty(username)){
-                Console.WriteLine("Please enter some username!");
-                Console.Write(usernameQuestion);
+                AnsiConsole.Markup("[white on red]Please enter some username![/]\n\n");
+                AnsiConsole.Markup(usernameQuestion);
                 username = Console.ReadLine();
             }
 
-            Console.Write(isAdminQuestion);
+            AnsiConsole.Markup(isAdminQuestion);
             isAdminString = Console.ReadLine();
 
             while(string.IsNullOrEmpty(isAdminString)){
-                Console.WriteLine("Please enter some answer!");
-                Console.Write(isAdminQuestion);
+                AnsiConsole.Markup("[white on red]Please enter some answer![/]\n\n");
+                AnsiConsole.Markup(isAdminQuestion);
                 isAdminString = Console.ReadLine();
             }
 
@@ -363,18 +364,18 @@ namespace ApaluchaApplication{
                 isAdmin = false;
             }
             else{
-                Console.WriteLine("Invalid answer, please try again!");
+                AnsiConsole.Markup("[white on red]Invalid answer, please try again![/]\n\n");
                 return;
             }
 
             string result = await RemoveUser(managmentClient, isAdmin, url, username);
 
             if(result == "True"){
-                Console.WriteLine($"User {username} was removed successfully!");
+                AnsiConsole.Markup($"[green]User {username} was removed successfully![/]\n\n");
                 return;
             }
             else{
-                Console.WriteLine($"There was an error while removing user {username}: {result}");
+                AnsiConsole.Markup($"[white on red]There was an error while removing user {username}: {result}[/]\n\n");
                 return;
             }
         }
@@ -384,16 +385,16 @@ namespace ApaluchaApplication{
             string? isAdminString;
             bool isAdmin;
 
-            string usernameQuestion = "Enter username of user to add: ";
-            string passwordQuestion = "Enter password of user to add: ";
-            string isAdminQuestion = "Is user admin? (yes/no): ";
+            string usernameQuestion = "[bold]Enter username of user to add: [/]";
+            string passwordQuestion = "[bold]Enter password of user to add: [/]";
+            string isAdminQuestion = "[bold]Is user admin? (yes/no): [/]";
 
-            Console.Write(isAdminQuestion);
+            AnsiConsole.Markup(isAdminQuestion);
             isAdminString = Console.ReadLine();
 
             while(string.IsNullOrEmpty(isAdminString)){
-                Console.WriteLine("Please enter some answer!");
-                Console.Write(isAdminQuestion);
+                AnsiConsole.Markup("[white on red]Please enter some answer![/]\n\n");
+                AnsiConsole.Markup(isAdminQuestion);
                 isAdminString = Console.ReadLine();
             }
 
@@ -404,45 +405,48 @@ namespace ApaluchaApplication{
                 isAdmin = false;
             }
             else{
-                Console.WriteLine("Invalid answer, please try again!");
+                AnsiConsole.Markup("[white on red]Invalid answer, please try again![/]\n\n");
                 return;
             }
 
             if(isAdmin == false){
                 string pdfUrl = await AddUser(managementClient, isAdmin, url);
                 if(pdfUrl == "500"){
-                    Console.WriteLine("There was an error while adding user!");
+                    AnsiConsole.Markup("[white on red]There was an error while adding user![/]\n\n");
                     return;
                 }
-                Console.WriteLine($"User was added successfully! PDF with QR code is available at: {pdfUrl}");
+                else{
+                    AnsiConsole.Markup($"[green]User was added successfully![/]\n[bold]PDF URL: [/]{pdfUrl}\n\n");
+                    return;
+                }
             }
             else{
                 Console.Write(usernameQuestion);
                 username = Console.ReadLine();
 
                 while(string.IsNullOrEmpty(username)){
-                    Console.WriteLine("Please enter some username!");
-                    Console.Write(usernameQuestion);
+                    AnsiConsole.Markup("[white on red]Please enter some username![/]\n\n");
+                    AnsiConsole.Markup(usernameQuestion);
                     username = Console.ReadLine();
                 }
 
-                Console.Write(passwordQuestion);
+                AnsiConsole.Markup(passwordQuestion);
                 password = Console.ReadLine();
 
                 while(string.IsNullOrEmpty(password)){
-                    Console.WriteLine("Please enter some password!");
-                    Console.Write(passwordQuestion);
+                    AnsiConsole.Markup("[white on red]Please enter some password![/]\n\n");
+                    AnsiConsole.Markup(passwordQuestion);
                     password = Console.ReadLine();
                 }
 
                 string result = await AddUser(managementClient, isAdmin, url, username, password);
 
                 if(result == "True"){
-                    Console.WriteLine($"User {username} was added successfully!");
+                    AnsiConsole.Markup($"[green]User {username} was added successfully![/]\n\n");
                     return;
                 }
                 else{
-                    Console.WriteLine($"There was an error while adding user {username}: {result}");
+                    AnsiConsole.Markup($"[white on red]There was an error while adding user {username}: {result}[/]\n\n");
                     return;
                 }
             }
@@ -453,15 +457,17 @@ namespace ApaluchaApplication{
             bool resetSecret;
             bool fullReset;
 
-            string resetSecretQuestion = "Do you want to remove all voting users? (yes/no): ";
-            string fullResetQuestion = "Do you want to do full reset? => Remove all films, etc? (yes/no): ";
+            string resetSecretQuestion = "[bold]Do you want to remove all voting users? (yes/no): [/]";
+            string warning = "[black on yellow]Warning: This action is irreversible![/]\n";
+            string fullResetQuestion = "[bold]Do you want to do full reset? => Remove all films, etc? (yes/no): [/]";
 
-            Console.Write(resetSecretQuestion);
+            AnsiConsole.Markup(warning);
+            AnsiConsole.Markup(resetSecretQuestion);
             resetSecretString = Console.ReadLine();
 
             while(string.IsNullOrEmpty(resetSecretString)){
-                Console.WriteLine("Please enter some answer!");
-                Console.Write(resetSecretQuestion);
+                AnsiConsole.Markup("[white on red]Please enter some answer![/]\n\n");
+                AnsiConsole.Markup(resetSecretQuestion);
                 resetSecretString = Console.ReadLine();
             }
 
@@ -472,16 +478,17 @@ namespace ApaluchaApplication{
                 resetSecret = false;
             }
             else{
-                Console.WriteLine("Invalid answer, please try again!");
+                AnsiConsole.Markup("[white on red]Invalid answer, please try again![/]\n\n");
                 return;
             }
-
-            Console.Write(fullResetQuestion);
+            Console.WriteLine();
+            AnsiConsole.Markup(warning);
+            AnsiConsole.Markup(fullResetQuestion);
             fullResetString = Console.ReadLine();
 
             while(string.IsNullOrEmpty(fullResetString)){
-                Console.WriteLine("Please enter some answer!");
-                Console.Write(fullResetQuestion);
+                AnsiConsole.Markup("[white on red]Please enter some answer![/]\n\n");
+                AnsiConsole.Markup(fullResetQuestion);
                 fullResetString = Console.ReadLine();
             }
 
@@ -492,37 +499,40 @@ namespace ApaluchaApplication{
                 fullReset = false;
             }
             else{
-                Console.WriteLine("Invalid answer, please try again!");
+                AnsiConsole.Markup("[white on red]Invalid answer, please try again![/]\n\n");
                 return;
             }
 
             string result = await Reset(managementClient, url, resetSecret, fullReset);
 
             if(result == "True"){
-                Console.WriteLine("Reset was successful!");
+                AnsiConsole.Markup($"[green]Voting was reset successfully! (maybe you will have to restart the app)[/]\n\n");
                 return;
             }
             else{
-                Console.WriteLine($"There was an error while resetting: {result}");
+                AnsiConsole.Markup($"[white on red]There was an error while resetting the voting: {result}[/]\n\n");
                 return;
             }
         }
         public static void Help(){
-            Console.WriteLine("Available commands:");
-            Console.WriteLine("add_film - Adds film to database");
-            Console.WriteLine("remove_film - Removes film from database");
-            Console.WriteLine("add_user - Adds user to database");
-            Console.WriteLine("remove_user - Removes user from database");
-            Console.WriteLine("help - Shows this message");
-            Console.WriteLine("clear - Clears console");
-            Console.WriteLine("reset - Resets the voting");
-            Console.WriteLine("exit - Exits application");
-        }
-        public static void Clear(){
-            Console.Clear();
-            Console.WriteLine(apaluchaAsciiArt);
+            AnsiConsole.Markup("[bold]Available commands:[/]\n");
+            AnsiConsole.Markup("[bold]add_film[/] => Add film to the voting\n");
+            AnsiConsole.Markup("[bold]remove_film[/] => Remove film from the voting\n");
+            AnsiConsole.Markup("[bold]add_user[/] => Add user to the voting\n");
+            AnsiConsole.Markup("[bold]remove_user[/] => Remove user from the voting\n");
+            AnsiConsole.Markup("[bold]reset[/] => Reset the voting\n");
+            AnsiConsole.Markup("[bold]help[/] => Show available commands\n");
+            AnsiConsole.Markup("[bold]clear[/] => Clear the console\n");
+            AnsiConsole.Markup("[bold]exit[/] => Exit the app\n");
             Console.WriteLine();
-            Console.WriteLine("If you are stuck, type 'help' to see available commands!");
+        }
+        public static void Clear(bool printHelp=true){
+            Console.Clear();
+            AnsiConsole.Markup(apaluchaAsciiArt);
+            Console.WriteLine();
+            if (printHelp){
+                AnsiConsole.Markup("[bold]If you need help, type 'help' to see available commands![/]\n");
+            }
             Console.WriteLine();
         }
         public static async Task Main(){
@@ -548,10 +558,10 @@ namespace ApaluchaApplication{
 
             Clear();
             while(true){
-                Console.Write("Apalucha 2024 >>");
+                AnsiConsole.Markup("[bold]Apalucha 2024 >> [/]");
                 string? command = Console.ReadLine();
                 if(string.IsNullOrEmpty(command)){
-                    Console.WriteLine("Invalid command, type 'help' to see available commands!");
+                    AnsiConsole.Markup("[white on red]Please enter some command![/]\n");
                     continue;
                 }
                 else{
@@ -587,7 +597,7 @@ namespace ApaluchaApplication{
                     break;
                 }
                 else{
-                    Console.WriteLine("Invalid command, type 'help' to see available commands!");
+                    AnsiConsole.Markup("[white on red]Invalid command, please try again![/]\n");
                 }
             }
         }
