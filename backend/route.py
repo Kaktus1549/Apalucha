@@ -85,27 +85,38 @@ engine = make_engine(database)
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST', 'GET'])
 def login():
-    data = request.get_json()
-    token = None
-    try:
-        username = data['username']
-        password = data['password']
-    except KeyError:
+    if request.method == 'POST':
+        data = request.get_json()
+        token = None
         try:
-            token = data['token']
+            username = data['username']
+            password = data['password']
         except KeyError:
-            return jsonify({"error": "Missing username or password"}), 400
-    if token != None:
-        # Returns token as Set-Cookie
+            try:
+                token = data['token']
+            except KeyError:
+                return jsonify({"error": "Missing username or password"}), 400
+        if token != None:
+            # Returns token as Set-Cookie
+            return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly; Path=/"}
+        session = sessionmaker(bind=engine)()
+        token = login_admin(username, password, session, jwt_settings)
+        session.close()
+        if token == False:
+            return jsonify({"error": "Invalid username or password"}), 401
         return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly; Path=/"}
-    session = sessionmaker(bind=engine)()
-    token = login_admin(username, password, session, jwt_settings)
-    session.close()
-    if token == False:
-        return jsonify({"error": "Invalid username or password"}), 401
-    return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly; Path=/"}
+    elif request.method == 'GET':
+        token = request.cookies.get("token")
+        if token == None:
+            return jsonify({"error": "Token not found"}), 401
+        session = sessionmaker(bind=engine)()
+        user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+        session.close()
+        if user == None:
+            return jsonify({"error": "Failed to authenticate"}), 401
+        return jsonify({"message": "OK"}), 200
 
 @app.route('/voting', methods=['POST', 'GET'])
 def vote():
