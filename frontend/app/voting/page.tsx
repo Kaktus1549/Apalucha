@@ -19,7 +19,7 @@ export default async function Voting() {
         console.error(error)
         return(
             <div className="main-container">
-                <h1>Něco se pokazilo, zkuste to prosím znovu</h1>
+                <h1 className='error-message'>Něco se pokazilo, zkuste to prosím znovu</h1>
             </div>
         )
     }
@@ -29,7 +29,7 @@ export default async function Voting() {
     else if (data.error === "Voting has not started") {
         return (
             <div className="main-container">
-                <h1>Voting has not started yet</h1>
+                <h1 className='error-message'>Voting has not started yet</h1>
             </div>
         );
     }
