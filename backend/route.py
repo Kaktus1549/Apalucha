@@ -154,53 +154,68 @@ def vote():
             return jsonify({"error": "Failed to vote"}), 500
         return jsonify({"message": "OK"}), 200
 
-@app.route('/scoreboard', methods=['POST'])
+@app.route('/scoreboard', methods=['POST', 'GET'])
 def scoreboard(): 
-    token = request.cookies.get("token")
-    if token == None:
-        return jsonify({"error": "Token not found"}), 401
-    session = sessionmaker(bind=engine)()
-    user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
-    if user == None:
-        return jsonify({"error": "Failed to authenticate"}), 401
-    if isAdmin == False:
-        return jsonify({"error": "Access denied"}), 403 
-    
-    # if voteEnd is null, start voting and returns unsorted films
-    # if voteEnd is not null, and voteEnd is in future, returns unsorted films + remaining time
-    # if voteEnd is not null, and voteEnd is in past, returns sorted films
+    if request.method == 'POST':
+        token = request.cookies.get("token")
+        if token == None:
+            return jsonify({"error": "Token not found"}), 401
+        session = sessionmaker(bind=engine)()
+        user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+        if user == None:
+            return jsonify({"error": "Failed to authenticate"}), 401
+        if isAdmin == False:
+            return jsonify({"error": "Access denied"}), 403 
+        
+        # if voteEnd is null, start voting and returns unsorted films
+        # if voteEnd is not null, and voteEnd is in future, returns unsorted films + remaining time
+        # if voteEnd is not null, and voteEnd is in past, returns sorted films
 
-    session = sessionmaker(bind=engine)()
-    voteEnd = config["voting"]['voteEnd']
+        session = sessionmaker(bind=engine)()
+        voteEnd = config["voting"]['voteEnd']
 
-    if voteEnd == None:
-        config["voting"]['voteInProgress'] = True
-        end = datetime.datetime.now() + datetime.timedelta(seconds=config["voting"]["voteDuration"])
-        config["voting"]['voteEnd'] = str(end)
-        films = unsorted_films(session)
+        if voteEnd == None:
+            config["voting"]['voteInProgress'] = True
+            end = datetime.datetime.now() + datetime.timedelta(seconds=config["voting"]["voteDuration"])
+            config["voting"]['voteEnd'] = str(end)
+            films = unsorted_films(session)
+            session.close()
+            # save config
+            with open(config_file, 'w') as f:
+                json.dump(config, f, indent=4)
+            # schedule end of voting
+            scheduler.add_job(end_voting, 'date', run_date=end)
+            if films == False:
+                return jsonify({"error": "Failed to retrieve films"}), 500
+            return jsonify({"voteEnd": end, "voteDuration": config["voting"]["voteDuration"], "films": films}), 200
+        elif voteEnd != False and datetime.datetime.strptime(voteEnd.split('.')[0], "%Y-%m-%d %H:%M:%S") > datetime.datetime.now():
+            films = unsorted_films(session)
+            session.close()
+            remaining = datetime.datetime.strptime(config["voting"]['voteEnd'].split('.')[0], "%Y-%m-%d %H:%M:%S") - datetime.datetime.now()
+            remaining = remaining.total_seconds()
+            if films == False:
+                return jsonify({"error": "Failed to retrieve films"}), 500
+            return jsonify({"voteEnd": config["voting"]['voteEnd'], "voteDuration": remaining, "films": films}), 200
+        else:
+            films, votes = sorted_films(session)
+            session.close()
+            if films == False:
+                return jsonify({"error": "Failed to retrieve films"}), 500
+            return jsonify({"voteEnd": False, "films": films, "votes": votes}), 200
+    elif request.method == 'GET':
+        # Check if user is allowed to see the scoreboard
+        token = request.cookies.get("token")
+        if token == None:
+            return jsonify({"error": "Token not found"}), 401
+        session = sessionmaker(bind=engine)()
+        user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
         session.close()
-        # save config
-        with open(config_file, 'w') as f:
-            json.dump(config, f, indent=4)
-        # schedule end of voting
-        scheduler.add_job(end_voting, 'date', run_date=end)
-        if films == False:
-            return jsonify({"error": "Failed to retrieve films"}), 500
-        return jsonify({"voteEnd": end, "voteDuration": config["voting"]["voteDuration"], "films": films}), 200
-    elif voteEnd != False and datetime.datetime.strptime(voteEnd.split('.')[0], "%Y-%m-%d %H:%M:%S") > datetime.datetime.now():
-        films = unsorted_films(session)
-        session.close()
-        remaining = datetime.datetime.strptime(config["voting"]['voteEnd'].split('.')[0], "%Y-%m-%d %H:%M:%S") - datetime.datetime.now()
-        remaining = remaining.total_seconds()
-        if films == False:
-            return jsonify({"error": "Failed to retrieve films"}), 500
-        return jsonify({"voteEnd": config["voting"]['voteEnd'], "voteDuration": remaining, "films": films}), 200
-    else:
-        films, votes = sorted_films(session)
-        session.close()
-        if films == False:
-            return jsonify({"error": "Failed to retrieve films"}), 500
-        return jsonify({"voteEnd": False, "films": films, "votes": votes}), 200
+        if user == None:
+            return jsonify({"error": "Failed to authenticate"}), 401
+        if isAdmin == False:
+            return jsonify({"error": "Access denied"}), 403
+        # Else, returns OK
+        return jsonify({"message": "OK"}), 200
 
 @app.route('/pdf', methods=['GET'])
 def pdf():
