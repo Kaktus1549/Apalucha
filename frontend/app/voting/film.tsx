@@ -76,8 +76,11 @@ export default function Film() {
                 :
                 data.error === "Could not retrieve films"?
                 <h1 className="error-message">Něco se pokazilo, zkuste to prosím znovu.</h1>
+                : data.error === "Token not found" || data.error === "Failed to authenticate"?
+                 <></>
                 :
                 <>
+                    <h1>Koho dnes zvolíš?</h1>
                     <div className="options-container">
                         {Object.keys(data).map((id: string) => (
                             <div key={id} className="option">
