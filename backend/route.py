@@ -126,6 +126,7 @@ def vote():
         return jsonify({"error": "Token not found"}), 401
     session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+    session.close()
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
     
@@ -162,6 +163,7 @@ def scoreboard():
             return jsonify({"error": "Token not found"}), 401
         session = sessionmaker(bind=engine)()
         user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+        session.close()
         if user == None:
             return jsonify({"error": "Failed to authenticate"}), 401
         if isAdmin == False:
@@ -227,6 +229,7 @@ def pdf():
         return jsonify({"error": "Token not found"}), 401
     session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+    session.close()
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
     if isAdmin == False:
@@ -249,6 +252,7 @@ def managment():
         return jsonify({"error": "Token not found"}), 401
     session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+    session.close()
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
     if isAdmin == False:
@@ -267,22 +271,29 @@ def managment():
             config["jwt"]["secret"] = generate_secret()
             with open(config_file, 'w') as f:
                 json.dump(config, f, indent=4)
+            session = sessionmaker(bind=engine)()
             status = user_reset(session, deletion=True)
+            session.close()
             if status == False:
                 return jsonify({"error": "Failed to reset users"}), 500
         else:
+            session = sessionmaker(bind=engine)()
             user_status = user_reset(session)
+            session.close()
             if user_status == False:
                 return jsonify({"error": "Failed to reset users"}), 500
         if action_data["full_reset"] == True:
+            session = sessionmaker(bind=engine)()
             status = film_reset(session, deletion=True)
+            session.close()
             if status == False:
                 return jsonify({"error": "Failed to reset films"}), 500
         else:
+            session = sessionmaker(bind=engine)()
             film_status = film_reset(session)
+            session.close()
             if film_status == False:
                 return jsonify({"error": "Failed to reset films"}), 500
-        session.close()
         with open(config_file, 'w') as f:
             json.dump(config, f, indent=4)
         return jsonify({"message": "OK"}), 200
@@ -323,14 +334,15 @@ def managment():
         session = sessionmaker(bind=engine)()
         if isAdmin == False:
             user = add_user(session, isAdmin, username, password, pdfs_settings, jwt_settings)
+            session.close()
             pdfUrl = pdfs_settings['pdfUrl'] + f"?user={user}"
             message = {"message": "OK", "pdfUrl": pdfUrl}
         else:
             if username == None or password == None:
                 return jsonify({"error": "Missing username or password"}), 400
             user = add_user(session, isAdmin, username, password)
+            session.close()
             message = {"message": "OK"}
-        session.close()
         if user == False:
             return jsonify({"error": "Failed to add user"}), 500
         return jsonify(message), 200
