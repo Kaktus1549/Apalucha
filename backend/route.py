@@ -130,7 +130,7 @@ def vote():
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
     if isAdmin:
-            return jsonify({"error": "Admins can't vote"}), 403
+        return jsonify({"error": "Admins can't vote"}), 403
     
     if request.method == 'GET':
         if config["voting"]['voteInProgress'] == False:
