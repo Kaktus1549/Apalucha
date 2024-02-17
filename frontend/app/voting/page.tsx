@@ -40,11 +40,4 @@ export default async function Voting() {
             <Film data={data} />
         </div>
     );
-
-    function buttonClicked() {
-        const buttons = document.querySelectorAll('button')
-        buttons.forEach(button => {
-            button.disabled = false
-        })
-    }
 }
