@@ -94,3 +94,8 @@ When you open the scoreboard page, you will see the start button. When you click
 #### Login page
 
 Login page is used for admin login. You can login with username and password, which you can set via application. QR codes have this URL with ?token=\<token\> parameter, which will log you in automatically.
+
+
+## Issues
+
+If you find any issues, please report them, I will be happy to fix them.
