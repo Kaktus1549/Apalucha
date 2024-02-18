@@ -4,8 +4,9 @@ import { useRouter } from 'next/navigation'
 
 export default function Film() {
     const [disabledButton, setDisabledButton] = useState<string | null>(null)
+    const [renderList, setRenderList] = useState<string[]>([]);
     const [sending, setSending] = useState<boolean>(false)
-    const [data, setData] = useState<APIResponse>({error: "Voting has not started"} as APIResponse)
+    const [data, setData] = useState<APIResponse>({error : "null"} as APIResponse)
     const router = useRouter()
 
     async function fetchData() {
@@ -68,6 +69,34 @@ export default function Film() {
         return () => clearInterval(intervalId)
     }, [])
 
+    useEffect(() => {
+        let timeoutId: NodeJS.Timeout;
+
+        const addNextItem = (index: number) => {
+            const keys = Object.keys(data);
+            // If there is key with name of "error" then we don't want to add it to the list
+            if (keys.length === 1 && keys[0] === "error") {
+              return;
+            }
+            if (index < keys.length) {
+                // check if key is not duplicate, if it is, skip it
+                if (renderList.includes(keys[index])) {
+                    addNextItem(index + 1);
+                    return;
+                }
+              setRenderList((currentList) => [
+                ...currentList,
+                keys[index],
+              ]);
+              timeoutId = setTimeout(() => addNextItem(index + 1), 150); 
+            }
+          };
+      
+          addNextItem(0);
+      
+          return () => clearTimeout(timeoutId); // Cleanup to avoid memory leak
+    }, [data]); 
+    
     return (
         <div className="main-container">
             {
@@ -76,20 +105,20 @@ export default function Film() {
                 :
                 data.error === "Could not retrieve films"?
                 <h1 className="error-message">Něco se pokazilo, zkuste to prosím znovu.</h1>
-                : data.error === "Token not found" || data.error === "Failed to authenticate"?
+                : data.error === "Token not found" || data.error === "Failed to authenticate" || data.error === "null"?
                  <></>
                 :
                 <>
                     <h1>Koho dnes zvolíš?</h1>
                     <div className="options-container">
-                        {Object.keys(data).map((id: string) => (
-                            <div key={id} className="option">
-                                <button id={id} disabled={id != null && id == disabledButton} onClick={() => handleSelect(id)}></button>
-                                <div className="film">
-                                    <p>{data[id]}</p>
-                                </div>
-                            </div>
-                        ))}
+                    {renderList.map((id) => (
+                        <div key={id} className="option element-appear">
+                        <button id={id} disabled={id !== null && id === disabledButton} onClick={() => handleSelect(id)}></button>
+                        <div className="film">
+                            <p>{data[id]}</p>
+                        </div>
+                        </div>
+                    ))}
                     </div>
                     {disabledButton !== null ?
                         <footer className="element-appear">

@@ -101,6 +101,8 @@ h1{
     align-items: center;
     margin-top: 10px;
     margin-bottom: 30px;
+    opacity: 0;
+    animation: appear 0.7s ease-in-out forwards;
 }
 .winning-aura .film{
     width: 100%;
@@ -128,6 +130,8 @@ h1{
     flex-direction: row;
     align-items: center;
     padding-left: 20px;
+    opacity: 0;
+    animation: appear 0.7s ease-in-out forwards;
 }
 .vote-run{
     width: 95%;
@@ -142,6 +146,14 @@ h1{
     padding: 0;
     margin-top: 100px;
 }
+@keyframes appear{
+    0%{
+      opacity: 0;
+    }
+    100%{
+      opacity: 1;
+    }
+}
 .vote-run .film{
     width: 30%;
     height: 4.6rem;
@@ -152,4 +164,6 @@ h1{
     flex-direction: row;
     align-items: center;
     padding-left: 20px;
+    opacity: 0;
+    animation: appear 0.7s ease-in-out forwards;
 }
