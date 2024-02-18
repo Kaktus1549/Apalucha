@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation'
+import CustomError from '../_error/error'
 
 export default function Film() {
     const [disabledButton, setDisabledButton] = useState<string | null>(null)
@@ -25,6 +26,9 @@ export default function Film() {
         }
         if (responseData.error === "Token not found" || responseData.error === "Failed to authenticate") {
             router.push('/login')
+        }
+        if (responseData.error === "Admins can't vote") {
+            setData({error: "Admins can't vote"} as APIResponse)
         }
         if (responseData.error === "Could not retrieve films") {
             setData({error: "Could not retrieve films"} as APIResponse)
@@ -107,6 +111,9 @@ export default function Film() {
                 <h1 className="error-message">Něco se pokazilo, zkuste to prosím znovu.</h1>
                 : data.error === "Token not found" || data.error === "Failed to authenticate" || data.error === "null"?
                  <></>
+                :
+                data.error === "Admins can't vote"?
+                <CustomError statusCode={403} />
                 :
                 <>
                     <h1>Koho dnes zvolíš?</h1>

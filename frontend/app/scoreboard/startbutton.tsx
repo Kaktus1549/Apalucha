@@ -2,13 +2,14 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import DisplayFilms from "./Films";
-
+import CustomError from '../_error/error'
 
 export default function StartButton() {
   const router = useRouter();
   const [time, setTime] = useState<number | string>("Start");
   const [films, setFilms] = useState<Films>({});
   const [ended, setEnded] = useState<boolean | null>(null);
+  const [allowed, setAllowed] = useState<boolean>(true);
   const [votes, setVotes] = useState<number[]>([]);
 
   async function Countdown(time: number) {
@@ -27,9 +28,11 @@ export default function StartButton() {
 
       let data: ScoreboardAPI = (await result.json()) as ScoreboardAPI;
       if (data.error === "Failed to authenticate" ||
-        data.error === "Token not found" ||
-        data.error === "Access denied") {
+        data.error === "Token not found") {
         router.push("/login");
+      }
+      if(data.error === "Access denied"){
+        setAllowed(false);
       }
       if (data.voteEnd === false) {
         setEnded(true);
@@ -53,33 +56,37 @@ export default function StartButton() {
 
   return (
     <>
-      {ended === null ? (
-        <button id="start" onClick={startButton}>
-          {time}
-        </button>
-      ) :
-        ended === false ? (
-          <>
-            <button id="start" onClick={startButton}>
-              {time}
-            </button>
-            <div className="vote-run">
-              <DisplayFilms inputFilms={films || {}} ended={ended || false}  votes={votes || []}/>
-            </div>
-          </>
-        ) : (
-          <>
-            <h1>Apalucha 2024</h1>
-            <div className="header-frame">
-              <p className="id">Pořadí</p>
-              <p className="name">Jméno filmu</p>
-              <p className="votes">Počet hlasů</p>
-            </div>
-            <div className="films">
-              <DisplayFilms inputFilms={films || {}} ended={ended || false}  votes={votes || []} />
-            </div>
-          </>
-        )}
+      
+        {ended === null && allowed === true? (
+          <button id="start" onClick={startButton}>
+            {time}
+          </button>
+        ) :
+          ended === false && allowed === true? (
+            <>
+              <button id="start" onClick={startButton}>
+                {time}
+              </button>
+              <div className="vote-run">
+                <DisplayFilms inputFilms={films || {}} ended={ended || false}  votes={votes || []}/>
+              </div>
+            </>
+          ) : 
+          allowed === true && ended === true? (
+            <>
+              <h1>Apalucha 2024</h1>
+              <div className="header-frame">
+                <p className="id">Pořadí</p>
+                <p className="name">Jméno filmu</p>
+                <p className="votes">Počet hlasů</p>
+              </div>
+              <div className="films">
+                <DisplayFilms inputFilms={films || {}} ended={ended || false}  votes={votes || []} />
+              </div>
+            </>
+          ):
+          <CustomError statusCode={403} />
+        }
     </>
   );
 }

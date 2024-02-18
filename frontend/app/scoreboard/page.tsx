@@ -1,7 +1,7 @@
 import '../style/scoreboard.css'
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers'
-import StartButton from "./StartButton";
+import StartButton from "./startbutton";
 
 export default async function Scoreboard(){
     const cookieStore = cookies()
