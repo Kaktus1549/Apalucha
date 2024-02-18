@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
+using Microsoft.VisualBasic;
 using Spectre.Console;
 
 namespace ApaluchaApplication{
@@ -257,11 +258,20 @@ namespace ApaluchaApplication{
             }
 
             AnsiConsole.Markup(passwordQuestion);
-            password = Console.ReadLine();
-            while(string.IsNullOrEmpty(password)){
-                AnsiConsole.Markup("[white on red]Please enter some password![/]\n\n");
-                AnsiConsole.Markup(passwordQuestion);
-                password = Console.ReadLine();
+            password = "";
+            ConsoleKeyInfo key = Console.ReadKey(true);
+            while (key.Key != ConsoleKey.Enter){
+                if (key.Key != ConsoleKey.Backspace){
+                    password += key.KeyChar;
+                    Console.Write("*");
+                }
+                else{
+                    if (password.Length > 0){
+                        password = password.Substring(0, password.Length - 1);
+                        Console.Write("\b \b");
+                    }
+                }
+                key = Console.ReadKey(true);
             }
 
             result.Add(apiUrl);
