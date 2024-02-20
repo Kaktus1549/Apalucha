@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DisplayFilms from "./Films";
 import CustomError from '../_error/error'
 
@@ -53,6 +53,34 @@ export default function StartButton() {
       alert("Něco se pokazilo, zkuste to prosím znovu");
     }
   }
+  async function getRequest(){
+    try {
+      let result = await fetch("/api/scoreboard", {
+        method: "GET",
+      });
+
+      let data: ScoreboardAPI = (await result.json()) as ScoreboardAPI;
+      if (data.error === "Failed to authenticate" ||
+        data.error === "Token not found") {
+        router.push("/login");
+      }
+      if(data.error === "Access denied"){
+        setAllowed(false);
+      }
+      else {
+        setAllowed(true);
+        return;
+      }
+    }
+    catch (e) {
+      console.error(e);
+      alert("Něco se pokazilo, zkuste to prosím znovu");
+    }
+  }
+
+  useEffect(() => {
+    getRequest();
+  }, []);
 
   return (
     <>
