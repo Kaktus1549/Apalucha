@@ -17,7 +17,8 @@ export default function StartButton() {
       setTime("Show results");
       return;
     }
-    setTime(time);
+    let buttonText = "Zbývá " + time.toString()
+    setTime(buttonText);
     setTimeout(() => Countdown(time - 1), 1000);
   }
   async function startButton() {
