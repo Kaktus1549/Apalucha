@@ -32,9 +32,9 @@ def generate_pdf(url, template_filename, new_filename):
             # Create a canvas for QR code
             qr_packet = io.BytesIO()
             qr_canvas = canvas.Canvas(qr_packet, pagesize=letter)
-            qr_x = letter[0] - 100 - 80  # Right bottom corner
+            qr_x = letter[0] - 100 - 70  # Right bottom corner
             qr_y = 20
-            qr_canvas.drawImage(ImageReader(qr_buffer), qr_x, qr_y, width=80, height=80)
+            qr_canvas.drawImage(ImageReader(qr_buffer), qr_x, qr_y, width=125, height=125)
             qr_canvas.save()
 
             # Merge QR code with the first page of the template
@@ -74,3 +74,6 @@ def generate_pdf(url, template_filename, new_filename):
     except Exception as e:
         print(f"Got exception while generating PDF: {e}")
         return False
+    
+if __name__ == "__main__":
+    generate_pdf("https://apalucha.kaktusgame.eu/login?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDkxOTc2NjMsImlhdCI6MTcwODMzMzY2MywiaXNzIjoiaHR0cHM6Ly9hcGFsdWNoYS5rYWt0dXNnYW1lLmV1Iiwic3ViIjoxLCJhZG1pbiI6ZmFsc2V9.0azLbsn9nQS720kBol3KiSAl1BRjtESr_c6HQnPeBsA", "./pdfs/template.pdf", "./pdfs/output.pdf")
