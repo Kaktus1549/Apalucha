@@ -85,27 +85,38 @@ engine = make_engine(database)
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST', 'GET'])
 def login():
-    data = request.get_json()
-    token = None
-    try:
-        username = data['username']
-        password = data['password']
-    except KeyError:
+    if request.method == 'POST':
+        data = request.get_json()
+        token = None
         try:
-            token = data['token']
+            username = data['username']
+            password = data['password']
         except KeyError:
-            return jsonify({"error": "Missing username or password"}), 400
-    if token != None:
-        # Returns token as Set-Cookie
+            try:
+                token = data['token']
+            except KeyError:
+                return jsonify({"error": "Missing username or password"}), 400
+        if token != None:
+            # Returns token as Set-Cookie
+            return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly; Path=/"}
+        session = sessionmaker(bind=engine)()
+        token = login_admin(username, password, session, jwt_settings)
+        session.close()
+        if token == False:
+            return jsonify({"error": "Invalid username or password"}), 401
         return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly; Path=/"}
-    session = sessionmaker(bind=engine)()
-    token = login_admin(username, password, session, jwt_settings)
-    session.close()
-    if token == False:
-        return jsonify({"error": "Invalid username or password"}), 401
-    return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly; Path=/"}
+    elif request.method == 'GET':
+        token = request.cookies.get("token")
+        if token == None:
+            return jsonify({"error": "Token not found"}), 401
+        session = sessionmaker(bind=engine)()
+        user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+        session.close()
+        if user == None:
+            return jsonify({"error": "Failed to authenticate"}), 401
+        return jsonify({"message": "OK"}), 200
 
 @app.route('/voting', methods=['POST', 'GET'])
 def vote():
@@ -115,8 +126,11 @@ def vote():
         return jsonify({"error": "Token not found"}), 401
     session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+    session.close()
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
+    if isAdmin:
+        return jsonify({"error": "Admins can't vote"}), 403
     
     if request.method == 'GET':
         if config["voting"]['voteInProgress'] == False:
@@ -129,8 +143,6 @@ def vote():
             return jsonify({"error": "Could not retrieve films"}), 500
         return jsonify(films), 200
     elif request.method == 'POST':
-        if isAdmin:
-            return jsonify({"error": "Admins can't vote"}), 403
         if config["voting"]['voteInProgress'] == False:
             return jsonify({"error": "Voting has not started"}), 425
         # User sends a vote -> {"vote": 1}
@@ -143,53 +155,69 @@ def vote():
             return jsonify({"error": "Failed to vote"}), 500
         return jsonify({"message": "OK"}), 200
 
-@app.route('/scoreboard', methods=['POST'])
+@app.route('/scoreboard', methods=['POST', 'GET'])
 def scoreboard(): 
-    token = request.cookies.get("token")
-    if token == None:
-        return jsonify({"error": "Token not found"}), 401
-    session = sessionmaker(bind=engine)()
-    user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
-    if user == None:
-        return jsonify({"error": "Failed to authenticate"}), 401
-    if isAdmin == False:
-        return jsonify({"error": "Access denied"}), 403 
-    
-    # if voteEnd is null, start voting and returns unsorted films
-    # if voteEnd is not null, and voteEnd is in future, returns unsorted films + remaining time
-    # if voteEnd is not null, and voteEnd is in past, returns sorted films
+    if request.method == 'POST':
+        token = request.cookies.get("token")
+        if token == None:
+            return jsonify({"error": "Token not found"}), 401
+        session = sessionmaker(bind=engine)()
+        user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+        session.close()
+        if user == None:
+            return jsonify({"error": "Failed to authenticate"}), 401
+        if isAdmin == False:
+            return jsonify({"error": "Access denied"}), 403 
+        
+        # if voteEnd is null, start voting and returns unsorted films
+        # if voteEnd is not null, and voteEnd is in future, returns unsorted films + remaining time
+        # if voteEnd is not null, and voteEnd is in past, returns sorted films
 
-    session = sessionmaker(bind=engine)()
-    voteEnd = config["voting"]['voteEnd']
+        session = sessionmaker(bind=engine)()
+        voteEnd = config["voting"]['voteEnd']
 
-    if voteEnd == None:
-        config["voting"]['voteInProgress'] = True
-        end = datetime.datetime.now() + datetime.timedelta(seconds=config["voting"]["voteDuration"])
-        config["voting"]['voteEnd'] = str(end)
-        films = unsorted_films(session)
+        if voteEnd == None:
+            config["voting"]['voteInProgress'] = True
+            end = datetime.datetime.now() + datetime.timedelta(seconds=config["voting"]["voteDuration"])
+            config["voting"]['voteEnd'] = str(end)
+            films = unsorted_films(session)
+            session.close()
+            # save config
+            with open(config_file, 'w') as f:
+                json.dump(config, f, indent=4)
+            # schedule end of voting
+            scheduler.add_job(end_voting, 'date', run_date=end)
+            if films == False:
+                return jsonify({"error": "Failed to retrieve films"}), 500
+            return jsonify({"voteEnd": end, "voteDuration": config["voting"]["voteDuration"], "films": films}), 200
+        elif voteEnd != False and datetime.datetime.strptime(voteEnd.split('.')[0], "%Y-%m-%d %H:%M:%S") > datetime.datetime.now():
+            films = unsorted_films(session)
+            session.close()
+            remaining = datetime.datetime.strptime(config["voting"]['voteEnd'].split('.')[0], "%Y-%m-%d %H:%M:%S") - datetime.datetime.now()
+            remaining = remaining.total_seconds()
+            if films == False:
+                return jsonify({"error": "Failed to retrieve films"}), 500
+            return jsonify({"voteEnd": config["voting"]['voteEnd'], "voteDuration": remaining, "films": films}), 200
+        else:
+            films, votes = sorted_films(session)
+            session.close()
+            if films == False:
+                return jsonify({"error": "Failed to retrieve films"}), 500
+            return jsonify({"voteEnd": False, "films": films, "votes": votes}), 200
+    elif request.method == 'GET':
+        # Check if user is allowed to see the scoreboard
+        token = request.cookies.get("token")
+        if token == None:
+            return jsonify({"error": "Token not found"}), 401
+        session = sessionmaker(bind=engine)()
+        user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
         session.close()
-        # save config
-        with open(config_file, 'w') as f:
-            json.dump(config, f, indent=4)
-        # schedule end of voting
-        scheduler.add_job(end_voting, 'date', run_date=end)
-        if films == False:
-            return jsonify({"error": "Failed to retrieve films"}), 500
-        return jsonify({"voteEnd": end, "voteDuration": config["voting"]["voteDuration"], "films": films}), 200
-    elif voteEnd != False and datetime.datetime.strptime(voteEnd.split('.')[0], "%Y-%m-%d %H:%M:%S") > datetime.datetime.now():
-        films = unsorted_films(session)
-        session.close()
-        remaining = datetime.datetime.strptime(config["voting"]['voteEnd'].split('.')[0], "%Y-%m-%d %H:%M:%S") - datetime.datetime.now()
-        remaining = remaining.total_seconds()
-        if films == False:
-            return jsonify({"error": "Failed to retrieve films"}), 500
-        return jsonify({"voteEnd": config["voting"]['voteEnd'], "voteDuration": remaining, "films": films}), 200
-    else:
-        films, votes = sorted_films(session)
-        session.close()
-        if films == False:
-            return jsonify({"error": "Failed to retrieve films"}), 500
-        return jsonify({"voteEnd": False, "films": films, "votes": votes}), 200
+        if user == None:
+            return jsonify({"error": "Failed to authenticate"}), 401
+        if isAdmin == False:
+            return jsonify({"error": "Access denied"}), 403
+        # Else, returns OK
+        return jsonify({"message": "OK"}), 200
 
 @app.route('/pdf', methods=['GET'])
 def pdf():
@@ -201,6 +229,7 @@ def pdf():
         return jsonify({"error": "Token not found"}), 401
     session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+    session.close()
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
     if isAdmin == False:
@@ -223,6 +252,7 @@ def managment():
         return jsonify({"error": "Token not found"}), 401
     session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+    session.close()
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
     if isAdmin == False:
@@ -241,22 +271,29 @@ def managment():
             config["jwt"]["secret"] = generate_secret()
             with open(config_file, 'w') as f:
                 json.dump(config, f, indent=4)
+            session = sessionmaker(bind=engine)()
             status = user_reset(session, deletion=True)
+            session.close()
             if status == False:
                 return jsonify({"error": "Failed to reset users"}), 500
         else:
+            session = sessionmaker(bind=engine)()
             user_status = user_reset(session)
+            session.close()
             if user_status == False:
                 return jsonify({"error": "Failed to reset users"}), 500
         if action_data["full_reset"] == True:
+            session = sessionmaker(bind=engine)()
             status = film_reset(session, deletion=True)
+            session.close()
             if status == False:
                 return jsonify({"error": "Failed to reset films"}), 500
         else:
+            session = sessionmaker(bind=engine)()
             film_status = film_reset(session)
+            session.close()
             if film_status == False:
                 return jsonify({"error": "Failed to reset films"}), 500
-        session.close()
         with open(config_file, 'w') as f:
             json.dump(config, f, indent=4)
         return jsonify({"message": "OK"}), 200
@@ -297,14 +334,15 @@ def managment():
         session = sessionmaker(bind=engine)()
         if isAdmin == False:
             user = add_user(session, isAdmin, username, password, pdfs_settings, jwt_settings)
+            session.close()
             pdfUrl = pdfs_settings['pdfUrl'] + f"?user={user}"
             message = {"message": "OK", "pdfUrl": pdfUrl}
         else:
             if username == None or password == None:
                 return jsonify({"error": "Missing username or password"}), 400
             user = add_user(session, isAdmin, username, password)
+            session.close()
             message = {"message": "OK"}
-        session.close()
         if user == False:
             return jsonify({"error": "Failed to add user"}), 500
         return jsonify(message), 200

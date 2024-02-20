@@ -1,10 +1,10 @@
 version: '3.8'
 services:
   db:
+    restart: always
     image: mysql:latest
     ports:
       - "${DATABASE_PORT}:3306"
-      - "33060:33060"
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: 1
       MYSQL_USER: ${DATABASE_USER}
@@ -14,6 +14,7 @@ services:
       - db-data:/var/lib/mysql
   
   apalucha-backend:
+    restart: always
     build: ../backend/.
     ports:
       - "${DOCKER_WEB_PORT}:5000"
@@ -28,6 +29,7 @@ services:
     depends_on:
       - db 
   apalucha-frontend:
+    restart: always
     depends_on:
       - apalucha-backend
     build: ../frontend/.

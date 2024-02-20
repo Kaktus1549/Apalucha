@@ -122,7 +122,7 @@
 }
 ```
 
-### remove_film
+### remove_film
 
 ```json
 {
@@ -133,7 +133,7 @@
 }
 ```
 
-### add_film
+### add_film
 
 ```json
 {
@@ -145,7 +145,7 @@
 }
 ```
 
-### remove_user
+### remove_user
 
 ```json
 {
@@ -157,7 +157,7 @@
 }
 ```
 
-### add_user
+### add_user
 
 ```json
 {
@@ -250,6 +250,7 @@ When voting ends, server will return:
     "films":{
             "1": "Film 2",
             "2": "Film 1"
-        }
+        },
+    "votes":[1, 2]
 }
 ```

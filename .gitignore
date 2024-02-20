@@ -1,6 +1,8 @@
 .DS_Store
 frontend_old
 node_modules
+testing_frontend
+.env
 # Logs
 logs
 *.log
