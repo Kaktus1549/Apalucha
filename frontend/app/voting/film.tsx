@@ -25,7 +25,7 @@ export default function Film() {
             setData({error: "Voting has not started"} as APIResponse)
         }
         if (responseData.error === "Token not found" || responseData.error === "Failed to authenticate") {
-            router.push('/login')
+            setData({error: "Token not found"} as APIResponse)
         }
         if (responseData.error === "Admins can't vote") {
             setData({error: "Admins can't vote"} as APIResponse)
@@ -54,7 +54,7 @@ export default function Film() {
         })
         if (!response.ok) {
             if (response.status === 401) {
-                router.push('/login')
+                setData({error: "Token not found"} as APIResponse)
             }
             if (response.status === 500) {
                 alert("Něco se pokazilo, zkuste to prosím znovu.")
@@ -106,6 +106,9 @@ export default function Film() {
             {
                 data.error === "Voting has not started"?
                 <h1 className="error-message">Jěště jsme nezačali hlasovat!</h1>
+                :
+                data.error === "Token not found"?
+                <CustomError statusCode={401} />
                 :
                 data.error === "Could not retrieve films"?
                 <h1 className="error-message">Něco se pokazilo, zkuste to prosím znovu.</h1>
