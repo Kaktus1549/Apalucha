@@ -51,12 +51,17 @@ function loginButton(){
     login(username, password, null);
 }
 
-export default function Voting(){
-    const searchParams = useSearchParams();
-    const token = searchParams.get('token');
+export default function Voting(){    
+    try{
+        const searchParams = useSearchParams();
+        const token = searchParams.get('token');
 
-    if (token !== null){
-        login(null, null, token);
+        if (token !== null){
+            login(null, null, token);
+        }
+    }
+    catch{
+        console.error("Error while parsing token");
     }
 
     return(
