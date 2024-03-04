@@ -3,6 +3,7 @@
 import '../style/login.css'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react';
+import { useEffect } from 'react';
 
 async function login(username: string | null, password: string | null, token: string | null){
     if (username === null && password === null && token === null){
@@ -64,11 +65,19 @@ export default function Voting(){
         console.error("Error while parsing token");
     }
 
+    // adds "login-body" class to body
+    useEffect(() => {
+        document.body.classList.add("login-body");
+        return () => {
+            document.body.classList.remove("login-body");
+        }
+    }, []);
+
     return(
         <Suspense>
-            <div className="main-container">
+            <div className="login-main-container">
                 <div className="login">
-                    <h1>Login</h1>
+                    <h1 className='login-h1'>Login</h1>
                     <div className="login-container">
                         <div className="option-container">
                             <p>Username</p>

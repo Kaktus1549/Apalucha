@@ -15,8 +15,9 @@ echo ""
 # Prompt for environment variables
 read -p "Enter database user (default: apalucha): " DATABASE_USER
 DATABASE_USER=${DATABASE_USER:-apalucha} # Default value if none provided
-read -p "Enter database password: (default: jkklf84ZZFaIkcula#_??) " DATABASE_PASSWORD
+read -sp "Enter database password: (default: jkklf84ZZFaIkcula#_??) " DATABASE_PASSWORD
 DATABASE_PASSWORD=${DATABASE_PASSWORD:-jkklf84ZZFaIkcula#_??} # Default value if none provided
+echo ""
 read -p "Enter pool size (default: 20): " POOL_SIZE
 POOL_SIZE=${POOL_SIZE:-20} # Default value if none provided
 read -p "Enter database port (default: 3306): " DATABASE_PORT
@@ -29,7 +30,8 @@ echo "Backend configuration"
 echo "----------------------"
 echo ""
 
-read -p "Enter JWT secret: " JWT_SECRET
+read -sp "Enter JWT secret: " JWT_SECRET
+echo ""
 read -p "Enter JWT expiration time in days (default: 10): " JWT_EXPIRATION
 JWT_EXPIRATION=${JWT_EXPIRATION:-10} # Default value if none provided
 read -p "Enter JWT issuer (default: https://apalucha.kaktusgame.eu): " JWT_ISSUER
@@ -68,7 +70,8 @@ read -p "Enter website URL (default: https://apalucha.kaktusgame.eu): " WEBSITE_
 WEBSITE_URL=${WEBSITE_URL:-https://apalucha.kaktusgame.eu} # Default value if none provided
 read -p "Enter master username: (default: admin) " MASTER_USERNAME
 MASTER_USERNAME=${MASTER_USERNAME:-admin} # Default value if none provided
-read -p "Enter master password: (default: klfdjlajflculakjfa099_) " MASTER_PASSWORD
+read -sp "Enter master password: (default: klfdjlajflculakjfa099_) " MASTER_PASSWORD
+echo ""
 MASTER_PASSWORD=${MASTER_PASSWORD:-klfdjlajflculakjfa099_} # Default value if none provided
 read -p "Enter frontend port (default: 3000): " DOCKER_FRONTEND_PORT
 DOCKER_FRONTEND_PORT=${DOCKER_FRONTEND_PORT:-3000} # Default value if none provided

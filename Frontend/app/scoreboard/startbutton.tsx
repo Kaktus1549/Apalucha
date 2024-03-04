@@ -75,7 +75,7 @@ export default function StartButton() {
           ) : 
           allowed === true && ended === true? (
             <>
-              <h1>Apalucha 2024</h1>
+              <h1 className="scoreboard-h1">Apalucha 2024</h1>
               <div className="header-frame">
                 <p className="id">Pořadí</p>
                 <p className="name">Jméno filmu</p>

@@ -1,7 +1,7 @@
 :root{
     --height: 150px;
 }
-body{
+.voting-body{
     width: 100vw;
     height: auto;
     min-height: 100vh;
@@ -20,7 +20,7 @@ body{
     font-weight: 600;
     text-align: center;
 }
-h1{
+.voting-h1{
     font-weight: 700;
     font-size: 3rem;
     color: #fff;
@@ -29,7 +29,7 @@ h1{
     margin-top: 50px;
     text-align: center;
 }
-h2{
+.voting-h2{
     font-weight: 700;
     font-size: 5vw;
     color: #fff;
@@ -170,7 +170,7 @@ footer button p{
     }
 }
 @media screen and (max-width:415px) {
-    h1{
+    .voting-h1{
         font-size: 2.5rem;
     }
 }
@@ -185,7 +185,7 @@ footer button p{
     }
 }
 @media screen and (max-width:350px) {
-    h1{
+    .voting-h1{
         font-size: 2rem;
     }
 }
@@ -198,7 +198,7 @@ footer button p{
     .option .film p{
         font-size: 1.1rem;
     }
-    h1{
+    .voting-h1{
         font-size: 1.75rem;
     }
 }

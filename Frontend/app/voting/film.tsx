@@ -73,6 +73,12 @@ export default function Film() {
         return () => clearInterval(intervalId)
     }, [])
 
+    // adds "voting-body" class to body element
+    useEffect(() => {
+        document.body.classList.add("voting-body");
+        return () => document.body.classList.remove("voting-body");
+    }, []);
+
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
 
@@ -108,10 +114,10 @@ export default function Film() {
                 <CustomError statusCode={401} />
                 :
                 data.error === "Voting has not started"?
-                <h1 className="error-message">Jěště jsme nezačali hlasovat!</h1>
+                <h1 className="error-message voting-h1">Jěště jsme nezačali hlasovat!</h1>
                 :
                 data.error === "Could not retrieve films"?
-                <h1 className="error-message">Něco se pokazilo, zkuste to prosím znovu.</h1>
+                <h1 className="error-message voting-h1">Něco se pokazilo, zkuste to prosím znovu.</h1>
                 : data.error === "Token not found" || data.error === "Failed to authenticate" || data.error === "null"?
                  <></>
                 :
@@ -119,7 +125,7 @@ export default function Film() {
                 <CustomError statusCode={403} />
                 :
                 <>
-                    <h1>Koho dnes zvolíš?</h1>
+                    <h1 className="voting-h1">Koho dnes zvolíš?</h1>
                     <div className="options-container">
                     {renderList.map((id) => (
                         <div key={id} className="option element-appear">
