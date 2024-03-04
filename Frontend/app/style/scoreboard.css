@@ -1,0 +1,169 @@
+.main-container{
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+.main-container button{
+    width: 23rem;
+    height: 5rem;
+    border: 4px solid #EF7474;  
+    background: rgba(255, 0, 0, 0.72);
+    color: #FFF;
+    font-size: 2.5em;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+    margin-top: 40px;
+}
+.main-container button:hover{
+    border: 4px solid rgba(255, 0, 0, 0.72);
+    background: #EF7474;
+}
+.main-container button:disabled{
+    border: 4px solid #6F7372;
+    background: #484B4A;
+}
+.main-container button:disabled:hover{
+    border: 4px solid #6F7372;
+    background: #484B4A;
+}
+h1{
+    font-weight: 700;
+    font-size: 3.5em;
+    color: #FFF;
+    margin: 0;
+    padding: 0;
+    margin-top: 40px;
+}
+.header-frame{
+    border-radius: 35px;
+    border: 6px solid rgba(255, 255, 255, 0.72);
+    background: rgba(25, 16, 18, 0.78);
+    width: 90%;
+    height: 5.4rem;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    padding-left: 30px;
+    padding-right: 30px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    z-index: 2;
+}
+.id{
+    flex: 1;
+    font-weight: 500;
+    font-size: 2.5em;
+    color: #FFF;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+.name{
+    flex: 2;
+    font-weight: 500;
+    font-size: 2.5em;
+    color: #FFF;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+.votes{
+    flex: 1;
+    font-weight: 500;
+    font-size: 2.5em;
+    color: #FFF;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+.films{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    width: 90%;
+    height: auto;
+}
+.winning-aura{
+    border-radius: 35px;
+    background: #191012;
+    box-shadow: 0px 0px 80px 2px rgba(82, 251, 2, 0.27), 0px 4px 76px 2px rgba(82, 251, 2, 0.20) inset;
+    width: 97%;
+    height: 5.4rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    opacity: 0;
+    animation: appear 0.7s ease-in-out forwards;
+}
+.winning-aura .film{
+    width: 100%;
+    height: 4.8rem;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+.non-winning{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+    height: auto;
+}
+.film{
+    border-radius: 30px;
+    width: 47%;
+    border: 4px solid #203966;
+    background: #042331;
+    height: 4.6rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 20px;
+    opacity: 0;
+    animation: appear 0.7s ease-in-out forwards;
+}
+.vote-run{
+    width: 95%;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    margin-top: 100px;
+}
+@keyframes appear{
+    0%{
+      opacity: 0;
+    }
+    100%{
+      opacity: 1;
+    }
+}
+.vote-run .film{
+    width: 30%;
+    height: 4.6rem;
+    border-radius: 30px;
+    border: 4px solid #203966;
+    background: #042331;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 20px;
+    opacity: 0;
+    animation: appear 0.7s ease-in-out forwards;
+}

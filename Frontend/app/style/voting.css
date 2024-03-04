@@ -1,0 +1,204 @@
+:root{
+    --height: 150px;
+}
+body{
+    width: 100vw;
+    height: auto;
+    min-height: 100vh;
+}
+.voting-main-container{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 100px;
+}
+.error-message{
+    font-size: 2.5rem;
+    font-weight: 600;
+    text-align: center;
+}
+h1{
+    font-weight: 700;
+    font-size: 3rem;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    margin-top: 50px;
+    text-align: center;
+}
+h2{
+    font-weight: 700;
+    font-size: 5vw;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    margin-top: 50px;
+    align-self: center;
+    text-align: center;
+}
+.options-container{
+    max-width: 90vw;
+    width: 500px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: calc(var(--height) + 50px);
+    gap: 30px;
+}
+.option{
+    width: 100%;
+    height: 75px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+.option .film{
+    width: 74%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-radius: 1.25rem;
+    border: 4px solid #203966;
+    background: #042331;
+}
+.option .film p{
+    font-weight: 400;
+    font-size: 1.85rem;
+    color: #fff;
+    text-align: center;
+}
+.option button{
+    width: 75px;
+    height: 100%;
+    border-radius: 0.9375rem;
+    border: 4px solid #203966;
+    background: #042331;
+    transition: all 0.4 ease-in-out;
+}
+.option button:hover{
+    border-radius: 0.9375rem;
+    border: 4px solid #12BE0F;
+    background: #118848;
+    transition: all 0.4 ease-in-out;
+}
+.option button:disabled{
+    border-radius: 0.9375rem;
+    border: 4px solid #12BE0F;
+    background: #118848;
+    transition: all 0.4 ease-in-out;
+}
+footer{
+    width: 100%;
+    height: var(--height);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #042331;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    transition: all 0.4s ease-in-out;
+}
+footer button{
+    border-radius: 1.25rem;
+    border: 4px solid #12BE0F;
+    background: #118848;
+    width: 252px;
+    max-width: 95%;
+    height: 65px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+footer button:disabled{
+    border: 4px solid #6F7372;
+    background: #484B4A;
+}
+footer button:disabled:hover{
+    border: 4px solid #6F7372;
+    background: #484B4A;
+}
+footer button:hover{
+    border-radius: 1.25rem;
+    border: 4px solid #118848;
+    background: #12BE0F;
+}
+footer button p{
+    font-weight: 600;
+    font-size: 1.85rem;
+    color: #fff;
+    text-align: center;
+}
+.none{
+    display: none;
+}
+.element-appear{
+    animation: appear 0.7s ease-in-out forwards;
+}
+@keyframes appear{
+    0%{
+      opacity: 0;
+    }
+    100%{
+      opacity: 1;
+    }
+}
+@media screen and (max-width:1000px) {
+    .error-message{
+        font-size: 2rem;
+    }
+}
+@media screen and (max-width:500px) {
+    .option .film p{
+        font-size: 1.475rem;
+    }
+}
+@media screen and (max-width:475px) {
+    .error-message{
+        font-size: 1.8rem;
+    }
+}
+@media screen and (max-width:415px) {
+    h1{
+        font-size: 2.5rem;
+    }
+}
+@media screen and (max-width:400px) {
+    .option .film p{
+        font-size: 1.25rem;
+    }
+}
+@media screen and (max-width:395px) {
+    .error-message{
+        font-size: 1.5rem;
+    }
+}
+@media screen and (max-width:350px) {
+    h1{
+        font-size: 2rem;
+    }
+}
+@media screen and (max-width:340px) {
+    .error-message{
+        font-size: 1.2rem;
+    }
+}
+@media screen and (max-width:275px) {
+    .option .film p{
+        font-size: 1.1rem;
+    }
+    h1{
+        font-size: 1.75rem;
+    }
+}
