@@ -99,7 +99,7 @@ export default function Film() {
           addNextItem(0);
       
           return () => clearTimeout(timeoutId); // Cleanup to avoid memory leak
-    }, [data]); 
+    }, [data, renderList]); 
     
     return (
         <div className="voting-main-container">
