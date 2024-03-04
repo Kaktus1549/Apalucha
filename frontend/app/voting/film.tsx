@@ -24,13 +24,13 @@ export default function Film() {
         if (responseData.error === "Voting has not started") {
             setData({error: "Voting has not started"} as APIResponse)
         }
-        if (responseData.error === "Token not found" || responseData.error === "Failed to authenticate") {
+        else if (responseData.error === "Token not found" || responseData.error === "Failed to authenticate") {
             setData({error: "Token not found"} as APIResponse)
         }
-        if (responseData.error === "Admins can't vote") {
+        else if (responseData.error === "Admins can't vote") {
             setData({error: "Admins can't vote"} as APIResponse)
         }
-        if (responseData.error === "Could not retrieve films") {
+        else if (responseData.error === "Could not retrieve films") {
             setData({error: "Could not retrieve films"} as APIResponse)
         }
         else{
@@ -102,13 +102,13 @@ export default function Film() {
     }, [data]); 
     
     return (
-        <div className="main-container">
+        <div className="voting-main-container">
             {
-                data.error === "Voting has not started"?
-                <h1 className="error-message">Jěště jsme nezačali hlasovat!</h1>
-                :
                 data.error === "Token not found"?
                 <CustomError statusCode={401} />
+                :
+                data.error === "Voting has not started"?
+                <h1 className="error-message">Jěště jsme nezačali hlasovat!</h1>
                 :
                 data.error === "Could not retrieve films"?
                 <h1 className="error-message">Něco se pokazilo, zkuste to prosím znovu.</h1>
