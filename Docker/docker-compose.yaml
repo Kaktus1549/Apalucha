@@ -15,11 +15,11 @@ services:
   
   apalucha-backend:
     restart: always
-    build: ../backend/.
+    build: ../Backend/.
     ports:
       - "${DOCKER_WEB_PORT}:5000"
     env_file:
-      - ../backend/.env
+      - ../Backend/.env
     environment:
       DB_ADDRESS: db
       DB_PORT: 3306
@@ -32,9 +32,9 @@ services:
     restart: always
     depends_on:
       - apalucha-backend
-    build: ../frontend/.
+    build: ../Frontend/.
     env_file:
-      - ../frontend/.env
+      - ../Frontend/.env
     ports:
       - "${DOCKER_FRONTEND_PORT}:3000"
     

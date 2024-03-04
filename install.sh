@@ -80,7 +80,7 @@ echo "Pulling images from Docker Hub..."
 
 # Write environment variables to .env file
 
-cat << EOF > ./backend/.env
+cat << EOF > ./Backend/.env
 DB_PASSWORD=$DATABASE_PASSWORD
 DB_USERNAME=$DATABASE_USER
 DATABASE_USER=$DATABASE_USER
@@ -100,7 +100,7 @@ DOCKER_WEB_PORT=$DOCKER_WEB_PORT
 DEBUG=$DEBUG
 EOF
 
-cat << EOF > ./frontend/.env
+cat << EOF > ./Frontend/.env
 URL=$WEBSITE_URL
 BACKEND_URL=http://apalucha-backend:5000
 EOF
