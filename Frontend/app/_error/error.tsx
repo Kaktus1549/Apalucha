@@ -7,7 +7,7 @@ export default function CustomError(statusCode: {statusCode: number}){
     return(
         <div className="holder">
             <div className="error">
-                <Image src={`https://http.cat/${error}`} alt="error" />
+                <Image src={`https://http.cat/${error}`} alt="error" width={750} height={600} />
             </div>
         </div>
     );
