@@ -12,7 +12,7 @@ export default async function Scoreboard(){
     }
 
     return(
-        <div className="main-container">
+        <div className="scoreboard-main-container">
             <StartButton />
         </div>
     );

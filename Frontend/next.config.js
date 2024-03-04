@@ -10,5 +10,8 @@ module.exports = {
           destination: path
         }
       ]
+    },
+    images: {
+      domains: ['http.cat'],
     }
 }
