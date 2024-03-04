@@ -1,4 +1,5 @@
 import './style/landing.css';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Home() {
@@ -9,13 +10,13 @@ export default function Home() {
         <div className="vote-container">
             <div className="option-container">
                 <Link href={"/voting"}>
-                    <img src="images/voting.png" alt="Voting"/>
+                    <Image src="images/voting.png" alt="Voting"/>
                 </Link>
                 <p>Zvol si svůj film!</p>
             </div>
             <div className="option-container">
                 <Link href={"/scoreboard"}>
-                    <img src="/images/scoreboard.png" alt="Scoreboard"/>
+                    <Image src="/images/scoreboard.png" alt="Scoreboard"/>
                 </Link>
                 <p>Scoreboard</p>
             </div>

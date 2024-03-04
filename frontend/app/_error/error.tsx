@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import '../style/error.css';
 
 export default function CustomError(statusCode: {statusCode: number}){
@@ -6,7 +7,7 @@ export default function CustomError(statusCode: {statusCode: number}){
     return(
         <div className="holder">
             <div className="error">
-                <img src={`https://http.cat/${error}`} alt="error" />
+                <Image src={`https://http.cat/${error}`} alt="error" />
             </div>
         </div>
     );
