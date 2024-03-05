@@ -26,7 +26,7 @@ export default async function CheckIfAllowed(request: NextRequest) {
         }
         catch (e) {
             console.error(e);
-            NextResponse.redirect(new URL("/error?code=500", request.url));
+            NextResponse.redirect(new URL("/error/500", request.url));
             return {error:"500"} as ScoreboardAPI;
         }
     }
@@ -36,7 +36,7 @@ export default async function CheckIfAllowed(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
     else if(data.error === "Access denied"){
-      return NextResponse.redirect(new URL("/error?code=403", request.url));
+      return NextResponse.redirect(new URL("/error/403", request.url));
     }
     else {
       return NextResponse.next();
