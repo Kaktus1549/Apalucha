@@ -10,13 +10,13 @@ export default function Home() {
         <div className="vote-container">
             <div className="option-container">
                 <Link href={"/voting"}>
-                    <Image src="/images/voting.png" alt="Voting" width={1463} height={1352}/>
+                    <Image src="/images/voting.png" alt="Voting" width={1463} height={1352} priority={true} />
                 </Link>
                 <p>Zvol si svůj film!</p>
             </div>
             <div className="option-container">
                 <Link href={"/scoreboard"}>
-                    <Image src="/images/scoreboard.png" alt="Scoreboard" width={662} height={586} />
+                    <Image src="/images/scoreboard.png" alt="Scoreboard" width={662} height={586} priority={true} />
                 </Link>
                 <p>Scoreboard</p>
             </div>
