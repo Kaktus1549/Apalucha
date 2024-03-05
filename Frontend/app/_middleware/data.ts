@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 
-let url = process.env.URL + '/api/';
+const url = process.env.BACKEND_URL + '/api/';
 
 export default async function CheckIfAllowed(request: NextRequest) {
     const cookieStore = cookies()
