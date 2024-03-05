@@ -1,5 +1,6 @@
 .error img {
     max-width: 90vw;
+    height: auto;
 }
 .holder
 {
