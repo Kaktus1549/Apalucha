@@ -9,6 +9,7 @@ Installation is easy, just clone this repository and run install.sh script. You 
 ```bash
 gh repo clone Kaktus1549/Apalucha
 cd Apalucha
+chmod +x install.sh
 ./install.sh
 ```
 
