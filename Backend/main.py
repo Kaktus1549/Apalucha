@@ -164,15 +164,23 @@ else:
     print("Gettings things ready...")
 
 # Configure the logger for the application
-logger = logging.getLogger('werkzeug')
-logger.setLevel(logging.INFO)
+from backend_logging.apalucha_logging import CustomRequestHandler, DailyFileHandler
+
+console_logger = logging.getLogger('werkzeug')
+console_logger.setLevel(logging.INFO)
 stream_handler = logging.StreamHandler(stdout)
 stream_handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(message)s')
 stream_handler.setFormatter(formatter)
-logger.addHandler(stream_handler)
+console_logger.addHandler(stream_handler)
 
-from backend_logging.apalucha_logging import CustomRequestHandler
+file_logger = logging.getLogger('logger')
+file_logger.setLevel(logging.DEBUG)
+file_formatter = logging.Formatter('%(message)s')
+daily_file_handler = DailyFileHandler(directory='./logs', encoding='utf-16')
+daily_file_handler.setLevel(logging.DEBUG)
+daily_file_handler.setFormatter(file_formatter)
+file_logger.addHandler(daily_file_handler)
 
 
 # Run the website
@@ -183,4 +191,4 @@ if __name__ == "__main__":
     print("\033c")
     print(apalucha_ascii_art)
     print(f"Master user: {config['flask']['masterUsername']}, Password: {config['flask']['masterPassword']}")
-    run_simple(config["flask"]["address"], config["flask"]["port"], app, use_debugger=config["flask"]["debug"], request_handler=lambda *args: CustomRequestHandler(*args, logger=logger))
+    run_simple(config["flask"]["address"], config["flask"]["port"], app, use_debugger=config["flask"]["debug"], request_handler=lambda *args: CustomRequestHandler(*args, console_logger=console_logger, file_logger=file_logger))

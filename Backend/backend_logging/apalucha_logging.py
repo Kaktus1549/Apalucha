@@ -1,7 +1,6 @@
 import logging
 import os
 from datetime import datetime
-from werkzeug.wrappers import Request, Response
 from werkzeug.serving import WSGIRequestHandler
 
 #colors
@@ -67,15 +66,16 @@ class DailyFileHandler(logging.FileHandler):
             self.stream = self._open()
         super().emit(record)
 class CustomRequestHandler(WSGIRequestHandler):
-    def __init__(self, request, client_address, server, logger=None):
-        self.logger = logger
+    def __init__(self, request, client_address, server, console_logger=None, file_logger=None):
+        self.console_logger = console_logger
+        self.file_logger = file_logger
         super().__init__(request, client_address, server)
     
     def log_request(self, code='-', size='-'):
         real_ip = self.headers.get('X-Real-IP')
         if not real_ip:
             real_ip = self.client_address[0]
-        if self.logger:
+        if self.console_logger:
             if code !='-':
                 if str(code).startswith(('2', '3')):
                     code_message = f'{COLOR_GREEN}{code:<8}{COLOR_RESET}'
@@ -87,6 +87,23 @@ class CustomRequestHandler(WSGIRequestHandler):
                     code_message = f'{code:<8}'
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             formatted_message = f'{COLOR_GREY}{timestamp} {code_message} {self.requestline} from {real_ip} {COLOR_RESET}'
-            self.logger.info(formatted_message)
+            if self.file_logger:
+                uncolored_message = f'[{timestamp}] [{code:<8}] {self.requestline} from {real_ip}'
+                self.file_logger.info(uncolored_message)
+            self.console_logger.info(formatted_message)
         else:
             super().log_request(code, size)
+
+def log(message, level, logger):
+    if level == 'DEBUG':
+        logger.debug(message)
+    elif level == 'INFO':
+        logger.info(message)
+    elif level == 'WARNING':
+        logger.warning(message)
+    elif level == 'ERROR':
+        logger.error(message)
+    elif level == 'CRITICAL':
+        logger.critical(message)
+    else:
+        logger.info(message)
