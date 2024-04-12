@@ -72,6 +72,9 @@ class CustomRequestHandler(WSGIRequestHandler):
         super().__init__(request, client_address, server)
     
     def log_request(self, code='-', size='-'):
+        real_ip = self.headers.get('X-Real-IP')
+        if not real_ip:
+            real_ip = self.client_address[0]
         if self.logger:
             if code !='-':
                 if str(code).startswith(('2', '3')):
@@ -83,7 +86,7 @@ class CustomRequestHandler(WSGIRequestHandler):
                 else:
                     code_message = f'{code:<8}'
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            formatted_message = f'{COLOR_GREY}{timestamp} {code_message} {self.requestline} from {self.client_address[0]} {COLOR_RESET}'
+            formatted_message = f'{COLOR_GREY}{timestamp} {code_message} {self.requestline} from {real_ip} {COLOR_RESET}'
             self.logger.info(formatted_message)
         else:
             super().log_request(code, size)
