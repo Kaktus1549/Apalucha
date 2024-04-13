@@ -50,18 +50,22 @@ def decode_jwt(secret, token, session, algorithm="HS256", issuer=None, ip="-----
             log("DEBUG", f"Decoding token from {ip}")
         payload = jwt.decode(token, secret, algorithms=algorithm, issuer=issuer)
         if payload["iss"] != issuer:
-            log("ERROR", f"Token from {ip} has invalid issuer")
+            if debug:
+                log("ERROR", f"Token from {ip} has invalid issuer")
             return None, None
         user_check = check_user(payload["sub"], payload["admin"], session)
         if user_check == False:
-            log("ERROR", f"Token from {ip} has invalid user")
+            if debug:
+                log("ERROR", f"Token from {ip} has invalid user")
             return None, None
         if debug:
             log("DEBUG", f"Token from {ip} decoded successfully")
         return payload["sub"], payload["admin"]
     except jwt.ExpiredSignatureError:
-        log("ERROR", f"Token from {ip} has expired")
+        if debug:
+            log("ERROR", f"Token from {ip} has expired")
         return None, None
     except jwt.InvalidTokenError:
-        log("ERROR", f"Token from {ip} is invalid")
+        if debug:
+            log("ERROR", f"Token from {ip} is invalid")
         return None, None
