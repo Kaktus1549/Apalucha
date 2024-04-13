@@ -55,11 +55,11 @@ class DailyFileHandler(logging.FileHandler):
 
     def _get_filename(self):
         return os.path.join(self.directory, f"{self.current_datetime}.log")
-
+    
     def emit(self, record):
         new_datetime = datetime.now().strftime("%Y-%m-%d")
         if new_datetime != self.date_time:
-            self.current_datetime = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+            self.current_datetime = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
             self.date_time = new_datetime
             filename = self._get_filename()
             self.baseFilename = filename
