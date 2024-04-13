@@ -3,6 +3,7 @@ import datetime
 import secrets
 from sys import path
 from os import getenv
+import json
 from sqlalchemy import *
 from sqlalchemy.orm import *
 apalucha = getenv("apalucha")
@@ -11,6 +12,9 @@ if apalucha is None:
 path.append(apalucha)
 from sql.sql_init import Admin, User
 from backend_logging.apalucha_logging import log
+with open("config.json", "r") as f:
+    config = json.load(f)
+    debug = config["flask"]["debug"]
 
 def generate_secret(length=64):
     log("INFO", "Generating secret")
@@ -42,7 +46,8 @@ def check_user(user, isAdmin, session):
         return True
 def decode_jwt(secret, token, session, algorithm="HS256", issuer=None, ip="-----"):
     try:
-        log("INFO", f"Decoding token from {ip}")
+        if debug:
+            log("DEBUG", f"Decoding token from {ip}")
         payload = jwt.decode(token, secret, algorithms=algorithm, issuer=issuer)
         if payload["iss"] != issuer:
             log("ERROR", f"Token from {ip} has invalid issuer")
@@ -51,7 +56,8 @@ def decode_jwt(secret, token, session, algorithm="HS256", issuer=None, ip="-----
         if user_check == False:
             log("ERROR", f"Token from {ip} has invalid user")
             return None, None
-        log("INFO", f"Token from {ip} decoded successfully")
+        if debug:
+            log("DEBUG", f"Token from {ip} decoded successfully")
         return payload["sub"], payload["admin"]
     except jwt.ExpiredSignatureError:
         log("ERROR", f"Token from {ip} has expired")
