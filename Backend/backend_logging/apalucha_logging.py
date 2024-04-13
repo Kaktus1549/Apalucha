@@ -37,7 +37,7 @@ class CustomFormatter(logging.Formatter):
             levelname_color = ''
             message_color = ''
         
-        timestamp = self.formatTime(record, self.datefmt)
+        timestamp = self.formatTime(record, "%Y-%m-%d %H:%M:%S")
         levelname_formatted = f'{levelname_color}{levelname:<8}{COLOR_RESET}'
         formatted_message = f'{COLOR_GREY}{timestamp} {levelname_formatted} {message_color}{message}{COLOR_RESET}'
         return formatted_message
@@ -94,7 +94,20 @@ class CustomRequestHandler(WSGIRequestHandler):
         else:
             super().log_request(code, size)
 
-def log(message, level, logger):
+logger = logging.getLogger('apalucha_logger')
+logger.setLevel(logging.DEBUG)
+formatter = CustomFormatter()
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+
+file_formatter = logging.Formatter('[%(asctime)s] [%(levelname)-8s] %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+daily_file_handler = DailyFileHandler(directory='./logs', encoding='utf-8')
+daily_file_handler.setLevel(logging.DEBUG)
+daily_file_handler.setFormatter(file_formatter)
+logger.addHandler(daily_file_handler)
+
+def log(level, message):
     if level == 'DEBUG':
         logger.debug(message)
     elif level == 'INFO':

@@ -24,6 +24,9 @@ from voting.film_ranking import *
 from managment.film_mng import *
 from managment.user_mng import *
 
+# Logging
+from backend_logging.apalucha_logging import log
+
 # Functions 
 def make_engine(database):
     username = database["username"]
@@ -59,7 +62,6 @@ def end_voting():
     status = count_votes(session)
     session.close()
     if status == False:
-        print("Failed to count votes")
         return
 
     config["voting"]['voteInProgress'] = False
@@ -76,6 +78,7 @@ if config["voting"]['voteEnd'] != None and config["voting"]['voteEnd'] != False:
     if vote_end < datetime.datetime.now():
         end_voting()
     else:
+        log("INFO", f"Scheduling end of voting for {vote_end}")
         scheduler.add_job(end_voting, 'date', run_date=vote_end)
 
 
@@ -102,7 +105,8 @@ def login():
             # Returns token as Set-Cookie
             return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly; Path=/"}
         session = sessionmaker(bind=engine)()
-        token = login_admin(username, password, session, jwt_settings)
+        ip = request.headers.get('X-REAL-IP', request.remote_addr)
+        token = login_admin(username, password, session, jwt_settings, ip)
         session.close()
         if token == False:
             return jsonify({"error": "Invalid username or password"}), 401
@@ -112,7 +116,7 @@ def login():
         if token == None:
             return jsonify({"error": "Token not found"}), 401
         session = sessionmaker(bind=engine)()
-        user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+        user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
         session.close()
         if user == None:
             return jsonify({"error": "Failed to authenticate"}), 401
@@ -125,7 +129,7 @@ def vote():
         pass
         return jsonify({"error": "Token not found"}), 401
     session = sessionmaker(bind=engine)()
-    user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+    user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
     session.close()
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
@@ -149,7 +153,9 @@ def vote():
         data = request.get_json()
         vote = data["vote"]
         session = sessionmaker(bind=engine)()
-        response = vote_film(vote, user, session)
+        # Tryes to get address from header X-REAL-IP, if not, gets it from request.remote_addr
+        ip = request.headers.get('X-REAL-IP', request.remote_addr)
+        response = vote_film(vote, user, session, ip)
         session.close()
         if response == False:
             return jsonify({"error": "Failed to vote"}), 500
@@ -162,7 +168,7 @@ def scoreboard():
         if token == None:
             return jsonify({"error": "Token not found"}), 401
         session = sessionmaker(bind=engine)()
-        user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+        user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
         session.close()
         if user == None:
             return jsonify({"error": "Failed to authenticate"}), 401
@@ -210,7 +216,7 @@ def scoreboard():
         if token == None:
             return jsonify({"error": "Token not found"}), 401
         session = sessionmaker(bind=engine)()
-        user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+        user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
         session.close()
         if user == None:
             return jsonify({"error": "Failed to authenticate"}), 401
@@ -228,7 +234,7 @@ def pdf():
     if token == None:
         return jsonify({"error": "Token not found"}), 401
     session = sessionmaker(bind=engine)()
-    user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+    user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
     session.close()
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
@@ -251,7 +257,7 @@ def managment():
     if token == None:
         return jsonify({"error": "Token not found"}), 401
     session = sessionmaker(bind=engine)()
-    user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"])
+    user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
     session.close()
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
@@ -263,6 +269,7 @@ def managment():
 
     action = request_data["action"]
     action_data = request_data["data"]
+    ip = request.headers.get('X-REAL-IP', request.remote_addr)
     if action == "reset":
         print(action_data)
         config["voting"]['voteInProgress'] = False
@@ -272,25 +279,25 @@ def managment():
             with open(config_file, 'w') as f:
                 json.dump(config, f, indent=4)
             session = sessionmaker(bind=engine)()
-            status = user_reset(session, deletion=True)
+            status = user_reset(session, deletion=True, admin=user, ip=ip)
             session.close()
             if status == False:
                 return jsonify({"error": "Failed to reset users"}), 500
         else:
             session = sessionmaker(bind=engine)()
-            user_status = user_reset(session)
+            user_status = user_reset(session, deletion=False, admin=user, ip=ip)
             session.close()
             if user_status == False:
                 return jsonify({"error": "Failed to reset users"}), 500
         if action_data["full_reset"] == True:
             session = sessionmaker(bind=engine)()
-            status = film_reset(session, deletion=True)
+            status = film_reset(session, deletion=True, admin=user, ip=ip)
             session.close()
             if status == False:
                 return jsonify({"error": "Failed to reset films"}), 500
         else:
             session = sessionmaker(bind=engine)()
-            film_status = film_reset(session)
+            film_status = film_reset(session, deletion=False, admin=user, ip=ip)
             session.close()
             if film_status == False:
                 return jsonify({"error": "Failed to reset films"}), 500
@@ -300,7 +307,7 @@ def managment():
     if action == "remove_film":
         film_id = action_data["film_id"]
         session = sessionmaker(bind=engine)()
-        film = remove_film(session, film_id)
+        film = remove_film(session, film_id, admin=user, ip=ip)
         session.close()
         if film == False:
             return jsonify({"error": "Failed to remove film"}), 500
@@ -309,7 +316,7 @@ def managment():
         tilte = action_data["title"]
         team = action_data["team"]
         session = sessionmaker(bind=engine)()
-        film = add_film(session, tilte, team)
+        film = add_film(session, tilte, team, admin=user, ip=ip)
         session.close()
         if film == False:
             return jsonify({"error": "Failed to add film"}), 500
@@ -318,7 +325,7 @@ def managment():
         user_id = action_data["user_id"]
         isAdmin = action_data["isAdmin"]
         session = sessionmaker(bind=engine)()
-        user = remove_user(session, user_id, isAdmin)
+        user = remove_user(session, user_id, isAdmin, admin=user, ip=ip)
         session.close()
         if user == False:
             return jsonify({"error": "Failed to remove user"}), 500
@@ -333,14 +340,14 @@ def managment():
             password = None
         session = sessionmaker(bind=engine)()
         if isAdmin == False:
-            user = add_user(session, isAdmin, username, password, pdfs_settings, jwt_settings)
+            user = add_user(session, isAdmin, username, password, pdfs_settings, jwt_settings, admin=user, ip=ip)
             session.close()
             pdfUrl = pdfs_settings['pdfUrl'] + f"?user={user}"
             message = {"message": "OK", "pdfUrl": pdfUrl}
         else:
             if username == None or password == None:
                 return jsonify({"error": "Missing username or password"}), 400
-            user = add_user(session, isAdmin, username, password)
+            user = add_user(session, isAdmin, username, password, admin=user, ip=ip)
             session.close()
             message = {"message": "OK"}
         if user == False:

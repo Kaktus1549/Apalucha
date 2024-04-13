@@ -8,16 +8,18 @@ if apalucha is None:
 path.append(apalucha)
 
 from sql.sql_init import User
+from backend_logging.apalucha_logging import log
 
-def vote_film(film_id, user_id, session):
+def vote_film(film_id, user_id, session, ip=None):
     try:
         user = session.query(User).filter_by(ID=user_id).first()
         if user == None:
-            print(f"User {user_id} not found")
+            log("ERROR", f"User {user_id} not found")
             return False
         user.Vote = int(film_id)
         session.commit()
+        log("INFO", f"User {user_id} voted for film {film_id} from IP address {ip}")
         return True
     except Exception as e:
-        print(e)
+        log("ERROR", f"Got an error while trying to vote for film {film_id} for user {user_id}: {e}")
         return False

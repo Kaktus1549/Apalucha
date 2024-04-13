@@ -10,6 +10,7 @@ if apalucha is None:
     apalucha = "."
 path.append(apalucha)
 from managment.qr_codes import generate_qr_code
+from backend_logging.apalucha_logging import log
 import hashlib
 
 def generate_pdf(url, template_filename, new_filename):
@@ -72,8 +73,5 @@ def generate_pdf(url, template_filename, new_filename):
         
         return True
     except Exception as e:
-        print(f"Got exception while generating PDF: {e}")
+        log("ERROR", f"Got exception while generating PDF: {e}")
         return False
-    
-if __name__ == "__main__":
-    generate_pdf("https://apalucha.kaktusgame.eu/login?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDkxOTc2NjMsImlhdCI6MTcwODMzMzY2MywiaXNzIjoiaHR0cHM6Ly9hcGFsdWNoYS5rYWt0dXNnYW1lLmV1Iiwic3ViIjoxLCJhZG1pbiI6ZmFsc2V9.0azLbsn9nQS720kBol3KiSAl1BRjtESr_c6HQnPeBsA", "./pdfs/template.pdf", "./pdfs/output.pdf")
