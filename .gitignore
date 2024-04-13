@@ -36,3 +36,4 @@ config.json
 .vscode
 bin
 obj
+testing/

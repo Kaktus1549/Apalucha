@@ -3,6 +3,7 @@ import datetime
 import secrets
 from sys import path
 from os import getenv
+import json
 from sqlalchemy import *
 from sqlalchemy.orm import *
 apalucha = getenv("apalucha")
@@ -10,8 +11,13 @@ if apalucha is None:
     apalucha = "."
 path.append(apalucha)
 from sql.sql_init import Admin, User
+from backend_logging.apalucha_logging import log
+with open("config.json", "r") as f:
+    config = json.load(f)
+    debug = config["flask"]["debug"]
 
 def generate_secret(length=64):
+    log("INFO", "Generating secret")
     return secrets.token_urlsafe(length)
 def generate_jwt(secret, expiration, issuer, algorithm, userId, isAdmin=False):
     try:
@@ -25,7 +31,7 @@ def generate_jwt(secret, expiration, issuer, algorithm, userId, isAdmin=False):
         token =  jwt.encode(payload, secret, algorithm=algorithm)
     except Exception as e:
         token = None
-        print(e)
+        log("ERROR", f"Got exception while generating token for user {userId}: {e}")
     return token
 def check_user(user, isAdmin, session):
     if isAdmin:
@@ -38,16 +44,24 @@ def check_user(user, isAdmin, session):
         if result == None:
             return False
         return True
-def decode_jwt(secret, token, session, algorithm="HS256", issuer=None):
+def decode_jwt(secret, token, session, algorithm="HS256", issuer=None, ip="-----"):
     try:
+        if debug:
+            log("DEBUG", f"Decoding token from {ip}")
         payload = jwt.decode(token, secret, algorithms=algorithm, issuer=issuer)
         if payload["iss"] != issuer:
+            log("ERROR", f"Token from {ip} has invalid issuer")
             return None, None
         user_check = check_user(payload["sub"], payload["admin"], session)
         if user_check == False:
+            log("ERROR", f"Token from {ip} has invalid user")
             return None, None
+        if debug:
+            log("DEBUG", f"Token from {ip} decoded successfully")
         return payload["sub"], payload["admin"]
     except jwt.ExpiredSignatureError:
+        log("ERROR", f"Token from {ip} has expired")
         return None, None
     except jwt.InvalidTokenError:
+        log("ERROR", f"Token from {ip} is invalid")
         return None, None

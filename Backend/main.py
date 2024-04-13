@@ -17,7 +17,9 @@ Some cool ascii art :D
 import json
 import secrets
 from sqlalchemy.orm import Session
-from sys import path
+from werkzeug.serving import run_simple
+import logging
+from sys import path, stdout
 
 from os import getenv
 apalucha = getenv("apalucha")
@@ -161,6 +163,26 @@ else:
     print("Config already set up. If you want to change the configuration, please edit the config.json file.")
     print("Gettings things ready...")
 
+# Configure the logger for the application
+from backend_logging.apalucha_logging import CustomRequestHandler, DailyFileHandler
+
+console_logger = logging.getLogger('werkzeug')
+console_logger.setLevel(logging.INFO)
+stream_handler = logging.StreamHandler(stdout)
+stream_handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(message)s')
+stream_handler.setFormatter(formatter)
+console_logger.addHandler(stream_handler)
+
+file_logger = logging.getLogger('logger')
+file_logger.setLevel(logging.DEBUG)
+file_formatter = logging.Formatter('%(message)s')
+daily_file_handler = DailyFileHandler(directory='./logs', encoding='utf-8')
+daily_file_handler.setLevel(logging.DEBUG)
+daily_file_handler.setFormatter(file_formatter)
+file_logger.addHandler(daily_file_handler)
+
+
 # Run the website
 from route import *
 
@@ -169,4 +191,4 @@ if __name__ == "__main__":
     print("\033c")
     print(apalucha_ascii_art)
     print(f"Master user: {config['flask']['masterUsername']}, Password: {config['flask']['masterPassword']}")
-    app.run(host=config["flask"]["address"], port=config["flask"]["port"], debug=config["flask"]["debug"])
+    run_simple(config["flask"]["address"], config["flask"]["port"], app, use_debugger=config["flask"]["debug"], request_handler=lambda *args: CustomRequestHandler(*args, console_logger=console_logger, file_logger=file_logger))
