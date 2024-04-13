@@ -18,9 +18,9 @@ def add_user(session, isAdmin=False, username=None, password=None, pdfs_settings
         if isAdmin:
             status = create_admin(username, password, session)
             if status == False:
-                log("ERROR", f"{admin} from IP address {ip} failed to create new admin {username}")
+                log("ERROR", f"{admin} from IP address {ip} failed to create new admin \"{username}\"")
                 return False
-            log("INFO", f"{admin} from IP address {ip} created new admin {username}")
+            log("INFO", f"{admin} from IP address {ip} created new admin \"{username}\"")
             return True
         else:
             if jwt_settings == None or pdfs_settings == None:
@@ -29,7 +29,7 @@ def add_user(session, isAdmin=False, username=None, password=None, pdfs_settings
             user = User()
             session.add(user)
             session.commit()
-            log("INFO", f"User {user.ID} added by admin {admin} from IP address {ip}")
+            log("INFO", f"User {user.ID} added by admin \"{admin}\" from IP address {ip}")
             user_id = user.ID
             token = generate_jwt(jwt_settings["secret"], jwt_settings["expiration"], jwt_settings["issuer"], jwt_settings["algorithm"], user_id)
             if token == None:
@@ -53,7 +53,7 @@ def remove_user(session, user_id, isAdmin=False, admin="-----", ip="-----"):
         if isAdmin:
             admin = session.query(Admin).filter_by(Username=user_id).first()
             if admin == None:
-                log("ERROR", f"{admin} from IP address {ip} failed to remove admin {user_id}")
+                log("ERROR", f"{admin} from IP address {ip} failed to remove admin \"{user_id}\"")
                 return False
             session.delete(admin)
             session.commit()
@@ -62,18 +62,18 @@ def remove_user(session, user_id, isAdmin=False, admin="-----", ip="-----"):
         else:
             user = session.query(User).filter_by(ID=user_id).first()
             if user == None:
-                log("ERROR", f"Admin {admin} from IP address {ip} failed to remove user {user_id}")
+                log("ERROR", f"Admin \"{admin}\" from IP address {ip} failed to remove user {user_id}")
                 return False
             session.delete(user)
             session.commit()
-            log("INFO", f"Admin {admin} from IP address {ip} removed user {user_id}")
+            log("INFO", f"Admin \"{admin}\" from IP address {ip} removed user {user_id}")
             return True
     except Exception as e:
         log("ERROR", f"Got exception while removing user: {e}")
         return False
 def user_reset(session, deletion=False, admin="-----", ip="-----"):
     try:
-        log("WARNING", f"Resetting users requested by admin {admin} from IP address {ip}")
+        log("WARNING", f"Resetting users requested by admin \"{admin}\" from IP address {ip}")
         if deletion == False:
             # sets users vote count to null
             log("WARNING", f"Resetting vote count")

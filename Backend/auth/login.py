@@ -15,15 +15,15 @@ from backend_logging.apalucha_logging import log
 
 def create_admin(username, password, session):
     try:
-        log("INFO", f"Creating admin {username}")
+        log("INFO", f"Creating admin \"{username}\"")
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         new_admin = Admin(Username=username, PasswordHash=hashed_password)
         session.add(new_admin)
         session.commit()
-        log("INFO", f"Admin {username} created")
+        log("INFO", f"Admin \"{username}\" created")
         return True
     except Exception as e:
-        log("ERROR", f"Failed to create admin {username}: {e}")
+        log("ERROR", f"Failed to create admin \"{username}\": {e}")
         return False
 def login_admin(username, password, session, jwt_settings, ip="-----"):
     try:
