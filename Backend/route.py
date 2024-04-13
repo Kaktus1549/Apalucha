@@ -183,9 +183,11 @@ def scoreboard():
         voteEnd = config["voting"]['voteEnd']
 
         if voteEnd == None:
+            log("INFO", f"Admin \"{user}\" from IP address {request.headers.get('X-REAL-IP', request.remote_addr)} started voting")
             config["voting"]['voteInProgress'] = True
             end = datetime.datetime.now() + datetime.timedelta(seconds=config["voting"]["voteDuration"])
             config["voting"]['voteEnd'] = str(end)
+            log("INFO", f"Scheduling end of voting for {end}")
             films = unsorted_films(session)
             session.close()
             # save config
@@ -193,6 +195,7 @@ def scoreboard():
                 json.dump(config, f, indent=4)
             # schedule end of voting
             scheduler.add_job(end_voting, 'date', run_date=end)
+            log("INFO", "Voting has started")
             if films == False:
                 return jsonify({"error": "Failed to retrieve films"}), 500
             return jsonify({"voteEnd": end, "voteDuration": config["voting"]["voteDuration"], "films": films}), 200
@@ -205,6 +208,7 @@ def scoreboard():
                 return jsonify({"error": "Failed to retrieve films"}), 500
             return jsonify({"voteEnd": config["voting"]['voteEnd'], "voteDuration": remaining, "films": films}), 200
         else:
+            log("INFO", "Voting has ended, sorting films")
             films, votes = sorted_films(session)
             session.close()
             if films == False:
