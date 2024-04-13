@@ -103,6 +103,6 @@ If you find any issues, please report them, I will be happy to fix them.
 
 ## Things to do
 
-- [ ] Ability to change settings like voting time, debug mode, etc.
+- [x] Ability to change settings like voting time, debug mode, etc.
 - [ ] Ability to change text on the pages (like "Choose your film", "Send", etc.)
 - [ ] Fix middleware on /scoreboard page (it`s not firing, maybe misspelled URL?)
