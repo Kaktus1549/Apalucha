@@ -3,6 +3,10 @@ from flask_cors import CORS
 from user_agents import parse
 import datetime
 import sys
+from signal import SIGTERM
+from time import sleep
+from subprocess import Popen
+import threading
 from apscheduler.schedulers.background import BackgroundScheduler
 import json
 from sqlalchemy import *
@@ -40,6 +44,13 @@ def make_engine(database):
 
     engine = create_engine(url, pool_size=int(poolSize), max_overflow=0)
     return engine
+def restart_program():
+    sleep(1)
+    # Start a new instance of the Flask application
+    Popen([sys.executable, __file__])
+
+    # Exit the current process
+    sys.exit(0)
 
 
 # Configs
@@ -252,7 +263,7 @@ def pdf():
     except FileNotFoundError or IsADirectoryError:
         return jsonify({"error": "PDF not found"}), 404
     except Exception as e:
-        print(f"An error ocurred while trying to open the file {pdfPath}: {e}")
+        log("ERROR", f"An error ocurred while trying to open the file {pdfPath}: {e}")
         return jsonify({"error": "An error ocurred while trying to open the file"}), 500
 
 @app.route('/managment', methods=['POST'])
@@ -271,11 +282,13 @@ def managment():
     if request_data == None:
         return jsonify({"error": "The request does not contain a JSON body"}), 400
 
-    action = request_data["action"]
-    action_data = request_data["data"]
+    try:
+        action = request_data["action"]
+        action_data = request_data["data"]
+    except KeyError:
+        return jsonify({"error": "Missing action or data"}), 400
     ip = request.headers.get('X-REAL-IP', request.remote_addr)
     if action == "reset":
-        print(action_data)
         config["voting"]['voteInProgress'] = False
         config["voting"]['voteEnd'] = None
         if action_data["reset_secret"] == True:
@@ -357,3 +370,31 @@ def managment():
         if user == False:
             return jsonify({"error": "Failed to add user"}), 500
         return jsonify(message), 200
+    if action == "change_settings":
+        changed_anything = False
+        for key, value in action_data.items():
+            if key == "voteDuration":
+                changed_anything = True
+                log("INFO", f"Admin \"{user}\" from IP address {ip} changed vote duration from {config['voting']['voteDuration']} to {value}")
+                config["voting"]["voteDuration"] = value
+            if key == "poolSize":
+                log("INFO", f"Admin \"{user}\" from IP address {ip} changed pool size from {config['database']['poolSize']} to {value}")
+                config["database"]["poolSize"] = value
+                changed_anything = True
+            if key == "expiration":
+                log("INFO", f"Admin \"{user}\" from IP address {ip} changed expiration from {config['jwt']['expiration']} to {value}")
+                config["jwt"]["expiration"] = value
+                changed_anything = True
+            if key == "debug":
+                log("INFO", f"Admin \"{user}\" from IP address {ip} changed debug from {config['flask']['debug']} to {value}")
+                config["flask"]["debug"] = value
+                changed_anything = True
+        if changed_anything == False:
+            return jsonify({"error": "No settings changed"}), 400
+        with open(config_file, 'w') as f:
+            json.dump(config, f, indent=4)
+        log("INFO", "Settings successfully changed")
+        log("INFO", "Restarting program")
+        thread = threading.Thread(target=restart_program)
+        thread.start()
+        return jsonify({"message": "OK"}), 200
