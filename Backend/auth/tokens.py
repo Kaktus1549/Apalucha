@@ -69,3 +69,6 @@ def decode_jwt(secret, token, session, algorithm="HS256", issuer=None, ip="-----
         if debug:
             log("ERROR", f"Token from {ip} is invalid")
         return None, None
+    except Exception as e:
+        log("ERROR", f"Got exception while decoding token from {ip}: {e}")
+        return "500", "500"

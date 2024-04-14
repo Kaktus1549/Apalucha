@@ -45,4 +45,4 @@ def login_admin(username, password, session, jwt_settings, ip="-----"):
         return False
     except Exception as e:
         log("ERROR", f"Got exception while logging in as admin \"{username}\" from IP address {ip}: {e}")
-        return False
+        return "500"

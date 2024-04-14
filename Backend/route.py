@@ -119,6 +119,8 @@ def login():
         ip = request.headers.get('X-REAL-IP', request.remote_addr)
         token = login_admin(username, password, session, jwt_settings, ip)
         session.close()
+        if token == "500":
+            return jsonify({"error": "Internal server error"}), 500
         if token == False:
             return jsonify({"error": "Invalid username or password"}), 401
         return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly; Path=/"}
@@ -137,11 +139,12 @@ def login():
 def vote():
     token = request.cookies.get("token")
     if token == None:
-        pass
         return jsonify({"error": "Token not found"}), 401
     session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
     session.close()
+    if user == "500":
+        return jsonify({"error": "Internal server error"}), 500
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
     if isAdmin:
@@ -181,6 +184,8 @@ def scoreboard():
         session = sessionmaker(bind=engine)()
         user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
         session.close()
+        if user == "500":
+            return jsonify({"error": "Internal server error"}), 500
         if user == None:
             return jsonify({"error": "Failed to authenticate"}), 401
         if isAdmin == False:
@@ -233,6 +238,8 @@ def scoreboard():
         session = sessionmaker(bind=engine)()
         user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
         session.close()
+        if user == "500":
+            return jsonify({"error": "Internal server error"}), 500
         if user == None:
             return jsonify({"error": "Failed to authenticate"}), 401
         if isAdmin == False:
@@ -251,6 +258,8 @@ def pdf():
     session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
     session.close()
+    if user == "500":
+        return jsonify({"error": "Internal server error"}), 500
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
     if isAdmin == False:
@@ -274,6 +283,8 @@ def managment():
     session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
     session.close()
+    if user == "500":
+        return jsonify({"error": "Internal server error"}), 500
     if user == None:
         return jsonify({"error": "Failed to authenticate"}), 401
     if isAdmin == False:
