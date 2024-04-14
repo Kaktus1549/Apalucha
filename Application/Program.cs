@@ -220,6 +220,35 @@ namespace ApaluchaApplication{
                     return "False";
                 }
             }
+        }      
+        public static async Task<string> ChangeSettings(HttpClient managmentClient, string url, Dictionary<string, dynamic> settings){
+            var settingsData = new {
+                action = "change_settings",
+                data = settings
+            };
+
+            string jsonData = JsonSerializer.Serialize(settingsData);
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage result = await managmentClient.PostAsync(url, content);
+
+            if(result.IsSuccessStatusCode){
+                return "True";   
+            }
+            else{
+                string responseString = await result.Content.ReadAsStringAsync();
+                try{
+                    var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
+                    string? message = responseJson.GetProperty("error").GetString();
+                    return message ?? "False";
+                }
+                catch(Exception e){
+                    Console.WriteLine(e);
+                    Console.WriteLine(responseString);
+                    AnsiConsole.Markup($"[white on red]An error occured while parsing response: {e}\n");
+                    return "False";
+                }
+            }
         }
         public static List<string> OnStartUp(){
 
@@ -524,12 +553,153 @@ namespace ApaluchaApplication{
                 return;
             }
         }
+        public static async Task ConsoleChangeSettings(HttpClient managementClient, string url){
+            string settingForChange = $@"[bold]Choose setting you want to change: [/]
+    [bold]1.[/] Voting duration
+    [bold]2.[/] Pool size
+    [bold]3.[/] JWT expiration time
+    [bold]4.[/] Debug mode
+
+If you are done, type [bold]c[/] or [bold]continue[/] to continue.
+If you want to quit, type [bold]q[/] or [bold]quit[/].
+";
+
+            Dictionary<string, dynamic> settings = new Dictionary<string, dynamic>();
+            Clear(false);
+            AnsiConsole.Markup(settingForChange);
+            AnsiConsole.Markup("[bold]Choose number of setting you want to change: [/]");
+            string? setting = Console.ReadLine();
+            while(true){
+                if(string.IsNullOrEmpty(setting)){
+                    AnsiConsole.Markup("[white on red]Please enter some setting![/]\n");
+                    setting = Console.ReadLine();
+                }
+                else{
+                    if(setting == "1"){
+                        AnsiConsole.Markup("[bold]Enter new voting duration (in seconds -> just number): [/]");
+                        string? duration = Console.ReadLine();
+                        while(true){
+                            if(string.IsNullOrEmpty(duration)){
+                                AnsiConsole.Markup("[white on red]Please enter some duration![/]\n");
+                            }
+                            // check if duration is number
+                            else if(!int.TryParse(duration, out int vote_result)){
+                                AnsiConsole.Markup("[white on red]Duration must be a number![/]\n");
+                            }
+                            else{
+                                settings.Add("voteDuration", vote_result);
+                                break;
+                            }
+                            AnsiConsole.Markup("[bold]Enter new voting duration (in seconds -> just number): [/]");
+                            duration = Console.ReadLine();
+                        }
+                    }
+                    else if(setting == "2"){
+                        AnsiConsole.Markup("[bold]Enter new pool size: [/]");
+                        string? poolSize = Console.ReadLine();
+                        while(true){
+                            if(string.IsNullOrEmpty(poolSize)){
+                                AnsiConsole.Markup("[white on red]Please enter some pool size![/]\n");
+                            }
+                            // check if poolSize is number
+                            else if(!int.TryParse(poolSize, out int pool_result)){
+                                AnsiConsole.Markup("[white on red]Pool size must be a number![/]\n");
+                            }
+                            else{
+                                settings.Add("poolSize", pool_result);
+                                break;
+                            }
+                            AnsiConsole.Markup("[bold]Enter new pool size: [/]");
+                            poolSize = Console.ReadLine();
+                        }
+                    }
+                    else if (setting == "3"){
+                        AnsiConsole.Markup("[bold]Enter new JWT expiration time (in days -> just number): [/]");
+                        string? jwtExpiration = Console.ReadLine();
+                        while(true){
+                            if(string.IsNullOrEmpty(jwtExpiration)){
+                                AnsiConsole.Markup("[white on red]Please enter some JWT expiration time![/]\n");
+                            }
+                            // check if jwtExpiration is number
+                            else if(!int.TryParse(jwtExpiration, out int jwt_result)){
+                                AnsiConsole.Markup("[white on red]JWT expiration time must be a number![/]\n");
+                            }
+                            else{
+                                settings.Add("jwtExpiration", jwt_result);
+                                break;
+                            }
+                            AnsiConsole.Markup("[bold]Enter new JWT expiration time (in days -> just number): [/]");
+                            jwtExpiration = Console.ReadLine();
+                        }
+                    }
+                    else if (setting == "4"){
+                        AnsiConsole.Markup("[bold]Enter new debug mode (true/false): [/]");
+                        string? debugMode = Console.ReadLine();
+                        while(true){
+                            if(string.IsNullOrEmpty(debugMode)){
+                                AnsiConsole.Markup("[white on red]Please enter some debug mode![/]\n");
+                            }
+                            // check if debugMode is boolean
+                            else if(!bool.TryParse(debugMode, out bool debug_result)){
+                                AnsiConsole.Markup("[white on red]Debug mode must be a boolean![/]\n");
+                            }
+                            else{
+                                settings.Add("debugMode", debug_result);
+                                break;
+                            }
+                            AnsiConsole.Markup("[bold]Enter new debug mode (true/false): [/]");
+                            debugMode = Console.ReadLine();
+                        }
+                    }
+                    else if(setting == "q" || setting == "quit"){
+                        return;
+                    }
+                    else if(setting == "c" || setting == "continue"){
+                        break;
+                    }
+                    else{
+                        AnsiConsole.Markup("[white on red]Invalid setting, please try again![/]\n");
+                        setting = Console.ReadLine();
+                    }
+                Clear(false);
+                AnsiConsole.Markup(settingForChange);
+                AnsiConsole.Markup("[bold]Choose number of setting you want to change: [/]");
+                setting = Console.ReadLine();
+                }
+        }
+            AnsiConsole.Markup("[bold]These settings will be changed: [/]\n");
+            foreach (KeyValuePair<string, dynamic> change in settings){
+                AnsiConsole.Markup($"   [bold]{change.Key}[/]: {change.Value}\n");
+            }
+            AnsiConsole.Markup("[black on yellow]WARNING: Changing settings will lead to server restart! Please be sure that no one is using the app! (it might be down for a while)[/]\n");
+            AnsiConsole.Markup("[bold]Do you want to continue? (yes/no): [/]");
+            string? continueChange = Console.ReadLine();
+            if(continueChange == "no"){
+                return;
+            }
+            else if(continueChange != "yes"){
+                AnsiConsole.Markup("[white on red]Invalid answer, please try again![/]\n");
+                return;
+            }
+
+            string result = await ChangeSettings(managementClient, url, settings);
+
+            if(result == "True"){
+                AnsiConsole.Markup($"[green]Settings were changed successfully! (maybe you will have to restart the app)[/]\n\n");
+                return;
+            }
+            else{
+                AnsiConsole.Markup($"[white on red]There was an error while changing settings: {result}[/]\n\n");
+                return;
+            }
+        }
         public static void Help(){
             AnsiConsole.Markup("[bold]Available commands:[/]\n");
             AnsiConsole.Markup("[bold]add_film[/] => Add film to the voting\n");
             AnsiConsole.Markup("[bold]remove_film[/] => Remove film from the voting\n");
             AnsiConsole.Markup("[bold]add_user[/] => Add user to the voting\n");
             AnsiConsole.Markup("[bold]remove_user[/] => Remove user from the voting\n");
+            AnsiConsole.Markup("[bold]change_settings[/] => Change settings of the voting\n");
             AnsiConsole.Markup("[bold]reset[/] => Reset the voting\n");
             AnsiConsole.Markup("[bold]help[/] => Show available commands\n");
             AnsiConsole.Markup("[bold]clear[/] => Clear the console\n");
@@ -592,6 +762,10 @@ namespace ApaluchaApplication{
                 else if(command == "remove_user"){
                     Clear();
                     await ConsoleRemoveUser(apaluchaClient, apiUrl);
+                }
+                else if(command == "change_settings"){
+                    Clear();
+                    await ConsoleChangeSettings(apaluchaClient, apiUrl);
                 }
                 else if(command == "reset"){
                     Clear();

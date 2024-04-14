@@ -398,3 +398,4 @@ def managment():
         thread = threading.Thread(target=restart_program)
         thread.start()
         return jsonify({"message": "OK"}), 200
+    return jsonify({"error": "Invalid action"}), 400
