@@ -20,7 +20,7 @@ export default async function CheckIfAllowed(request: NextRequest) {
     async function getData(){
         try{
           let result = await fetch(url + "/scoreboard", {
-            method: "POST",
+            method: "GET",
             headers: {
               "Content-Type": "application/json",
               "X-REAL-IP": ip,
