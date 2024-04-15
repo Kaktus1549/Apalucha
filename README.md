@@ -105,4 +105,5 @@ If you find any issues, please report them, I will be happy to fix them.
 
 - [x] Ability to change settings like voting time, debug mode, etc.
 - [ ] Ability to change text on the pages (like "Choose your film", "Send", etc.)
-- [ ] Fix middleware on /scoreboard page (it`s not firing, maybe misspelled URL?)
+- [x] Fix middleware on /scoreboard page (it`s not firing, maybe misspelled URL?)
+- [ ] Test container, that will test application functionality
