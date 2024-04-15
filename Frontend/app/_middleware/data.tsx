@@ -3,11 +3,15 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
+import { headers } from "next/headers";
 
-const url = process.env.BACKEND_URL + '/api/';
+
+const url = process.env.BACKEND_URL;
 
 export default async function CheckIfAllowed(request: NextRequest) {
     const cookieStore = cookies()
+    const headersList = headers();
+    const ip = headersList.get("X-REAL-IP") || request.ip || "";
     let token = cookieStore.get("token");
     if (token === undefined) {
         return NextResponse.redirect(new URL("/login", request.url));
@@ -15,14 +19,15 @@ export default async function CheckIfAllowed(request: NextRequest) {
 
     async function getData(){
         try{
-            let result = await fetch(url + "scoreboard", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Cookie": "token=" + token?.value
-                  }
-            });
-            return (await result.json()) as ScoreboardAPI;
+          let result = await fetch(url + "/scoreboard", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-REAL-IP": ip,
+              "Cookie": "token=" + token?.value
+              }
+          });
+          return (await result.json()) as ScoreboardAPI;
         }
         catch (e) {
             console.error(e);
