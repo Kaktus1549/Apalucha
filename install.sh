@@ -75,6 +75,13 @@ echo ""
 MASTER_PASSWORD=${MASTER_PASSWORD:-klfdjlajflculakjfa099_} # Default value if none provided
 read -p "Enter frontend port (default: 3000): " DOCKER_FRONTEND_PORT
 DOCKER_FRONTEND_PORT=${DOCKER_FRONTEND_PORT:-3000} # Default value if none provided
+read -p "Have you changed something in Language/texts.json? (true/false, default: false): " TEXTS_CHANGED
+TEXTS_CHANGED=${TEXTS_CHANGED:-false} # Default value if none provided
+if [ "$TEXTS_CHANGED" = true ]; then
+    echo "Copying Language/texts.json to Frontend/app/Language/texts.json"
+    cp ./Language/texts.json ./Frontend/app/Language/texts.json
+    echo "Done!"
+fi
 
 clear
 
