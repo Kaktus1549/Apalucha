@@ -104,6 +104,8 @@ If you find any issues, please report them, I will be happy to fix them.
 ## Things to do
 
 - [x] Ability to change settings like voting time, debug mode, etc.
-- [ ] Ability to change text on the pages (like "Choose your film", "Send", etc.)
+- [x] Ability to change text on the pages (like "Choose your film", "Send", etc.)
 - [x] Fix middleware on /scoreboard page (it`s not firing, maybe misspelled URL?)
+- [ ] If film name exceeds certain length, it will be cut off (TestingName to TestingNa...)
+- [ ] CSS fixes
 - [ ] Test container, that will test application functionality
