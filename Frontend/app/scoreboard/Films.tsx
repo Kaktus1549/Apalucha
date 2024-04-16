@@ -146,9 +146,3 @@ export default function DisplayFilms({ inputFilms, ended, votes }: { inputFilms:
     return returnFilms;
   }
 }
-
-let test = {1: 'Numb', 2: 'Dark Beach', 3: 'Sober', 4: 'Knee socks', 5: 'One of the girls', 6: 'TohleJeVeliceDlouhyNazevFilmu'}
-let votes = [1, 2, 3, 4, 5, 6]
-let ended = true
-
-console.log(DisplayFilms({inputFilms: test, ended: ended, votes: votes}))
