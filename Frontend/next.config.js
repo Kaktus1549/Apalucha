@@ -1,5 +1,7 @@
 /**@type {import('next').NextConfig} */
 
+const { hostname } = require('os')
+
 let path = process.env.URL + '/api/:path'
 
 module.exports = {
@@ -12,6 +14,11 @@ module.exports = {
       ]
     },
     images: {
-      domains: ['http.cat'],
+      remotePatterns:[
+        {
+          protocol: 'https',
+          hostname: 'http.cat'
+        }
+      ]
     }
 }
