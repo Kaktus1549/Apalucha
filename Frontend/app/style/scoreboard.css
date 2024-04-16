@@ -64,6 +64,15 @@
     padding: 0;
     text-align: left;
 }
+.non-winning .id{
+    flex: 0.65;
+}
+.non-winning .name{
+    flex: 2.35;
+}
+.vote-run .id{
+    flex: 0.45;
+}
 .name{
     flex: 2;
     font-weight: 500;
@@ -81,6 +90,9 @@
     margin: 0;
     padding: 0;
     text-align: center;
+}
+.non-winning .votes{
+    flex: 0.65;
 }
 .films{
     display: flex;

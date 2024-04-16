@@ -19,7 +19,7 @@ export default function StartButton() {
       setTime(scoreboardData.end_voting_button);
       return;
     }
-    let buttonText = scoreboardData.button_countdown + time.toString()
+    let buttonText = scoreboardData.button_countdown + " " + time.toString()
     setTime(buttonText);
     setTimeout(() => Countdown(time - 1), 1000);
   }
