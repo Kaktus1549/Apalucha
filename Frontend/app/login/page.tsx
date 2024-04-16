@@ -4,8 +4,10 @@ import '../style/login.css'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react';
 import { useEffect } from 'react';
+import LanguageConfig from '../Language/texts.json';
 
 async function login(username: string | null, password: string | null, token: string | null){
+    let loginData = LanguageConfig.login;
     if (username === null && password === null && token === null){
         return;
     }
@@ -39,10 +41,10 @@ async function login(username: string | null, password: string | null, token: st
     }
     else{
         if (data.error == "Invalid username or password"){
-            alert("Špatné uživatelské jméno nebo heslo");
+            alert(loginData.wrong_credentials);
             return;
         }
-        alert("Něco se pokazilo, zkuste to prosím znovu");
+        alert(loginData.login_error);
         console.error(data.error);
     }
 }
@@ -53,6 +55,7 @@ function loginButton(){
 }
 
 export default function Voting(){    
+    let loginData = LanguageConfig.login;
     try{
         const searchParams = useSearchParams();
         const token = searchParams.get('token');
@@ -77,18 +80,17 @@ export default function Voting(){
         <Suspense>
             <div className="login-main-container">
                 <div className="login">
-                    <h1 className='login-h1'>Login</h1>
+                    <h1 className='login-h1'>{loginData.h1}</h1>
                     <div className="login-container">
                         <div className="option-container">
-                            <p>Username</p>
-                            <input id="username" placeholder="Enter username">
-                            </input>
+                            <p>{loginData.username_p}</p>
+                            <input id="username" placeholder={loginData.username_placeholder}></input>
                         </div>
                         <div className="option-container">
-                            <p>Password</p>
-                            <input id="password" type="password" placeholder="Enter password"></input>
+                            <p>{loginData.password_p}</p>
+                            <input id="password" type="password" placeholder={loginData.password_placeholder}></input>
                         </div>
-                        <button onClick={loginButton}>Login</button>
+                        <button onClick={loginButton}>{loginData.login_button}</button>
                     </div>
                 </div>
             </div>

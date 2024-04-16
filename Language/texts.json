@@ -1,0 +1,34 @@
+{
+    "landing":{
+        "h1":"Film voting!",
+        "voting_p":"Zvol si svůj film!",
+        "scoreboard_p":"Scoreboard"
+    },
+    "login":{
+        "h1": "Login",
+        "username_p": "Username",
+        "password_p": "Password",
+        "username_placeholder": "Enter username",
+        "password_placeholder": "Enter password",
+        "login_button": "Login",
+        "wrong_credentials": "Špatné uživatelské jméno nebo heslo",
+        "login_error": "Něco se pokazilo, zkuste to prosím znovu nebo kontaktujte správce"
+    },
+    "scoreboard":{
+        "start_voting_button": "Start",
+        "end_voting_button": "Show results",
+        "button_countdown": "Zbývá",
+        "h1": "Apalucha 2024",
+        "order_p": "Pořadí",
+        "name_p":"Jméno filmu",
+        "votes_p":"Počet hlasů",
+        "error_message": "Něco se pokazilo, zkuste to prosím znovu nebo kontaktujte správce"
+    },
+    "voting":{
+        "not_started":"Jěště jsme nezačali hlasovat!",
+        "film_error": "Něco se pokazilo, zkuste to prosím znovu.",
+        "h1": "Koho dnes zvolíš?",
+        "vote_button":"Odeslat!",
+        "error_message": "Něco se pokazilo, zkuste to prosím znovu nebo kontaktujte správce"
+    }
+}
