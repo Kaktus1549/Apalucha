@@ -1,10 +1,12 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import DisplayFilms from "./Films";
 import CustomError from '../_error/error'
+import LanguageConfig from '../Language/texts.json';
 
 export default function StartButton() {
+  let scoreboardData = LanguageConfig.scoreboard;
   const router = useRouter();
   const [time, setTime] = useState<number | string>("Start");
   const [films, setFilms] = useState<Films>({});
@@ -14,10 +16,10 @@ export default function StartButton() {
 
   async function Countdown(time: number) {
     if (time === 0) {
-      setTime("Show results");
+      setTime(scoreboardData.end_voting_button);
       return;
     }
-    let buttonText = "Zbývá " + time.toString()
+    let buttonText = scoreboardData.button_countdown + time.toString()
     setTime(buttonText);
     setTimeout(() => Countdown(time - 1), 1000);
   }
@@ -51,7 +53,7 @@ export default function StartButton() {
     }
     catch (e) {
       console.error(e);
-      alert("Něco se pokazilo, zkuste to prosím znovu");
+      alert(scoreboardData.error_message);
     }
   }
   
@@ -75,11 +77,11 @@ export default function StartButton() {
           ) : 
           allowed === true && ended === true? (
             <>
-              <h1 className="scoreboard-h1">Apalucha 2024</h1>
+              <h1 className="scoreboard-h1">{scoreboardData.h1}</h1>
               <div className="header-frame">
-                <p className="id">Pořadí</p>
-                <p className="name">Jméno filmu</p>
-                <p className="votes">Počet hlasů</p>
+                <p className="id">{scoreboardData.order_p}</p>
+                <p className="name">{scoreboardData.name_p}</p>
+                <p className="votes">{scoreboardData.votes_p}</p>
               </div>
               <div className="films">
                 <DisplayFilms inputFilms={films || {}} ended={ended || false}  votes={votes || []} />

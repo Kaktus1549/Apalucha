@@ -2,8 +2,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation'
 import CustomError from '../_error/error'
+import LanguageConfig from '../Language/texts.json';
 
 export default function Film() {
+    let votingData = LanguageConfig.voting;
     const [disabledButton, setDisabledButton] = useState<string | null>(null)
     const [renderList, setRenderList] = useState<string[]>([]);
     const [sending, setSending] = useState<boolean>(false)
@@ -57,7 +59,8 @@ export default function Film() {
                 setData({error: "Token not found"} as APIResponse)
             }
             if (response.status === 500) {
-                alert("Něco se pokazilo, zkuste to prosím znovu.")
+                let alert_text = votingData.error_message
+                alert(alert_text)
                 console.error(response)
             }
             setTimeout(() => setSending(false), 2000)
@@ -110,22 +113,19 @@ export default function Film() {
     return (
         <div className="voting-main-container">
             {
-                data.error === "Token not found"?
-                <CustomError statusCode={401} />
-                :
                 data.error === "Voting has not started"?
-                <h1 className="error-message voting-h1">Jěště jsme nezačali hlasovat!</h1>
+                <h1 className="error-message voting-h1">{votingData.not_started}</h1>
                 :
                 data.error === "Could not retrieve films"?
-                <h1 className="error-message voting-h1">Něco se pokazilo, zkuste to prosím znovu.</h1>
+                <h1 className="error-message voting-h1">{votingData.film_error}</h1>
                 : data.error === "Token not found" || data.error === "Failed to authenticate" || data.error === "null"?
-                 <></>
+                    <CustomError statusCode={401} />
                 :
                 data.error === "Admins can't vote"?
                 <CustomError statusCode={403} />
                 :
                 <>
-                    <h1 className="voting-h1">Koho dnes zvolíš?</h1>
+                    <h1 className="voting-h1">{votingData.h1}</h1>
                     <div className="options-container">
                     {renderList.map((id) => (
                         <div key={id} className="option element-appear">
@@ -139,7 +139,7 @@ export default function Film() {
                     {disabledButton !== null ?
                         <footer className="element-appear">
                             <button onClick={() => sendVote(disabledButton)} disabled={sending}>
-                                <p>Odeslat!</p>
+                                <p>{votingData.vote_button}</p>
                             </button>
                         </footer>
                         : null}
