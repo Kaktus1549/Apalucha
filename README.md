@@ -49,7 +49,7 @@ server {
     }
 
     location /api/ {
-        proxy_pass http://127.0.0.1:15213/;
+        proxy_pass http://127.0.0.1:3000/;
         proxy_pass_request_headers on;
         proxy_set_header X-Real-IP $remote_addr;
     }
