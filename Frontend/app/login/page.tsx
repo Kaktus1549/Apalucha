@@ -3,16 +3,16 @@
 import '../style/login.css'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import LanguageConfig from '../Language/texts.json';
 
-async function login(username: string | null, password: string | null, token: string | null){
+async function login(username: string | null, password: string | null, token: string | null, origin: string | null = null){
     let loginData = LanguageConfig.login;
     if (username === null && password === null && token === null){
         return;
     }
     let jsonData;
-    if (username === "" && password === "" || password === null && username === null){
+    if (password === null && username === null && token !== null){
         jsonData = {
             token: token
         }
@@ -35,6 +35,10 @@ async function login(username: string | null, password: string | null, token: st
         if (token !== null){
             window.location.href = '/voting';
         }
+        else if (origin !== null){
+            // if someone sets invalid path, its their skill issue
+            window.location.href = origin;
+        }
         else{
             window.location.href = '/scoreboard';
         }
@@ -48,16 +52,18 @@ async function login(username: string | null, password: string | null, token: st
         console.error(data.error);
     }
 }
-function loginButton(){
-    const username = (document.getElementById('username') as HTMLInputElement).value;
-    const password = (document.getElementById('password') as HTMLInputElement).value;
-    login(username, password, null);
-}
 
 export default function Voting(){    
     let loginData = LanguageConfig.login;
+    const searchParams = useSearchParams();
+    let origin = null as string | null;
     try{
-        const searchParams = useSearchParams();
+        origin = searchParams.get('origin') as string;
+    }
+    catch{
+        console.error("Error while parsing origin");
+    }
+    try{
         const token = searchParams.get('token');
 
         if (token !== null){
@@ -66,6 +72,12 @@ export default function Voting(){
     }
     catch{
         console.error("Error while parsing token");
+    }
+
+    function loginButton(){
+        const username = (document.getElementById('username') as HTMLInputElement).value;
+        const password = (document.getElementById('password') as HTMLInputElement).value;
+        login(username, password, null, origin);
     }
 
     // adds "login-body" class to body
