@@ -127,4 +127,5 @@ DOCKER_FRONTEND_PORT=$DOCKER_FRONTEND_PORT
 EOF
 
 # Run Docker Composer
-docker-compose up --build -d
+docker compose build
+docker compose up -d
