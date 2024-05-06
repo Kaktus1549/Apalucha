@@ -261,7 +261,7 @@ def pdf():
     if user == "500":
         return jsonify({"error": "Internal server error"}), 500
     if user == None:
-        return jsonify({"error": "Failed to authenticate"}), 401
+        return redirect("/login?origin=/pdf?user=" + requestedPdf)
     if isAdmin == False:
         return redirect("/error/403")
     # Returns pdf
