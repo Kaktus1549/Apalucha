@@ -55,23 +55,18 @@ async function login(username: string | null, password: string | null, token: st
 
 export default function Voting(){    
     let loginData = LanguageConfig.login;
-    const searchParams = useSearchParams();
     let origin = null as string | null;
     try{
-        origin = searchParams.get('origin') as string;
-    }
-    catch{
-        console.error("Error while parsing origin");
-    }
-    try{
+        const searchParams = useSearchParams();
         const token = searchParams.get('token');
+        origin = searchParams.get('origin') as string;
 
         if (token !== null){
             login(null, null, token);
         }
     }
     catch{
-        console.error("Error while parsing token");
+        console.error("Error while parsing token or origin");
     }
 
     function loginButton(){
