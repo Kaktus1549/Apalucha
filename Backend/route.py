@@ -254,7 +254,7 @@ def pdf():
         return jsonify({"error": "Missing pdf parameter"}), 400
     token = request.cookies.get("token")
     if token == None:
-        return redirect("/login")
+        return redirect("/login?origin=/pdf=user=" + requestedPdf)
     session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
     session.close()
