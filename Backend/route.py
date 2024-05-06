@@ -259,7 +259,7 @@ def pdf():
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
     session.close()
     if user == "500":
-        return jsonify({"error": "Internal server error"}), 500
+        return redirect("/error/500")
     if user == None:
         return redirect("/login?origin=/pdf?user=" + requestedPdf)
     if isAdmin == False:
@@ -270,10 +270,10 @@ def pdf():
         with open(pdfPath, 'rb') as f:
             return send_file(pdfPath), 200
     except FileNotFoundError or IsADirectoryError:
-        return jsonify({"error": "PDF not found"}), 404
+        return redirect("/error/404")
     except Exception as e:
         log("ERROR", f"An error ocurred while trying to open the file {pdfPath}: {e}")
-        return jsonify({"error": "An error ocurred while trying to open the file"}), 500
+        return redirect("/error/500")
 
 @app.route('/managment', methods=['POST'])
 def managment():
