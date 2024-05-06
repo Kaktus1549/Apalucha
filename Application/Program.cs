@@ -460,7 +460,7 @@ namespace ApaluchaApplication{
                 }
             }
             else{
-                Console.Write(usernameQuestion);
+                AnsiConsole.Markup(usernameQuestion);
                 username = Console.ReadLine();
 
                 while(string.IsNullOrEmpty(username)){
