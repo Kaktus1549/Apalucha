@@ -64,16 +64,27 @@
     height: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: center;
     align-items: center;
     border-radius: 1.25rem;
     border: 4px solid #203966;
     background: #042331;
 }
-.option .film p{
+.name{
+    flex: 3;
     font-weight: 400;
     font-size: 1.85rem;
-    color: #fff;
+    color: #FFF;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+.id{
+    flex: 1;
+    font-weight: 500;
+    font-size: 1.85rem;
+    color: #FFF;
+    margin: 0;
+    padding: 0;
     text-align: center;
 }
 .option button{

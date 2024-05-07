@@ -131,7 +131,8 @@ export default function Film() {
                         <div key={id} className="option element-appear">
                         <button id={id} disabled={id !== null && id === disabledButton} onClick={() => handleSelect(id)}></button>
                         <div className="film">
-                            <p>{data[id]}</p>
+                            <p className="id">{id}</p>
+                            <p className="name">{data[id]}</p>
                         </div>
                         </div>
                     ))}
