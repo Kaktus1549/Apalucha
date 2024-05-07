@@ -61,9 +61,14 @@ export default function StartButton() {
     <>
       
         {ended === null && allowed === true? (
-          <button id="start" onClick={startButton}>
-            {time}
-          </button>
+          <>
+            <button id="start" onClick={startButton}>
+              {time}
+            </button>
+            <div className="apalucha">
+              <h1>Apalucha 2024</h1>
+            </div>
+          </>
         ) :
           ended === false && allowed === true? (
             <>

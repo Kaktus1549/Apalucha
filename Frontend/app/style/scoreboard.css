@@ -1,3 +1,20 @@
+h1{
+    font-weight: 700;
+    font-size: 4.2em;
+    color: #FFF;
+    margin: 0;
+    padding: 0;
+    transform: rotate(-18deg);
+}
+.apalucha{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+}
 .scoreboard-main-container{
     width: 100vw;
     min-height: 100vh;
