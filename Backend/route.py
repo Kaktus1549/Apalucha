@@ -353,9 +353,9 @@ def managment():
         user_id = action_data["user_id"]
         isAdmin = action_data["isAdmin"]
         session = sessionmaker(bind=engine)()
-        user = remove_user(session, user_id, isAdmin, admin=user, ip=ip)
+        user_removal = remove_user(session, user_id, isAdmin, admin=user, ip=ip)
         session.close()
-        if user == False:
+        if user_removal == False:
             return jsonify({"error": "Failed to remove user"}), 500
         return jsonify({"message": "OK"}), 200
     if action == "add_user":

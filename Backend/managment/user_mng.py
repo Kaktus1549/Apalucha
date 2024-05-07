@@ -51,22 +51,22 @@ def add_user(session, isAdmin=False, username=None, password=None, pdfs_settings
 def remove_user(session, user_id, isAdmin=False, admin="-----", ip="-----"):
     try:
         if isAdmin:
-            admin = session.query(Admin).filter_by(Username=user_id).first()
-            if admin == None:
+            remove_admin = session.query(Admin).filter_by(Username=user_id).first()
+            if remove_admin == None:
                 log("ERROR", f"{admin} from IP address {ip} failed to remove admin \"{user_id}\"")
                 return False
-            session.delete(admin)
+            session.delete(remove_admin)
             session.commit()
-            log("INFO", f"{admin} from IP address {ip} removed admin {user_id}")
+            log("INFO", f"{admin} from IP address {ip} removed admin \"{user_id}\"")
             return True
         else:
             user = session.query(User).filter_by(ID=user_id).first()
             if user == None:
-                log("ERROR", f"Admin \"{admin}\" from IP address {ip} failed to remove user {user_id}")
+                log("ERROR", f"Admin \"{admin}\" from IP address {ip} failed to remove user \"{user_id}\"")
                 return False
             session.delete(user)
             session.commit()
-            log("INFO", f"Admin \"{admin}\" from IP address {ip} removed user {user_id}")
+            log("INFO", f"Admin \"{admin}\" from IP address {ip} removed user \"{user_id}\"")
             return True
     except Exception as e:
         log("ERROR", f"Got exception while removing user: {e}")

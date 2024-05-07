@@ -138,7 +138,7 @@ namespace ApaluchaApplication{
                     return message ?? "False";
                 }
                 catch(Exception e){
-                    AnsiConsole.Markup($"[white on red]An error occured while parsing response: {e} \nResponse: {responseString}[/]\n");
+                    Console.WriteLine($"An error occured while parsing response: {e} \nResponse: {responseString}\n");
                     return "False";
                 }
             }
