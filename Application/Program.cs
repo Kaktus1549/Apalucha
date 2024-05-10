@@ -426,6 +426,7 @@ namespace ApaluchaApplication{
 
             string usernameQuestion = "[bold]Enter username of user to add: [/]";
             string passwordQuestion = "[bold]Enter password of user to add: [/]";
+            string passwordCheck = "[bold]Enter password again: [/]";
             string isAdminQuestion = "[bold]Is user admin? (yes/no): [/]";
 
             AnsiConsole.Markup(isAdminQuestion);
@@ -470,12 +471,49 @@ namespace ApaluchaApplication{
                 }
 
                 AnsiConsole.Markup(passwordQuestion);
-                password = Console.ReadLine();
+                password = "";
+                ConsoleKeyInfo key = Console.ReadKey(true);
+                while (key.Key != ConsoleKey.Enter){
+                    if (key.Key != ConsoleKey.Backspace){
+                        password += key.KeyChar;
+                        Console.Write("*");
+                    }
+                    else{
+                        if (password.Length > 0){
+                            password = password.Substring(0, password.Length - 1);
+                            Console.Write("\b \b");
+                        }
+                    }
+                    key = Console.ReadKey(true);
+                }
 
                 while(string.IsNullOrEmpty(password)){
                     AnsiConsole.Markup("[white on red]Please enter some password![/]\n\n");
                     AnsiConsole.Markup(passwordQuestion);
                     password = Console.ReadLine();
+                }
+                Console.WriteLine();
+
+                AnsiConsole.Markup(passwordCheck);
+                string passwordCheckString = "";
+                ConsoleKeyInfo keyCheck = Console.ReadKey(true);
+                while (keyCheck.Key != ConsoleKey.Enter){
+                    if (keyCheck.Key != ConsoleKey.Backspace){
+                        passwordCheckString += keyCheck.KeyChar;
+                        Console.Write("*");
+                    }
+                    else{
+                        if (passwordCheckString.Length > 0){
+                            passwordCheckString = passwordCheckString.Substring(0, passwordCheckString.Length - 1);
+                            Console.Write("\b \b");
+                        }
+                    }
+                    keyCheck = Console.ReadKey(true);
+                }
+                Console.WriteLine();
+                if(password != passwordCheckString){
+                    AnsiConsole.Markup("[white on red]Passwords don't match![/]\n\n");
+                    return;
                 }
 
                 string result = await AddUser(managementClient, isAdmin, url, username, password);
