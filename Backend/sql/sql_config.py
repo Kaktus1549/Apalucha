@@ -13,6 +13,9 @@ def make_engine(database):
     address = database["address"]
     name = database["name"]
     poolSize = database["poolSize"]
+    maxOverflow = database["poolOverflow"]
+    poolRecycle = database["poolRecycle"]
+    poolTimeout = database["poolTimeout"]
 
     url = "mysql+pymysql://{0}:{1}@{2}:{3}/{4}".format(username, password, address, port, name)
     max_retries = 60
@@ -21,7 +24,7 @@ def make_engine(database):
     for attempt in range(max_retries):
         try:
             # Use pre_ping to check connections before use
-            engine = create_engine(url, pool_size=int(poolSize), max_overflow=0, pool_pre_ping=True)
+            engine = create_engine(url, pool_size=int(poolSize), max_overflow=int(maxOverflow), pool_pre_ping=True, pool_recycle=int(poolRecycle), pool_timeout=int(poolTimeout))
             # Try to connect to the database to see if it's up
             with engine.connect() as conn:
                 log("INFO", f"Successfully connected to the database on attempt {attempt + 1}")

@@ -1,6 +1,6 @@
 #
 # This site was created by Kaktus1549 from KaktusGame.eu
-
+#
 #     ,*-.       /$$   /$$           /$$         /$$                          /$$$$$$                                         ,*-.  
 #     |* |      | $$  /$$/          | $$        | $$                         /$$__  $$                                        | *|
 # ,.  | *|      | $$ /$$/   /$$$$$$ | $$   /$$ /$$$$$$   /$$   /$$  /$$$$$$$| $$  \__/  /$$$$$$  /$$$$$$/$$$$   /$$$$$$   ,.  |* |
@@ -58,11 +58,14 @@ if config['setuped'] == False:
     db_port = int(getenv("DB_PORT", 3306))
     username = getenv("DB_USERNAME", "root")
     password = getenv("DB_PASSWORD", "root")
-    name = getenv("DB_NAME", "apalucha")
+    name =  "apalucha"
     poolSize = int(getenv("DB_POOLSIZE", 20))
-    adminTable = getenv("DB_TABLE_ADMIN", "Admins")
-    userTable = getenv("DB_TABLE_USER", "Users")
-    filmsTable = getenv("DB_TABLE_FILMS", "Films")
+    poolOverflow = int(getenv("DB_POOL_OVERFLOW", 20))
+    poolRecycle = int(getenv("DB_POOL_RECYCLE", 3600))
+    poolTimeout = int(getenv("DB_POOL_TIMEOUT", 30))
+    adminTable = "Admins"
+    userTable = "Users"
+    filmsTable = "Films"
 
     # Master user
     masterUsername = getenv("MASTER_USERNAME", "admin")
@@ -102,6 +105,9 @@ if config['setuped'] == False:
             "password": password,
             "name": name,
             "poolSize": poolSize,
+            "poolOverflow": poolOverflow,
+            "poolRecycle": poolRecycle,
+            "poolTimeout": poolTimeout,
             "tableNames": {
                 "admin": adminTable,
                 "user": userTable,
@@ -146,7 +152,10 @@ if config['setuped'] == False:
         "username": username,
         "password": password,
         "name": name,
-        "poolSize": poolSize
+        "poolSize": poolSize,
+        "poolOverflow": poolOverflow,
+        "poolRecycle": poolRecycle,
+        "poolTimeout": poolTimeout
     }
     engine = make_engine(db_config)
     session = Session(engine)

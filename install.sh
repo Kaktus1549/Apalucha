@@ -20,6 +20,12 @@ DATABASE_PASSWORD=${DATABASE_PASSWORD:-jkklf84ZZFaIkcula#_??} # Default value if
 echo ""
 read -p "Enter pool size (default: 20): " POOL_SIZE
 POOL_SIZE=${POOL_SIZE:-20} # Default value if none provided
+read -p "Enter database overflow -> how many more connections can be created than the pool size (default: 20): " DATABASE_OVERFLOW
+DATABASE_OVERFLOW=${DATABASE_OVERFLOW:-20} # Default value if none provided
+read -p "Enter pool recycle time in seconds (default: 3600): " POOL_RECYCLE_TIME
+POOL_RECYCLE_TIME=${POOL_RECYCLE_TIME:-3600} # Default value if none provided
+read -p "Enter pool timeout in seconds (default: 30): " POOL_TIMEOUT
+POOL_TIMEOUT=${POOL_TIMEOUT:-30} # Default value if none provided
 read -p "Enter database port (default: 3306): " DATABASE_PORT
 DATABASE_PORT=${DATABASE_PORT:-3306} # Default value if none provided
 
@@ -93,10 +99,10 @@ echo "Pulling images from Docker Hub..."
 cat << EOF > ./Backend/.env
 DB_PASSWORD=$DATABASE_PASSWORD
 DB_USERNAME=$DATABASE_USER
-DATABASE_USER=$DATABASE_USER
-DATABASE_PASSWORD=$DATABASE_PASSWORD
-DATABASE_PORT=$DATABASE_PORT
-POOL_SIZE=$POOL_SIZE
+DB_POOLSIZE=$POOL_SIZE
+DB_POOL_OVERFLOW=$DATABASE_OVERFLOW
+DB_POOL_RECYCLE=$POOL_RECYCLE_TIME
+DB_POOL_TIMEOUT=$POOL_TIMEOUT
 MASTER_USERNAME=$MASTER_USERNAME
 MASTER_PASSWORD=$MASTER_PASSWORD
 JWT_SECRET=$JWT_SECRET
