@@ -66,7 +66,7 @@ export default function StartButton() {
               {time}
             </button>
             <div className="apalucha">
-              <h1>Apalucha 2024</h1>
+              <h1 className="rotated">Apalucha 2024</h1>
             </div>
           </>
         ) :

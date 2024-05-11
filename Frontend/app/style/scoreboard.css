@@ -1,4 +1,4 @@
-h1{
+.rotated{
     font-weight: 700;
     font-size: 4.2em;
     color: #FFF;
@@ -14,6 +14,7 @@ h1{
     align-items: center;
     justify-content: center;
     position: absolute;
+    z-index: -1;
 }
 .scoreboard-main-container{
     width: 100vw;
@@ -195,4 +196,7 @@ h1{
     padding-left: 20px;
     opacity: 0;
     animation: appear 0.7s ease-in-out forwards;
+}
+.hidden{
+    visibility: hidden;
 }
