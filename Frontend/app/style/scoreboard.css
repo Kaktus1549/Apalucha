@@ -184,6 +184,21 @@
       opacity: 1;
     }
 }
+@keyframes top3 {
+    0%{
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+    }
+}
+.hidden{
+    opacity: 0;
+    animation: none;
+}
+.reveal{
+    animation: top3 0.7s ease-in-out forwards;
+}
 .vote-run .film{
     width: 30%;
     height: 4.6rem;
@@ -196,7 +211,4 @@
     padding-left: 20px;
     opacity: 0;
     animation: appear 0.7s ease-in-out forwards;
-}
-.hidden{
-    visibility: hidden;
 }

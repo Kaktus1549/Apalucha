@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DisplayFilms from "./Films";
 import CustomError from '../_error/error'
 import LanguageConfig from '../Language/texts.json';
@@ -56,6 +56,38 @@ export default function StartButton() {
       alert(scoreboardData.error_message);
     }
   }
+  function revealLastFilms() {
+    try{
+      // selects all elements with class hidden
+      let elements = document.getElementsByClassName("hidden");
+      // sorts the elements by their id
+      let sortedElements = Array.from(elements).sort((a, b) => {
+        return parseInt(a.id) - parseInt(b.id);
+      });
+      // for highest id element, remove class hidden
+      sortedElements[sortedElements.length - 1].classList.replace("hidden", "reveal");
+    }
+    catch(e){
+      return;
+    }
+  }
+
+  useEffect(() => {
+    const keyDownHandler = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        if (ended === true){
+          revealLastFilms();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', keyDownHandler);
+
+    return () => {
+      document.removeEventListener('keydown', keyDownHandler);
+    };
+  }, [ended, revealLastFilms]);
   
   return (
     <>
