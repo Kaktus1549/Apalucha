@@ -7,7 +7,7 @@ if apalucha is None:
     apalucha = "."
 path.append(apalucha)
 
-from sql.sql_init import Films
+Films = None
 from backend_logging.apalucha_logging import log
 
 def add_film(session, title, team, admin="-----", ip="-----"):

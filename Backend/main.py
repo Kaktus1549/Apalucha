@@ -26,6 +26,7 @@ if apalucha is None:
     apalucha = "."
 path.append(apalucha)
 
+from backend_logging.apalucha_logging import log
 
 # Default values
 apalucha_ascii_art = """
@@ -111,7 +112,7 @@ if config['setuped'] == False:
             "tableNames": {
                 "admin": adminTable,
                 "user": userTable,
-                "films": filmsTable
+                "default": filmsTable
             }
         },
         "jwt": {
@@ -144,6 +145,7 @@ if config['setuped'] == False:
 
     # Create master user
     from sql.sql_config import make_engine
+    from sql.sql_init import create_vote_table
     from auth.login import create_admin
 
     db_config = {
@@ -160,6 +162,7 @@ if config['setuped'] == False:
     engine = make_engine(db_config)
     session = Session(engine)
     create_admin(masterUsername, masterPassword, session)
+
     session.close()
     print(f"Master user created! Username: {masterUsername}, Password: {masterPassword}")
 
