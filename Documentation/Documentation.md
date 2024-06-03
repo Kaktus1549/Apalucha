@@ -182,6 +182,18 @@
 }
 ```
 
+### webhooks
+
+```json
+{
+    "action": "webhooks",
+    "data": {
+        "webhook_logging": true/false/null,
+        "url": "<url>"/null
+    }
+}
+```
+
 ## /pdf
 
 - URL -> /pdf?user=<user_id>
