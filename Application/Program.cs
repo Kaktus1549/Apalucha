@@ -252,7 +252,7 @@ namespace ApaluchaApplication{
         }
         public static async Task<string> ChangeWebhooks(HttpClient managmentClient, string url, Dictionary<string, dynamic> webhooks){
             var webhooksData = new {
-                action = "change_webhooks",
+                action = "webhooks",
                 data = webhooks
             };
 
