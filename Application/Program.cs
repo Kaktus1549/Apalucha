@@ -855,8 +855,8 @@ If you want to quit, type [bold]q[/] or [bold]quit[/].
         else{
             AnsiConsole.Markup($"[white on red]There was an error while changing webhooks: {result}[/]\n\n");
             return;
+            }
         }
-
 
         public static void Help(){
             AnsiConsole.Markup("[bold]Available commands:[/]\n");
