@@ -8,58 +8,44 @@
 {
     "setuped": false,
     "database": {
-        "address": "db",
-        "port": 3306,
-        "username": "Funni",
-        "password": "WhoNeedSecurePasswordAnywayAmIRight?",
+        "address": "127.0.0.1",
+        "port": 9090,
+        "username": "<username>",
+        "password": "<password>",
         "name": "apalucha",
-        "poolSize": 40,
-        "poolOverflow": 25,
-        "poolRecycle": 3600,
-        "poolTimeout": 35,
+        "poolSize": 10,
         "tableNames": {
             "admin": "Admins",
             "user": "Users",
-            "default": "Films"
+            "films": "Films"
         }
     },
     "jwt": {
-        "secret": "LeSecrete",
-        "expiration": 7,
-        "issuer": "https://apalucha.kaktusgame.eu",
+        "secret": "<secret>",
+        "expiration": 30,
+        "issuer": "https://kaktusgame.eu",
         "algorithm": "HS256"
     },
-    "pdfs": {
-        "path": "./pdfs/",
-        "template": "template.pdf",
-        "loginUrl": "https://apalucha.kaktusgame.eu/login",
-        "pdfUrl": "https://apalucha.kaktusgame.eu/pdf"
+    "pdfs":{
+        "path": "<path>",
+        "template":"template.pdf",
+        "loginUrl":"https://apalucha.kaktusgame.eu/login",
+        "pdfUrl":"https://apalucha.kaktusgame.eu/pdf"
     },
-    "voting": {
-        "voteDuration": 20,
+    "voting":{
+        "voteDuration": 10,
         "voteInProgress": false,
         "voteEnd": null
     },
-    "flask": {
+    "flask":{
         "address": "0.0.0.0",
         "port": 5000,
-        "debug": false,
-        "masterUsername": "LeMaster",
-        "masterPassword": "Passworde123"
+        "debug": false
     }
 }
 ```
 
 ## Backend
-
-### Backend logging
-
-__apalucha_logging.py__:
-    - **class CustomFormatter(logging.Formatter)** -> Custom formatter for logging (like colors, ...)
-    - **DailyFileHandler(logging.FileHandler)** -> Custom file handler for logging (creates new log file every day)
-    - **CustomRequestHandler(WSGIRequestHandler)** -> Custom request handler for flask (overwrites default log handler)
-    - **apalucha_logger** -> Logger for backend, logs to console and file via function log
-    - **log(level, message)** -> Logs message with level to console and file
 
 ### AUTH
 

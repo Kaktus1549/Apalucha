@@ -7,10 +7,8 @@ if apalucha is None:
     apalucha = "."
 path.append(apalucha)
 
-from sql.sql_init import User
+from sql.sql_init import User, Films
 from backend_logging.apalucha_logging import log
-
-Films = None
 
 def count_votes(session):
     # Goes through all users and counts their votes, in column Vote is the film id
