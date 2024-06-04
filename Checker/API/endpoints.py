@@ -22,9 +22,14 @@ def api_create_user(url, token, is_admin, username=None, password=None):
             "password": None
         }
     response = requests.post(url,headers={'Cookie': cookie} , json={"action":"add_user", "data": data})
-    if response.status_code == 200:
-        return True
-    return False
+    if is_admin:
+        if response.status_code == 200:
+            return True
+        return False
+    else:
+        response_json = response.json()
+        # pdfUrl
+        return response_json['pdfUrl']
 def api_delete_user(url, token, is_admin, username):
     cookie = f"token={token}"
     url = url + "/managment"

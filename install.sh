@@ -126,6 +126,14 @@ URL=$WEBSITE_URL
 BACKEND_URL=http://apalucha-backend:5000
 EOF
 
+cat << EOF > ./Checker/.env
+URL=$WEBSITE_URL
+DB_PASSWORD=$DATABASE_PASSWORD
+DB_USERNAME=$DATABASE_USER
+MASTER_PASSWORD=$MASTER_PASSWORD
+MASTER_USERNAME=$MASTER_USERNAME
+EOF
+
 cd Docker
 
 # Creates .env with environment variables for Docker Compose

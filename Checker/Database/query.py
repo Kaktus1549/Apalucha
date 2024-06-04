@@ -13,6 +13,9 @@ def check_user_exists(session, user_id, is_admin):
         return session.query(User).filter(User.ID == user_id).count() > 0
 def check_film_exists(session, film_id):
     return session.query(Films).filter(Films.ID == film_id).count() > 0
+def delete_film(session, film_id):
+    session.query(Films).filter(Films.ID == film_id).delete()
+    session.commit()
 def create_testing_user(session, user_id, is_admin):
     if is_admin:
         session.add(Admin(Username=user_id, PasswordHash="1234"))
