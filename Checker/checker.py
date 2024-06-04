@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 from sys import path
+from time import sleep
 path.append(".")
 load_dotenv()
 

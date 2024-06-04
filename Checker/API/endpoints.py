@@ -35,7 +35,7 @@ def api_delete_user(url, token, is_admin, username):
     url = url + "/managment"
     data = {
         "isAdmin": is_admin,
-        "username": username
+        "user_id": username
     }
     response = requests.post(url,headers={'Cookie': cookie} , json={"action":"remove_user", "data": data})
     if response.status_code == 200:
