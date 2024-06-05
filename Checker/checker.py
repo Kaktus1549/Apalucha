@@ -83,18 +83,20 @@ if api_create_film(url, token, test_film, test_film_team):
     sleep(1.5)
     session = Session(engine)
     if check_film_exists(session, test_film):
-        log("DEBUG", f"{check_film_exists(session, test_film)}")
+        session.close()
+        session = Session(engine)
         log("INFO", "Film is in database, proceeding to delete")
         sleep(1.5)
         if api_delete_film(url, token, test_film):
             log("INFO", "Endpoint said film was deleted")
             sleep(1.5)
-            log("DEBUG", f"{check_film_exists(session, test_film)}")
+            session.close()
+            session = Session(engine)
             if not check_film_exists(session, test_film):
                 log("INFO", "Film is not in database")
             else:
                 log("ERROR", "Film is still in database")
-                #delete_film(session, test_film)
+                delete_film(session, test_film)
                 error_count += 1
         else:
             log("ERROR", "Endpoint said film was not deleted")
@@ -102,7 +104,6 @@ if api_create_film(url, token, test_film, test_film_team):
     else:
         log("DEBUG", f"{check_film_exists(session, test_film)}")
         log("ERROR", "Film is not in database")
-        exit()
         error_count += 1
     session.close()
 else:
@@ -115,21 +116,26 @@ test_admin = "KneeSocks"
 test_admin_password = "Arct1cM0nk3ysF0rTheW1n?!."
 
 log("INFO", f"Creating admin {test_admin}... ")
+sleep(1.5)
 if api_create_user(url, token, True, test_admin, test_admin_password):
     log("INFO", "Endpoint said admin was created")
     log("INFO", "Checking if admin is in database... ")
     session = Session(engine)
     if check_user_exists(session, test_admin, True):
         log("INFO", "Admin is in database, proceeding to delete")
+        session.close()
+        session = Session(engine)
         sleep(1.5)
         if api_delete_user(url, token, True, test_admin):
             log("INFO", "Endpoint said admin was deleted")
+            session.close()
+            session = Session(engine)
             sleep(1.5)
             if not check_user_exists(session, test_admin, True):
                 log("INFO", "Admin is no longer in database")
             else:
                 log("ERROR", "Admin is still in database")
-                #delete_testing_user(session, test_admin, True)
+                delete_testing_user(session, test_admin, True)
                 error_count += 1
         else:
             log("ERROR", "Endpoint said admin was not deleted")
@@ -154,9 +160,13 @@ try:
     sleep(1.5)
     if check_user_exists(session, user_id, False):
         log("INFO", "User is in database, proceeding to delete")
+        session.close()
+        session = Session(engine)
         sleep(1.5)
         if api_delete_user(url, token, False, user_id):
             log("INFO", "Endpoint said user was deleted")
+            session.close()
+            session = Session(engine)
             sleep(1.5)
             if not check_user_exists(session, user_id, False):
                 log("INFO", "User is no longer in database")

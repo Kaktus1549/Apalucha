@@ -4,7 +4,7 @@ from sqlalchemy.orm import *
 path.append(".")
 
 from Database.tables import User, Admin, Films
-
+from Database.engine import make_engine
 
 def check_user_exists(session, user_id, is_admin):
     if is_admin:
@@ -12,11 +12,9 @@ def check_user_exists(session, user_id, is_admin):
     else:
         user = session.query(User).filter_by(ID=user_id).first()
     return user is not None
-
 def check_film_exists(session, film_id):
-    film = session.query(Films).filter_by(ID=film_id).first()
+    film = session.query(Films).filter_by(Title=film_id).first()
     return film is not None
-
 def delete_film(session, film_id):
     session.query(Films).filter(Films.Title == film_id).delete()
     session.commit()
