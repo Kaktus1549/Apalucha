@@ -8,13 +8,17 @@ from Database.tables import User, Admin, Films
 
 def check_user_exists(session, user_id, is_admin):
     if is_admin:
-        return session.query(Admin).filter(Admin.Username == user_id).count() > 0
+        user = session.query(Admin).filter_by(Username=user_id).first()
     else:
-        return session.query(User).filter(User.ID == user_id).count() > 0
+        user = session.query(User).filter_by(ID=user_id).first()
+    return user is not None
+
 def check_film_exists(session, film_id):
-    return session.query(Films).filter(Films.Title == film_id).count() < 0
+    film = session.query(Films).filter_by(ID=film_id).first()
+    return film is not None
+
 def delete_film(session, film_id):
-    session.query(Films).filter(Films.ID == film_id).delete()
+    session.query(Films).filter(Films.Title == film_id).delete()
     session.commit()
 def create_testing_user(session, user_id, is_admin):
     if is_admin:

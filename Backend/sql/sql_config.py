@@ -4,7 +4,7 @@ import time
 from sys import path
 path.append(".")
 
-from backend_logging.apalucha_logging import log
+from backend_logging.apalucha_logging import log as logger
 
 def make_engine(database, log=True):
     username = database["username"]
@@ -28,10 +28,10 @@ def make_engine(database, log=True):
             # Try to connect to the database to see if it's up
             with engine.connect() as conn:
                 if log:
-                    log("INFO", f"Successfully connected to the database on attempt {attempt + 1}")
+                    logger("INFO", f"Successfully connected to the database on attempt {attempt + 1}")
                 return engine
         except OperationalError as e:
             if log:
-                log("ERROR", f"Attempt {attempt + 1}: Database connection failed. Retrying in {delay_between_retries} seconds...")
+                logger("ERROR", f"Attempt {attempt + 1}: Database connection failed. Retrying in {delay_between_retries} seconds...")
             time.sleep(delay_between_retries)
     raise Exception("Failed to connect to the database after several attempts.")
