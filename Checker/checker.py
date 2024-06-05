@@ -187,11 +187,11 @@ except Exception as e:
 sleep(1.5)
 log("INFO", "Testing finished")
 if error_count == 0:
-    log("INFO", "0/6 tests failed, system is operational")
+    log("INFO", "0/6 tests failed, system is fully operational")
 elif error_count <= 3:
-    log("ERROR", f"{error_count}/6 tests failed, system should be operational")
+    log("ERROR", f"{error_count}/6 tests failed, be aware that the system might not be fully operational")
 else:
-    log("CRITICAL", f"{error_count}/6 tests failed, system is not operational")
+    log("CRITICAL", f"{error_count}/6 tests failed, contact administrator immediately!!!")
 
 log("INFO", "Exiting Apalucha checker... ")
 exit()
