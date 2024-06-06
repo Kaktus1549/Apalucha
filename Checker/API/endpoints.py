@@ -90,11 +90,70 @@ def api_get_voting_token(url, token, user_id):
     voting_token = login_url.split("?token=")[1]
     return voting_token
 def api_vote(url, token, film_id):
-    pass
+    url = url + "/voting"
+    cookie = f"token={token}"
+    # First sends GET request to get json of films
+    response = requests.get(url, headers={'Cookie': cookie})
+    films = response.json()
+    # Check if film_id is in films, if yes creates vote json where "vote":"<key of film id>"
+    # Example: {"vote":"1"}
     # {"1":"test","2":"test2"}
+
+    for key in films:
+        if films[key] == film_id:
+            vote = key
+            break
+        else:
+            vote = None
+    if vote is None:
+        return False
+    data = {
+        "vote": vote
+    }
+    response = requests.post(url, headers={'Cookie': cookie}, json=data)
+    if response.status_code == 200:
+        return True
+    return False
 def api_start_voting(url, token, excepted_time):
-    pass
-def api_check_vote_results(url, token):
-    pass
+    cookie = f"token={token}"
+    url = url + "/scoreboard"
+
+    # sends POST request to start voting, server responds with json where is "voteDuration" key, check if it is equal to excepted_time (or close to it)
+    response = requests.post(url, headers={'Cookie': cookie})
+    response_json = response.json()
+    # close means that difference between excepted_time and response_json['voteDuration'] is less than 5 seconds
+    close = abs(excepted_time - response_json['voteDuration']) < 5
+    if close:
+        return True
+    return False
+def api_check_vote_results(url, token, film_id):
+    url = url + "/scoreboard"
+    cookie = f"token={token}"
+    # First sends POST request to get json of films
+    response = requests.post(url, headers={'Cookie': cookie})
+    films = response.json()
+    films_list = films['films']
+    votes = films['votes']
+    # Check if film_id is in films, if yes chcecks if film_id has 1 vote
+    for i in range(len(films_list)):
+        if films_list[i] == film_id:
+            if votes[i] == 1:
+                return True
+            else:
+                return False
+    return False
 def api_reset_voting(url, token):
-    pass
+    url = url + "/managment"
+    cookie = f"token={token}"
+    data = {
+        "action": "reset",
+        "data": {
+            "reset_secret": False,
+            "full_reset": False
+        }
+    }
+
+    response = requests.post(url, headers={'Cookie': cookie}, json=data)
+    if response.status_code == 200:
+        return True
+    return False
