@@ -1,17 +1,3 @@
-function checkFilmName(name: string){
-    // if name is longer than 16 characters, cut it off on 13th character and add "..."
-    if (name.length > 20) {
-      return name.slice(0, 17) + "...";
-    }
-    return name;
-}
-function voteRunFilmName(name: string){
-    // if name is longer than 16 characters, cut it off on 13th character and add "..."
-    if (name.length > 17) {
-      return name.slice(0, 14) + "...";
-    }
-    return name;
-}
 function endDelay(order: number, filmLength: number){
   if ([1, 2, 3].includes(order)){
       return "0s";
@@ -36,19 +22,19 @@ export default function DisplayFilms({ inputFilms, ended, votes }: { inputFilms:
       returnFilms.push(
         <div style={{animationDelay: (i/delay).toString() + "s"}} key={"fimls-" + i.toString()} className="film">
           <p className="id">{i + 1}</p>
-          <p className="name">{voteRunFilmName(inputFilms[i + 1])}</p>
+          <p className="name">{inputFilms[i + 1]}</p>
         </div>
       );
       returnFilms.push(
         <div style={{animationDelay: ((i + third)/delay).toString() + "s"}} key={(i + third).toString()} className="film">
           <p className="id">{i + third + 1}</p>
-          <p className="name">{voteRunFilmName(inputFilms[i + third + 1])}</p>
+          <p className="name">{inputFilms[i + third + 1]}</p>
         </div>
       );
       returnFilms.push(
         <div style={{animationDelay: ((i + third *2)/delay).toString() + "s"}} key={(i + 2 * third).toString()} className="film">
           <p className="id">{i + 2 * third + 1}</p>
-          <p className="name">{voteRunFilmName(inputFilms[i + 2 * third + 1])}</p>
+          <p className="name">{inputFilms[i + 2 * third + 1]}</p>
         </div>
       );
     }
@@ -56,20 +42,20 @@ export default function DisplayFilms({ inputFilms, ended, votes }: { inputFilms:
       returnFilms.push(
         <div style={{animationDelay: ((length-1)/delay).toString() + "s"}} key={(length - 1).toString()} className="film">
           <p className="id">{length}</p>
-          <p className="name">{voteRunFilmName(inputFilms[length])}</p>
+          <p className="name">{inputFilms[length]}</p>
         </div>
       );
     } else if (length % 3 === 2) {
       returnFilms.push(
         <div style={{animationDelay: ((length-2)/delay).toString() + "s"}} key={(length - 2).toString()} className="film">
           <p className="id">{length - 1}</p>
-          <p className="name">{voteRunFilmName(inputFilms[length - 1])}</p>
+          <p className="name">{inputFilms[length - 1]}</p>
         </div>
       );
       returnFilms.push(
         <div style={{animationDelay: ((length-1)/delay).toString() + "s"}} key={(length - 1).toString()} className="film">
           <p className="id">{length}</p>
-          <p className="name">{voteRunFilmName(inputFilms[length])}</p>
+          <p className="name">{inputFilms[length]}</p>
         </div>
       );
     }
@@ -95,7 +81,7 @@ export default function DisplayFilms({ inputFilms, ended, votes }: { inputFilms:
         nonWinningFilms.push(
           <div style={{animationDelay: endDelay(i + 1, length)}} className={ [1, 2, 3].includes((i + 1)) ? "film hidden" : "film"} key={i + 1} id={(i+1).toString()}>
             <p className="id">{i + 1}.</p>
-            <p className="name">{checkFilmName(inputFilms[i + 1])}</p>
+            <p className="name">{inputFilms[i + 1]}</p>
             <p className="votes">{votes[i]}</p>
           </div>
         );
@@ -103,7 +89,7 @@ export default function DisplayFilms({ inputFilms, ended, votes }: { inputFilms:
           nonWinningFilms.push(
             <div style={{animationDelay: endDelay(i + half, length)}} className={ [1, 2, 3].includes((i + half)) ? "film hidden" : "film"} key={i + half} id={(i+half).toString()}>
               <p className="id">{i + half}.</p>
-              <p className="name">{checkFilmName(inputFilms[i + half])}</p>
+              <p className="name">{inputFilms[i + half]}</p>
               <p className="votes">{votes[i + half - 1]}</p>
             </div>
           );
@@ -112,7 +98,7 @@ export default function DisplayFilms({ inputFilms, ended, votes }: { inputFilms:
           nonWinningFilms.push(
             <div style={{animationDelay: endDelay(i + half + 1, length)}} className={ [1, 2, 3].includes((i + half + 1))? "film hidden" : "film"} key={i + half + 1} id={(i+half+1).toString()}>
               <p className="id">{i + half + 1}.</p>
-              <p className="name">{checkFilmName(inputFilms[i + half + 1])}</p>
+              <p className="name">{inputFilms[i + half + 1]}</p>
               <p className="votes">{votes[i + half]}</p>
             </div>
           );
@@ -123,14 +109,14 @@ export default function DisplayFilms({ inputFilms, ended, votes }: { inputFilms:
       nonWinningFilms.push(
         <div style={{animationDelay: endDelay(half + 1, length)}} className={ [1, 2, 3].includes((half + 1)) ? "film hidden" : "film"} key={half + 1} id={(half+1).toString()}>
           <p className="id">{half + 1}.</p>
-          <p className="name">{checkFilmName(inputFilms[half + 1])}</p>
+          <p className="name">{inputFilms[half + 1]}</p>
           <p className="votes">{votes[half]}</p>
         </div>
       );
       nonWinningFilms.push(
         <div style={{animationDelay: endDelay(length, length)}} className={ [1, 2, 3].includes(length)? "film hidden" : "film"} key={length} id={length.toString()}>
           <p className="id">{length}.</p>
-          <p className="name">{checkFilmName(inputFilms[length])}</p>
+          <p className="name">{inputFilms[length]}</p>
           <p className="votes">{votes[length - 1]}</p>
         </div>
       );
@@ -139,7 +125,7 @@ export default function DisplayFilms({ inputFilms, ended, votes }: { inputFilms:
       nonWinningFilms.push(
         <div style={{animationDelay: endDelay(length, length)}} className={ [1, 2, 3].includes(length) ? "film hidden" : "film"} key={length} id={length.toString()}>
           <p className="id">{length}.</p>
-          <p className="name">{checkFilmName(inputFilms[length])}</p>
+          <p className="name">{inputFilms[length]}</p>
           <p className="votes">{votes[length - 1]}</p>
         </div>
       );

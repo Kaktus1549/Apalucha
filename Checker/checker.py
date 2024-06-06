@@ -70,6 +70,8 @@ if token is None:
     exit()
 sleep(1.5)
 
+log("INFO", " --- Testing /managment endpoint and admin related operations --- ")
+
 # Film testing 
 
 log("INFO", "Testing film related operations... ")
@@ -187,11 +189,14 @@ except Exception as e:
 sleep(1.5)
 log("INFO", "Testing finished")
 if error_count == 0:
-    log("INFO", "0/6 tests failed, system is fully operational")
+    log("INFO", "0/7 tests failed, /managment endpoint and admin related operations are fully operational")
 elif error_count <= 3:
-    log("ERROR", f"{error_count}/6 tests failed, be aware that the system might not be fully operational")
+    log("ERROR", f"{error_count}/7 tests failed, admin related operations are partially operational")
 else:
-    log("CRITICAL", f"{error_count}/6 tests failed, contact administrator immediately!!!")
+    log("CRITICAL", f"{error_count}/7 tests failed, admin related operations are not operational")
+sleep(5)
+
+log("INFO", " --- Testing voting related operations --- ")
 
 log("INFO", "Exiting Apalucha checker... ")
 exit()
