@@ -279,8 +279,3 @@ When voting ends, server will return:
     "votes":[1, 2]
 }
 ```
-
-
-# FIX
-
-pls fix that issue with scoreboard (films with id 7 are not displayed if they are first)
