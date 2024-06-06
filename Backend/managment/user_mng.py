@@ -1,7 +1,7 @@
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sys import path
-from os import getenv
+from os import getenv, remove
 apalucha = getenv("apalucha")
 if apalucha is None:
     apalucha = "."
@@ -66,7 +66,14 @@ def remove_user(session, user_id, isAdmin=False, admin="-----", ip="-----"):
                 return False
             session.delete(user)
             session.commit()
-            log("INFO", f"Admin \"{admin}\" from IP address {ip} removed user \"{user_id}\"")
+            log("INFO", f"Admin \"{admin}\" from IP address {ip} removed user \"{user_id}\", proceeding to remove PDF")
+            try:
+                pdf_path = "./pdfs/" + f"{user_id}.pdf"
+                remove(pdf_path)
+            except Exception as e:
+                log("ERROR", f"Got exception while removing PDF: {e}")
+                log("WARNING", f"User \"{user_id}\" removed, but PDF was not removed")
+                return False
             return True
     except Exception as e:
         log("ERROR", f"Got exception while removing user: {e}")
