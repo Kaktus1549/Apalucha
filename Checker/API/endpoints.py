@@ -137,7 +137,7 @@ def api_check_vote_results(url, token, film_id):
     # Check if film_id is in films, if yes chcecks if film_id has 1 vote
     for i in range(len(films_list)):
         if films_list[i] == film_id:
-            if votes[i] == 1:
+            if votes[i] >= 1:
                 return True
             else:
                 return False
