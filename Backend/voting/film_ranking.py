@@ -25,6 +25,9 @@ def count_votes(session):
         users = session.query(User).all()
         for user in users:
             film_id = user.Vote
+            if film_id is None:
+                log("WARNING", f"User {user.ID} has no vote, skipping...")
+                continue
             try:
                 film = session.query(Films).filter_by(ID=film_id).first()
                 film.FinalVoteCount += 1
