@@ -64,7 +64,7 @@ engine = make_engine(database)
 log("INFO", "Engine created")
 sleep(1.5)
 
-error_count = 0
+admin_error_list = []
 
 # Login
 log("INFO", f"Logging in as {master_user}... ")
@@ -74,7 +74,7 @@ if token is None:
     exit()
 sleep(1.5)
 
-log("INFO", " --- Testing /managment endpoint and admin related operations --- ")
+log("INFO", "---- Testing /managment endpoint and admin related operations ----")
 
 # Film testing 
 
@@ -103,18 +103,17 @@ if api_create_film(url, token, test_film, test_film_team):
             else:
                 log("ERROR", "Film is still in database")
                 delete_film(session, test_film)
-                error_count += 1
+                admin_error_list.append("Failed to delete film via endpoint")
         else:
             log("ERROR", "Endpoint said film was not deleted")
-            error_count += 1
+            admin_error_list.append("Endpoint says film was not deleted")
     else:
-        log("DEBUG", f"{check_film_exists(session, test_film)}")
         log("ERROR", "Film is not in database")
-        error_count += 1
+        admin_error_list.append("Failed to create film")
     session.close()
 else:
     log("ERROR", "Endpoint said film was not created")
-    error_count += 1
+    admin_error_list.append("Endpoint says film was not created")
 sleep(1.5)
 
 # User testing
@@ -142,17 +141,17 @@ if api_create_user(url, token, True, test_admin, test_admin_password):
             else:
                 log("ERROR", "Admin is still in database")
                 delete_testing_user(session, test_admin, True)
-                error_count += 1
+                admin_error_list.append("Failed to delete admin via endpoint")
         else:
             log("ERROR", "Endpoint said admin was not deleted")
-            error_count += 1
+            admin_error_list.append("Endpoint says admin was not deleted")
     else:
         log("ERROR", "Admin is not in database")
-        error_count += 1
+        admin_error_list.append("Failed to create admin via endpoint")
     session.close()
 else:
     log("ERROR", "Endpoint said admin was not created")
-    error_count += 1
+    admin_error_list.append("Endpoint says admin was not created")
 sleep(1.5)
 
 # Non-admin user testing
@@ -178,31 +177,35 @@ try:
                 log("INFO", "User is no longer in database")
             else:
                 log("ERROR", "User is still in database")
-                #delete_testing_user(session, user_id, False)
-                error_count += 1
+                delete_testing_user(session, user_id, False)
+                admin_error_list.append("Failed to delete non-admin user via endpoint")
         else:
             log("ERROR", "Endpoint said user was not deleted")
-            error_count += 1
+            admin_error_list.append("Endpoint says user was not deleted")
     else:
         log("ERROR", "User is not in database")
-        error_count += 1
+        admin_error_list.append("Failed to create non-admin user via endpoint")
     session.close()
 except Exception as e:
     log("ERROR", f"Failed to create non-admin user: {e}")
-    error_count += 1
+    admin_error_list.append("Failed to create non-admin user")
 sleep(1.5)
 log("INFO", "Testing finished")
-if error_count == 0:
+if len(admin_error_list) == 0:
     log("INFO", "0/7 tests failed, /managment endpoint and admin related operations are fully operational")
-elif error_count <= 3:
-    log("ERROR", f"{error_count}/7 tests failed, admin related operations are partially operational")
+elif len(admin_error_list) <= 3:
+    log("ERROR", f"{len(admin_error_list)}/7 tests failed, admin related operations are partially operational")
 else:
-    log("CRITICAL", f"{error_count}/7 tests failed, admin related operations are not operational")
+    log("CRITICAL", f"{len(admin_error_list)}/7 tests failed, admin related operations are not operational")
 log("INFO", "Admin related operations shouldn't interfere with the rest of the system")
 sleep(5)
 
-log("INFO", " --- Testing voting related operations --- ")
+log("INFO", "---- Testing voting related operations ----")
 
+log("WARNING", "Make sure that voting is NOT running on the system before proceeding with the tests")
+log("WARNING", "No other users should be voting while these tests are running")
+
+voting_error_list = []
 voting_time = 10
 film_name = "IWannaBeYours"
 log("INFO", f"Setting voting time to {voting_time} seconds")
@@ -251,10 +254,13 @@ if api_create_film(url, token, film_name, "Arctic Monkeys"):
             film_check = check_film_vote(Session(engine), film_name)
             if film_check:
                 log("INFO", "Final vote was registered, there might be a problem with checkers results")
+                voting_error_list.append("Final vote was registered, there might be a problem with checkers results")
             else:
                 log("ERROR", "Final vote was not registered")
+                voting_error_list.append("Final vote was not registered")
         else:
             log("ERROR", "Vote was not registered")
+            voting_error_list.append("Failed to register vote")
     log("INFO", "Reseting voting... ")
     reset = api_reset_voting(url, token)
     if reset is False:
@@ -273,7 +279,27 @@ delete_film(session, film_name)
 delete_testing_user(session, user, False)
 session.close()
 log("INFO", "Finished voting tests")
+sleep(5)
 
-
+# Clears the screen
+print("\033c")
+log("INFO", "---- Checker results ----")
+if len(admin_error_list) == 0 and len(voting_error_list) == 0:
+    log("INFO", "All tests were successfully passed, system is fully operational!")
+else:
+    if len(admin_error_list) > 0:
+        log("ERROR", f"Admin related operations failed {len(admin_error_list)}/7 tests, system might not be fully operational")
+        log("ERROR", "These tests failed: ")
+        for error in admin_error_list:
+            log("ERROR", f"    - {error}")
+    else:
+        log("INFO", "Admin related operations passed all tests")
+    if len(voting_error_list) > 0:
+        log("ERROR", f"Voting related operations failed {len(voting_error_list)}/6 tests -> SYSTEM IS DEFINITELY NOT OPERATIONAL")
+        log("ERROR", "These tests failed: ")
+        for error in voting_error_list:
+            log("ERROR", f"    - {error}")
+    else:
+        log("INFO", "Voting related operations passed all tests")
 log("INFO", "Exiting Apalucha checker... ")
 exit()
