@@ -39,6 +39,10 @@ master_password = os.getenv("MASTER_PASSWORD", None)
 if master_password is None:
     log("ERROR", "MASTER_PASSWORD environment variable not found")
     exit()
+original_voting_time = os.getenv("VOTING_TIME", None)
+if original_voting_time is None:
+    log("ERROR", "VOTING_TIME environment variable not found")
+    exit()
 
 db_address = "db"
 db_port = "3306"
@@ -194,9 +198,82 @@ elif error_count <= 3:
     log("ERROR", f"{error_count}/7 tests failed, admin related operations are partially operational")
 else:
     log("CRITICAL", f"{error_count}/7 tests failed, admin related operations are not operational")
+log("INFO", "Admin related operations shouldn't interfere with the rest of the system")
 sleep(5)
 
 log("INFO", " --- Testing voting related operations --- ")
+
+voting_time = 10
+film_name = "IWannaBeYours"
+log("INFO", f"Setting voting time to {voting_time} seconds")
+time = api_change_settings(url, token, voting_time)
+if time == False:
+    log("ERROR", "Failed to change voting time, cannot proceed with voting tests")
+    exit()
+sleep(1.5)
+log("INFO", f"Creating film {film_name}... ")
+if api_create_film(url, token, film_name, "Arctic Monkeys"):
+    log("INFO", "Film created")
+    sleep(1.5)
+    log("INFO", "Creating voting user and getting voting token... ")
+    user_url = api_create_user(url, token, False)
+    log("INFO", "User created")
+    user = user_url.split("?user=")[1]
+    log("INFO", f"Getting voting token for user {user}... ")
+    pdf_url = url + "/pdf?user=" + user
+    user_token = api_get_voting_token(token, pdf_url)
+    if user_token is None:
+        log("ERROR", "Failed to get voting token")
+        exit()
+    sleep(1.5)
+    log("INFO", "Voting token received")
+    sleep(1.5)
+    log("INFO", "Starting voting and sending vote... ")
+    vote_duration = api_start_voting(url, token)
+    if vote_duration is None:
+        log("ERROR", "Failed to start voting")
+        exit()
+    vote = api_vote(url, user_token, film_name)
+    if vote is False:
+        log("ERROR", "Failed to vote")
+        exit()
+    log("INFO", "Vote sent waiting for voting to end... ")
+    sleep(vote_duration)
+    log("INFO", "Voting ended, getting results... ")
+    results = api_check_vote_results(url, token, film_name)
+    if results is None:
+        log("ERROR", "Something went wrong while getting results")
+        log("INFO", "Checking if vote was registered... ")
+        user_check = check_user_vote(Session(engine), user, film_name)
+        if user_check:
+            log("INFO", "Vote was registered")
+            log("INFO", "Checking if final vote was registered... ")
+            film_check = check_film_vote(Session(engine), film_name)
+            if film_check:
+                log("INFO", "Final vote was registered, there might be a problem with checkers results")
+            else:
+                log("ERROR", "Final vote was not registered")
+        else:
+            log("ERROR", "Vote was not registered")
+    log("INFO", "Reseting voting... ")
+    reset = api_reset_voting(url, token)
+    if reset is False:
+        log("ERROR", "Failed to reset voting")
+        exit()
+
+log("INFO", "Resetting voting time... ")  
+time = api_change_settings(url, token, original_voting_time)
+if time == False:
+    log("ERROR", "Failed to reset voting time")
+    exit()      
+
+log("INFO", "Removing film and user... ")
+session = Session(engine)
+delete_film(session, film_name)
+delete_testing_user(session, user, False)
+session.close()
+log("INFO", "Finished voting tests")
+
 
 log("INFO", "Exiting Apalucha checker... ")
 exit()

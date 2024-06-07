@@ -75,8 +75,7 @@ def api_change_settings(url, token, vote_duration):
     if response.status_code == 200:
         return True
     return False
-def api_get_voting_token(url, token, user_id):
-    pdf_url = url + "/pdf?user=" + user_id
+def api_get_voting_token(token, pdf_url):
     cookie = f"token={token}"
     response = requests.get(pdf_url, headers={'Cookie': cookie})
     # if response is redirected, exit
@@ -114,18 +113,14 @@ def api_vote(url, token, film_id):
     if response.status_code == 200:
         return True
     return False
-def api_start_voting(url, token, excepted_time):
+def api_start_voting(url, token):
     cookie = f"token={token}"
     url = url + "/scoreboard"
 
-    # sends POST request to start voting, server responds with json where is "voteDuration" key, check if it is equal to excepted_time (or close to it)
+    # sends POST request to start voting, server responds with json where is "voteDuration" key
     response = requests.post(url, headers={'Cookie': cookie})
     response_json = response.json()
-    # close means that difference between excepted_time and response_json['voteDuration'] is less than 5 seconds
-    close = abs(excepted_time - response_json['voteDuration']) < 5
-    if close:
-        return True
-    return False
+    return response_json['voteDuration']
 def api_check_vote_results(url, token, film_id):
     url = url + "/scoreboard"
     cookie = f"token={token}"
@@ -134,10 +129,14 @@ def api_check_vote_results(url, token, film_id):
     films = response.json()
     films_list = films['films']
     votes = films['votes']
-    # Check if film_id is in films, if yes chcecks if film_id has 1 vote
-    for i in range(len(films_list)):
-        if films_list[i] == film_id:
-            if votes[i] >= 1:
+
+    # Convert films_list keys to a list for indexing
+    keys_list = list(films_list.keys())
+
+    # Check if film_id is in films, if yes checks if film_id has 1 vote
+    for key in keys_list:
+        if films_list[key] == film_id:
+            if votes[keys_list.index(key)] >= 1:
                 return True
             else:
                 return False
