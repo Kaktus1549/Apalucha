@@ -109,4 +109,4 @@ If you find any issues, please report them, I will be happy to fix them.
 - [x] If film name exceeds certain length, it will be cut off (TestingName to TestingNa...) -> needs more testing in future
 - [x] CSS fixes
 - [x] External logging to discord via webhook
-- [ ] Test container, that will test application functionality
+- [x] Test container, that will test application functionality
