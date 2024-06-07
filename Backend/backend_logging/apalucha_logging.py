@@ -137,6 +137,16 @@ def discord_log(level, message):
 
         webhook = DiscordWebhook(url=webhook_url, content=message)
         response = webhook.execute()
+        if response.status_code == 429:
+            retry_after = response.json().get('retry_after', 1)  # default to 1 second if not specified
+            time.sleep(retry_after)
+            response = webhook.execute()
+
+        if response.status_code != 200:
+            # handle other errors if necessary
+            error_message = f'Error sending message to Discord Webhook. Status code: {response.status_code}'
+            formated = f'{time} {COLOR_RED}ERROR{COLOR_RESET}   {error_message}'
+            logger.error(formated)
     else:
         logger.warning('Discord Webhook URL not set')
 def log(level, message):
