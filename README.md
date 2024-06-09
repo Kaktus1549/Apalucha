@@ -108,4 +108,5 @@ If you find any issues, please report them, I will be happy to fix them.
 - [x] Fix middleware on /scoreboard page (it`s not firing, maybe misspelled URL?)
 - [x] If film name exceeds certain length, it will be cut off (TestingName to TestingNa...) -> needs more testing in future
 - [x] CSS fixes
-- [ ] Test container, that will test application functionality
+- [x] External logging to discord via webhook
+- [x] Test container, that will test application functionality

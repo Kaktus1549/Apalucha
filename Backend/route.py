@@ -11,7 +11,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import json
 from sqlalchemy import *
 from sqlalchemy.orm import *
+from dotenv import load_dotenv
+from os import getenv, environ
 sys.path.append('.')
+load_dotenv()
 
 # SQL
 from sql.sql_init import *
@@ -406,6 +409,34 @@ def managment():
             json.dump(config, f, indent=4)
         log("INFO", "Settings successfully changed")
         log("INFO", "Restarting program")
+        thread = threading.Thread(target=restart_program)
+        thread.start()
+        return jsonify({"message": "OK"}), 200
+    if action == "webhooks":
+        webhooks_data = action_data
+        changed_anything = False
+        if webhooks_data == None:
+            return jsonify({"error": "Missing data"}), 400
+        if webhooks_data["webhook_logging"] != None:
+            # DISCORD_WEBHOOK_URL => url
+            # WEBHOOK_LOGGER => enabled/disabled
+            # All stored in environment variables
+            logger = getenv("WEBHOOK_LOGGER")
+            if logger != str(webhooks_data["webhook_logging"]):
+                log("INFO", f"Admin \"{user}\" from IP address {ip} changed webhook logging from \"{logger}\" to \"{webhooks_data['webhook_logging']}\"")
+                environ["WEBHOOK_LOGGER"] = str(webhooks_data["webhook_logging"])
+                changed_anything = True
+        if webhooks_data["url"] != None:
+            url = getenv("DISCORD_WEBHOOK_URL")
+            if url != str(webhooks_data["url"]):
+                log("INFO", f"Admin \"{user}\" from IP address {ip} changed webhook url from \"{url}\" to \"{webhooks_data['url']}\"")
+                environ["DISCORD_WEBHOOK_URL"] = str(webhooks_data["url"])
+                changed_anything = True
+
+        if changed_anything == False:
+            return jsonify({"error": "No settings changed"}), 400
+        log("INFO", "Settings successfully changed")
+        log("WARNING", "Restarting program")
         thread = threading.Thread(target=restart_program)
         thread.start()
         return jsonify({"message": "OK"}), 200

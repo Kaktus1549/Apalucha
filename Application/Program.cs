@@ -250,6 +250,35 @@ namespace ApaluchaApplication{
                 }
             }
         }
+        public static async Task<string> ChangeWebhooks(HttpClient managmentClient, string url, Dictionary<string, dynamic> webhooks){
+            var webhooksData = new {
+                action = "webhooks",
+                data = webhooks
+            };
+
+            string jsonData = JsonSerializer.Serialize(webhooksData);
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage result = await managmentClient.PostAsync(url, content);
+
+            if(result.IsSuccessStatusCode){
+                return "True";   
+            }
+            else{
+                string responseString = await result.Content.ReadAsStringAsync();
+                try{
+                    var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
+                    string? message = responseJson.GetProperty("error").GetString();
+                    return message ?? "False";
+                }
+                catch(Exception e){
+                    Console.WriteLine(e);
+                    Console.WriteLine(responseString);
+                    AnsiConsole.Markup($"[white on red]An error occured while parsing response: {e}\n");
+                    return "False";
+                }
+            }
+        }
         public static List<string> OnStartUp(){
 
             List<string> result = new List<string>();
@@ -731,6 +760,104 @@ If you want to quit, type [bold]q[/] or [bold]quit[/].
                 return;
             }
         }
+        public static async Task ConsoleChangeWebhooks(HttpClient managementClient, string url){
+            string webhookForChange = $@"[bold]Choose which webhook settings you want to change: [/]
+    [bold]1.[/] Discord logging enabled
+    [bold]2.[/] Discord logging webhook URL
+
+If you are done, type [bold]c[/] or [bold]continue[/] to continue.
+If you want to quit, type [bold]q[/] or [bold]quit[/].
+";
+        Dictionary<string, dynamic> webhooks = new Dictionary<string, dynamic>();
+        Clear(false);
+        AnsiConsole.Markup(webhookForChange);
+        AnsiConsole.Markup("[bold]Choose number of webhook setting you want to change: [/]");
+        string? webhook = Console.ReadLine();
+
+        while(true){
+            if(string.IsNullOrEmpty(webhook)){
+                AnsiConsole.Markup("[white on red]Please enter some webhook setting![/]\n");
+                webhook = Console.ReadLine();
+            }
+            else{
+                if(webhook == "1"){
+                    AnsiConsole.Markup("[bold]Enter new Discord logging enabled (true/false): [/]");
+                    string? discordLogging = Console.ReadLine();
+                    while(true){
+                        if(string.IsNullOrEmpty(discordLogging)){
+                            AnsiConsole.Markup("[white on red]Please enter some Discord logging enabled![/]\n");
+                        }
+                        // check if discordLogging is boolean
+                        else if(!bool.TryParse(discordLogging, out bool discord_result)){
+                            AnsiConsole.Markup("[white on red]Discord logging enabled must be a boolean![/]\n");
+                        }
+                        else{
+                            webhooks.Add("webhook_logging", discord_result);
+                            break;
+                        }
+                        AnsiConsole.Markup("[bold]Enter new Discord logging enabled (true/false): [/]");
+                        discordLogging = Console.ReadLine();
+                    }
+                }
+                else if(webhook == "2"){
+                    AnsiConsole.Markup("[bold]Enter new Discord logging webhook URL: [/]");
+                    string? discordWebhook = Console.ReadLine();
+                    while(true){
+                        if(string.IsNullOrEmpty(discordWebhook)){
+                            AnsiConsole.Markup("[white on red]Please enter some Discord logging webhook URL![/]\n");
+                        }
+                        else{
+                            webhooks.Add("url", discordWebhook);
+                            break;
+                        }
+                        AnsiConsole.Markup("[bold]Enter new Discord logging webhook URL: [/]");
+                        discordWebhook = Console.ReadLine();
+                    }
+                }
+                else if(webhook == "q" || webhook == "quit"){
+                    return;
+                }
+                else if(webhook == "c" || webhook == "continue"){
+                    break;
+                }
+                else{
+                    AnsiConsole.Markup("[white on red]Invalid webhook setting, please try again![/]\n");
+                    webhook = Console.ReadLine();
+                }
+                Clear(false);
+                AnsiConsole.Markup(webhookForChange);
+                AnsiConsole.Markup("[bold]Choose number of webhook setting you want to change: [/]");
+                webhook = Console.ReadLine();
+            }
+        }
+
+        AnsiConsole.Markup("[bold]These webhook settings will be changed: [/]\n");
+        foreach (KeyValuePair<string, dynamic> change in webhooks){
+            AnsiConsole.Markup($"   [bold]{change.Key}[/]: {change.Value}\n");
+        }
+        AnsiConsole.Markup("[black on yellow]WARNING: Changing webhooks will lead to server restart! Please be sure that no one is using the app! (it might be down for a while)[/]\n");
+        AnsiConsole.Markup("[bold]Do you want to continue? (yes/no): [/]");
+        string? continueChange = Console.ReadLine();
+        if(continueChange == "no"){
+            return;
+        }
+        else if(continueChange != "yes"){
+            AnsiConsole.Markup("[white on red]Invalid answer, please try again![/]\n");
+            return;
+        }
+
+        string result = await ChangeWebhooks(managementClient, url, webhooks);
+
+        if(result == "True"){
+            AnsiConsole.Markup($"[green]Webhooks were changed successfully! (maybe you will have to restart the app)[/]\n\n");
+            return;
+        }
+        else{
+            AnsiConsole.Markup($"[white on red]There was an error while changing webhooks: {result}[/]\n\n");
+            return;
+            }
+        }
+
         public static void Help(){
             AnsiConsole.Markup("[bold]Available commands:[/]\n");
             AnsiConsole.Markup("[bold]add_film[/] => Add film to the voting\n");
@@ -738,6 +865,7 @@ If you want to quit, type [bold]q[/] or [bold]quit[/].
             AnsiConsole.Markup("[bold]add_user[/] => Add user to the voting\n");
             AnsiConsole.Markup("[bold]remove_user[/] => Remove user from the voting\n");
             AnsiConsole.Markup("[bold]change_settings[/] => Change settings of the voting\n");
+            AnsiConsole.Markup("[bold]change_webhooks[/] => Change webhook settings of the voting\n");
             AnsiConsole.Markup("[bold]reset[/] => Reset the voting\n");
             AnsiConsole.Markup("[bold]help[/] => Show available commands\n");
             AnsiConsole.Markup("[bold]clear[/] => Clear the console\n");
@@ -804,6 +932,10 @@ If you want to quit, type [bold]q[/] or [bold]quit[/].
                 else if(command == "change_settings"){
                     Clear();
                     await ConsoleChangeSettings(apaluchaClient, apiUrl);
+                }
+                else if (command == "change_webhooks"){
+                    Clear();
+                    await ConsoleChangeWebhooks(apaluchaClient, apiUrl);
                 }
                 else if(command == "reset"){
                     Clear();

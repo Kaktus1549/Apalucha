@@ -17,7 +17,7 @@ with open(config_file) as f:
 database = config["database"]
 tables = config["database"]["tableNames"]
 
-engine = make_engine(database)
+engine = make_engine(database, False)
 
 Base = declarative_base()
 

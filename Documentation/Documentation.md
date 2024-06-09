@@ -181,6 +181,31 @@
     }
 }
 ```
+### change_settings
+
+```json
+{
+    "action": "change_settings",
+    "data": {
+        "voteDuration": "<voteDuration>",
+        "poolSize": "<poolSize>",
+        "expiration": "<expiration>",
+        "debug": True/False
+    }
+}
+```
+
+### webhooks
+
+```json
+{
+    "action": "webhooks",
+    "data": {
+        "webhook_logging": true/false/null,
+        "url": "<url>"/null
+    }
+}
+```
 
 ## /pdf
 

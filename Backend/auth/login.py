@@ -1,6 +1,7 @@
 import bcrypt
 from sqlalchemy import *
 from sqlalchemy.orm import *
+from sqlalchemy.exc import IntegrityError
 from sys import path
 from os import getenv
 apalucha = getenv("apalucha")
@@ -13,6 +14,7 @@ from auth.tokens import generate_jwt
 from sql.sql_config import make_engine
 from backend_logging.apalucha_logging import log
 
+
 def create_admin(username, password, session):
     try:
         log("INFO", f"Creating admin \"{username}\"")
@@ -22,6 +24,11 @@ def create_admin(username, password, session):
         session.commit()
         log("INFO", f"Admin \"{username}\" created")
         return True
+    except IntegrityError as e:
+        if 'Duplicate entry' in str(e.orig):
+            log("ERROR", f"Admin \"{username}\" already exists, skipping creation")
+        else:
+            log("ERROR", f"Failed to create admin \"{username}\": {e}")
     except Exception as e:
         log("ERROR", f"Failed to create admin \"{username}\": {e}")
         return False

@@ -1,0 +1,8 @@
+pymysql
+sqlalchemy
+python-dotenv
+requests
+PyMuPDF
+Pillow
+pyzbar
+pdf2image
