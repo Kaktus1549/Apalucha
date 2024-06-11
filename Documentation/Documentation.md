@@ -207,6 +207,14 @@
 }
 ```
 
+### ballotbox
+```json
+{
+    "action": "ballotbox",
+    "data": null // No data needed
+}
+```
+
 ## /pdf
 
 - URL -> /pdf?user=<user_id>
@@ -231,6 +239,18 @@
 - URL -> /voting
 - Method -> GET, POST
 - Returns unsorted films for voting (GET), sends vote for film (POST)
+
+```json
+{
+    "vote": "<film_id>"
+}
+```
+
+## /ballotbox
+
+- URL -> /ballotbox
+- Method -> GET, POST
+- Same as /voting, but for ballotbox
 
 ```json
 {

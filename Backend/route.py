@@ -168,6 +168,8 @@ def vote():
             return jsonify({"error": "Voting has not started"}), 425
         # User sends a vote -> {"vote": 1}
         data = request.get_json()
+        if data == None:
+            return jsonify({"error": "Missing data"}), 400
         vote = data["vote"]
         session = sessionmaker(bind=engine)()
         # Tryes to get address from header X-REAL-IP, if not, gets it from request.remote_addr
@@ -440,4 +442,44 @@ def managment():
         thread = threading.Thread(target=restart_program)
         thread.start()
         return jsonify({"message": "OK"}), 200
+    if action == "ballotbox":
+        # returns token for ballotbox
+        token = generate_ballotbox_jwt(jwt_settings["secret"], jwt_settings["expiration"], jwt_settings["issuer"], jwt_settings["algorithm"])
+        if token == None:
+            return jsonify({"error": "Failed to generate token"}), 500
+        return jsonify({"message": "OK"}), 200, {'Set-Cookie': f"token={token}; SameSite=Strict; Secure; HttpOnly; Path=/"}
     return jsonify({"error": "Invalid action"}), 400
+
+@app.route('/ballotbox', methods=['GET','POST'])
+def ballotbox():
+    token = request.cookies.get("token")
+    if token == None:
+        return jsonify({"error": "Token not found"}), 401
+    session = sessionmaker(bind=engine)()
+    is_valid = decode_ballotbox_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
+    session.close()
+    if is_valid == None:
+        return jsonify({"error": "Failed to authenticate"}), 401
+    
+    if config["voting"]['voteInProgress'] == False:
+        return jsonify({"error": "Voting has not started"}), 425
+    
+    if request.method == 'GET':
+        session = sessionmaker(bind=engine)()
+        films = unsorted_films(session)
+        session.close()
+        if films == False:
+            return jsonify({"error": "Failed to retrieve films"}), 500
+        return jsonify(films), 200
+    elif request.method == 'POST':
+        data = request.get_json()
+        if data == None:
+            return jsonify({"error": "Missing data"}), 400
+        vote = data["vote"]
+        session = sessionmaker(bind=engine)()
+        ip = request.headers.get('X-REAL-IP', request.remote_addr)
+        response = ballotbox_vote(vote, session, ip)
+        session.close()
+        if response == False:
+            return jsonify({"error": "Failed to vote"}), 500
+        return jsonify({"message": "OK"}), 200

@@ -7,7 +7,7 @@ if apalucha is None:
     apalucha = "."
 path.append(apalucha)
 
-from sql.sql_init import User, Films
+from sql.sql_init import User, Films, BallotBox
 from backend_logging.apalucha_logging import log
 
 def count_votes(session):
@@ -21,7 +21,7 @@ def count_votes(session):
             film.FinalVoteCount = 0
         session.commit()
         # Counts all votes
-        log("INFO", "Counting all votes")
+        log("INFO", "Counting all votes from users")
         users = session.query(User).all()
         for user in users:
             film_id = user.Vote
@@ -35,7 +35,20 @@ def count_votes(session):
                 log("ERROR", f"Got exception while processing user {user.ID} for film {film_id}: {e}")
                 continue
         session.commit()
-        log("INFO", "All votes counted")
+        log("INFO", "All votes from users counted")
+        log("INFO", "Counting votes from ballot box")
+        # Counts all votes from ballot box
+        votes = session.query(BallotBox).all()
+        for vote in votes:
+            film_id = vote.Vote
+            try:
+                film = session.query(Films).filter_by(ID=film_id).first()
+                film.FinalVoteCount += 1
+            except Exception as e:
+                log("ERROR", f"Got exception while processing vote for film {film_id}: {e}")
+                continue
+        session.commit()
+        log("INFO", "All votes from ballot box counted")
         return True
     except Exception as e:
         log("ERROR", f"Got exception while counting votes: {e}")
