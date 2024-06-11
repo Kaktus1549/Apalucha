@@ -26,7 +26,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = tables['user']
     ID = Column(Integer, primary_key=True, autoincrement=True)
-    Vote = Column(Integer, nullable=True)
+    Vote = Column(Integer, ForeignKey(f'{tables["films"]}.ID'), nullable=True)
 
 class Admin(Base):
     __tablename__ = tables['admin']
