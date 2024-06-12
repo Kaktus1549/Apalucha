@@ -258,6 +258,22 @@
 }
 ```
 
+or 
+```json
+{
+    "error": "You have to wait to vote again", 
+    "remaining": <remaining seconds>
+}
+```
+
+or
+
+```json
+{
+    "error": "Voting has not started"
+}
+```
+
 ## /scoreboard
 
 - URL -> /scoreboard

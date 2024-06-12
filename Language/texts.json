@@ -30,5 +30,13 @@
         "h1": "Koho dnes zvolíš?",
         "vote_button":"Odeslat!",
         "error_message": "Něco se pokazilo, zkuste to prosím znovu nebo kontaktujte správce"
+    },
+    "ballot":{
+        "not_started":"Jěště jsme nezačali hlasovat!",
+        "film_error": "Něco se pokazilo, zkuste to prosím znovu.",
+        "h1": "Koho dnes zvolíš?",
+        "vote_button":"Odeslat!",
+        "error_message": "Něco se pokazilo, zkuste to prosím znovu nebo kontaktujte správce",
+        "wait_message": "Znovu hlasovat můžeš až za"
     }
 }
