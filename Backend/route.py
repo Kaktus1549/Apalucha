@@ -461,7 +461,6 @@ def ballotbox():
         return jsonify({"error": "Token not found"}), 401
     session = sessionmaker(bind=engine)()
     ip_addr = request.headers.get('X-REAL-IP', request.remote_addr)
-    log("DEBUG", f"Decoding token from {ip_addr}")
     is_valid = decode_ballotbox_jwt(jwt_settings["secret"], token, jwt_settings["algorithm"], jwt_settings["issuer"], ip_addr)
     session.close()
     if is_valid == None:
@@ -470,10 +469,11 @@ def ballotbox():
     if config["voting"]['voteInProgress'] == False:
         return jsonify({"error": "Voting has not started"}), 425
     
-    if next_ballotbox_vote == None or next_ballotbox_vote > datetime.datetime.now():
-        remaining = next_ballotbox_vote - datetime.datetime.now()
-        remaining = remaining.total_seconds()
-        return jsonify({"error": "You have to wait to vote again", "remaining": remaining}), 425
+    if next_ballotbox_vote != None:
+        if next_ballotbox_vote > datetime.datetime.now():
+            remaining = next_ballotbox_vote - datetime.datetime.now()
+            remaining = remaining.total_seconds()
+            return jsonify({"error": "You have to wait to vote again", "remaining": remaining}), 425
     
     if config["voting"]['voteInProgress'] == False:
         return jsonify({"error": "Voting has not started"}), 425
@@ -497,4 +497,4 @@ def ballotbox():
         if response == False:
             return jsonify({"error": "Failed to vote"}), 500
         next_ballotbox_vote = datetime.datetime.now() + datetime.timedelta(seconds=int(ballotbox_time))
-        return jsonify({"message": "OK"}), 200
+        return jsonify({"message": "OK", "remaining": ballotbox_time}), 200

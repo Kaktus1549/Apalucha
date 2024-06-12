@@ -21,7 +21,6 @@ async function getToken(){
     else if (response.status === 401 || response.status === 403) {
         // redirects to /login
         window.location.href = "/login?origin=/ballot-box";
-        return "401";
     }
     else if (response.status === 200) {
         return "200";
@@ -36,9 +35,7 @@ export default function BallotBox() {
     const [sending, setSending] = useState<boolean>(false)
     const [data, setData] = useState<APIResponse>({error : "null"} as APIResponse)
     const [time, setTime] = useState<string>();
-
-    // get token
-    getToken();
+    const [wait, setWait] = useState<boolean>(false)
 
     async function fetchData() {
         let responseData: APIResponse
@@ -55,7 +52,7 @@ export default function BallotBox() {
             setData({error: "Voting has not started"} as APIResponse)
         }
         else if (responseData.error === "Token not found" || responseData.error === "Failed to authenticate") {
-            setData({error: "Token not found"} as APIResponse)
+            getToken();
         }
         else if (responseData.error === "Failed to retrieve films") {
             setData({error: "Could not retrieve films"} as APIResponse)
@@ -103,14 +100,19 @@ export default function BallotBox() {
                 console.error(response)
             }
             setTimeout(() => setSending(false), 2000)
+            setWait(true)
+            let responseJson = await response.json()
+            Countdown(responseJson.remaining)
             return
         }
         setTimeout(() => setSending(false), 2000)
     }
     useEffect(() => {
-        fetchData();
-        const intervalId = setInterval(fetchData, 20000)
-        return () => clearInterval(intervalId)
+        if (renderList.length === 0) {
+            fetchData();
+            const intervalId = setInterval(fetchData, 20000)
+            return () => clearInterval(intervalId)
+        }
     }, [])
     useEffect(() => {
         document.body.classList.add("voting-body");
@@ -151,12 +153,12 @@ export default function BallotBox() {
                 :
                 data.error === "Could not retrieve films"?
                 <h1 className="error-message voting-h1">{ballotData.film_error}</h1>
-                : data.error === "Token not found" || data.error === "Failed to authenticate" || data.error === "null"?
+                : data.error === "Token not found" || data.error === "Failed to authenticate"?
                     <CustomError statusCode={401} />
                 :
-                data.error === "You have to wait to vote again"?
+                data.error === "You have to wait to vote again" || wait === true?
                 <h1 className="error-message voting-h1">{time}</h1>
-                :
+                : renderList.length !== 0?
                 <>
                     <h1 className="voting-h1">{ballotData.h1}</h1>
                     <div className="options-container">
@@ -178,6 +180,7 @@ export default function BallotBox() {
                         </footer>
                         : null}
                 </>
+                : null
             }
         </div>
     );
