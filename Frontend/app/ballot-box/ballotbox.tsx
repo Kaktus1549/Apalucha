@@ -10,7 +10,10 @@ async function getToken(){
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({
+            "action": "ballotbox",
+            "data": {}
+        })
     });
     if (response.status === 500) {
         return "500";
@@ -35,7 +38,7 @@ export default function BallotBox() {
     const [time, setTime] = useState<string>();
 
     // get token
-    let token = getToken();
+    getToken();
 
     async function fetchData() {
         let responseData: APIResponse
@@ -106,7 +109,7 @@ export default function BallotBox() {
     }
     useEffect(() => {
         fetchData();
-        const intervalId = setInterval(fetchData, 10000)
+        const intervalId = setInterval(fetchData, 20000)
         return () => clearInterval(intervalId)
     }, [])
     useEffect(() => {

@@ -460,7 +460,9 @@ def ballotbox():
     if token == None:
         return jsonify({"error": "Token not found"}), 401
     session = sessionmaker(bind=engine)()
-    is_valid = decode_ballotbox_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
+    ip_addr = request.headers.get('X-REAL-IP', request.remote_addr)
+    log("DEBUG", f"Decoding token from {ip_addr}")
+    is_valid = decode_ballotbox_jwt(jwt_settings["secret"], token, jwt_settings["algorithm"], jwt_settings["issuer"], ip_addr)
     session.close()
     if is_valid == None:
         return jsonify({"error": "Failed to authenticate"}), 401
