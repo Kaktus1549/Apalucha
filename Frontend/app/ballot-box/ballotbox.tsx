@@ -35,7 +35,6 @@ export default function BallotBox() {
     const [sending, setSending] = useState<boolean>(false)
     const [data, setData] = useState<APIResponse>({error : "null"} as APIResponse)
     const [time, setTime] = useState<string>();
-    const [wait, setWait] = useState<boolean>(false)
 
     async function fetchData() {
         let responseData: APIResponse
@@ -89,35 +88,47 @@ export default function BallotBox() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ "vote": id })
-        })
+        });
+    
+        let responseJson = await response.json();
         if (!response.ok) {
-            if (response.status === 401) {
-                setData({error: "Token not found"} as APIResponse)
+            if (response.status === 401 || response.status === 403) {
+                window.location.href = "/login?origin=/ballot-box";
             }
             if (response.status === 500) {
                 let alert_text = ballotData.error_message
                 alert(alert_text)
                 console.error(response)
             }
+            if (response.status === 425){
+                setDisabledButton(null)
+                setData({error: "You have to wait to vote again", time: responseJson.remaining} as APIResponse)
+                Countdown(parseInt(responseJson.remaining))
+            }
+            else{
+                console.error(response)
+                alert("Something went wrong, got unknown status code: " + response.status)
+            }
             setTimeout(() => setSending(false), 2000)
-            setWait(true)
-            let responseJson = await response.json()
-            Countdown(responseJson.remaining)
             return
         }
+        setDisabledButton(null)
+        setData({error: "You have to wait to vote again", time: responseJson.remaining} as APIResponse)
+        Countdown(parseInt(responseJson.remaining))
         setTimeout(() => setSending(false), 2000)
     }
+    
     useEffect(() => {
-        if (renderList.length === 0) {
-            fetchData();
-            const intervalId = setInterval(fetchData, 20000)
-            return () => clearInterval(intervalId)
+        if (data.error === "Voting has not started" || data.error === "Could not retrieve films" || data.error === "null") {
+        fetchData();
+        const intervalId = setInterval(() => {
+            if (data.error === "Voting has not started" || data.error === "Could not retrieve films" || data.error === "null") {
+                fetchData();
+            }
+        }, 10000);
+        return () => clearInterval(intervalId)
         }
-    }, [])
-    useEffect(() => {
-        document.body.classList.add("voting-body");
-        return () => document.body.classList.remove("voting-body");
-    }, []);
+    });
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
 
@@ -125,6 +136,11 @@ export default function BallotBox() {
             const keys = Object.keys(data);
             // If there is key with name of "error" then we don't want to add it to the list
             if (keys.length === 1 && keys[0] === "error") {
+              return;
+            }
+            // If current key is "error" or "time" then skip it
+            if (keys[index] === "error" || keys[index] === "time") {
+              addNextItem(index + 1);
               return;
             }
             if (index < keys.length) {
@@ -144,21 +160,17 @@ export default function BallotBox() {
           addNextItem(0);
       
           return () => clearTimeout(timeoutId); // Cleanup to avoid memory leak
-    }, [data, renderList]); 
-    return (
+    }, [data]);
+    return(
         <div className="voting-main-container">
             {
                 data.error === "Voting has not started"?
                 <h1 className="error-message voting-h1">{ballotData.not_started}</h1>
-                :
-                data.error === "Could not retrieve films"?
+                : data.error === "Could not retrieve films"?
                 <h1 className="error-message voting-h1">{ballotData.film_error}</h1>
-                : data.error === "Token not found" || data.error === "Failed to authenticate"?
-                    <CustomError statusCode={401} />
-                :
-                data.error === "You have to wait to vote again" || wait === true?
+                : data.error === "You have to wait to vote again"?
                 <h1 className="error-message voting-h1">{time}</h1>
-                : renderList.length !== 0?
+                : renderList.length > 0?
                 <>
                     <h1 className="voting-h1">{ballotData.h1}</h1>
                     <div className="options-container">
