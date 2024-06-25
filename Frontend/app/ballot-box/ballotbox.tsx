@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import CustomError from '../_error/error'
 import LanguageConfig from '../Language/texts.json';
 
 async function getToken(){
