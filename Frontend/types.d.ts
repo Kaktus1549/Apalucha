@@ -1,7 +1,8 @@
 interface APIResponse {
     error: string,
     [key: string]: string,
-    message: string
+    message: string,
+    time: string
 }
 interface Films{
     [key: number]: string
