@@ -118,16 +118,19 @@ export default function BallotBox() {
     }
     
     useEffect(() => {
-        if (data.error === "Voting has not started" || data.error === "Could not retrieve films" || data.error === "null") {
         fetchData();
-        const intervalId = setInterval(() => {
-            if (data.error === "Voting has not started" || data.error === "Could not retrieve films" || data.error === "null") {
+
+        let intervalId: NodeJS.Timeout | undefined;
+        if (data.error === "Voting has not started" || data.error === "Could not retrieve films" || data.error === "null") {
+            intervalId = setInterval(() => {
                 fetchData();
-            }
-        }, 10000);
-        return () => clearInterval(intervalId)
+            }, 10000);
         }
-    });
+
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
+    }, [data.error]);
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
 
