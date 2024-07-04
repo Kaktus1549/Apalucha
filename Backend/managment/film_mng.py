@@ -7,7 +7,7 @@ if apalucha is None:
     apalucha = "."
 path.append(apalucha)
 
-from sql.sql_init import Films
+from sql.sql_init import Films, BallotBox
 from backend_logging.apalucha_logging import log
 
 def add_film(session, title, team, admin="-----", ip="-----"):
@@ -43,14 +43,17 @@ def film_reset(session, deletion=False, admin="-----", ip="-----"):
             session.query(Films).update({Films.FinalVoteCount: 0})
             session.commit()
             log("INFO", "All films reset to 0 votes")
-            return True
         else:
             # Deletes all films
             log("WARNING", "Deleting all films!!!")
             session.query(Films).delete()
             session.commit()
             log("INFO", "All films deleted")
-            return True
+        # Deletes all votes from ballot box
+        log("WARNING", "Deleting all votes from ballot box")
+        session.query(BallotBox).delete()
+        session.commit()
+        return True
     except Exception as e:
         log("ERROR", f"Got exception while resetting films: {e}")
         return False
