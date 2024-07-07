@@ -47,3 +47,28 @@ export default async function CheckIfAllowed(request: NextRequest) {
       return NextResponse.next();
     }
 }
+export async function SetToken(request: NextRequest) {
+  try{
+    const url = new URL(request.url);
+    const token = url.searchParams.get('token');
+
+    if (token !== null){
+      const response = NextResponse.redirect(new URL("/voting", request.url));
+      response.cookies.set('token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        path: '/',
+      });
+      return response;
+    }
+    else{
+      return NextResponse.next();
+    }
+  }
+  catch(e){
+      console.error("Error while parsing token" + e);
+      return NextResponse.next();
+  }
+
+}

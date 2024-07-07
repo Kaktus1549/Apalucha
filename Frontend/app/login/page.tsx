@@ -6,23 +6,15 @@ import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import LanguageConfig from '../Language/texts.json';
 
-async function login(username: string | null, password: string | null, token: string | null, origin: string | null = null){
+async function login(username: string | null, password: string | null, origin: string | null = null){
     let loginData = LanguageConfig.login;
-    if (username === null && password === null && token === null){
+    if (username === null && password === null){
         return;
     }
-    let jsonData;
-    if (password === null && username === null && token !== null){
-        jsonData = {
-            token: token
-        }
-    }
-    else{
-        jsonData = {
+    let jsonData = {
             username: username,
             password: password
         }
-    }
     const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
@@ -32,10 +24,7 @@ async function login(username: string | null, password: string | null, token: st
     });
     const data: APIResponse = await response.json() as APIResponse;
     if (data.message === 'OK'){
-        if (token !== null){
-            window.location.href = '/voting';
-        }
-        else if (origin !== null){
+        if (origin !== null){
             // if someone sets invalid path, its their skill issue
             window.location.href = origin;
         }
@@ -53,35 +42,22 @@ async function login(username: string | null, password: string | null, token: st
     }
 }
 
-export default function Voting(){    
+export default function Login(){    
     let loginData = LanguageConfig.login;
     let origin = null as string | null;
     try{
         const searchParams = useSearchParams();
-        const token = searchParams.get('token');
         origin = searchParams.get('origin') as string;
-
-        if (token !== null){
-            login(null, null, token);
-        }
     }
     catch{
-        console.error("Error while parsing token or origin");
+        console.error("Error while parsing origin");
     }
 
     function loginButton(){
         const username = (document.getElementById('username') as HTMLInputElement).value;
         const password = (document.getElementById('password') as HTMLInputElement).value;
-        login(username, password, null, origin);
+        login(username, password, origin);
     }
-
-    // adds "login-body" class to body
-    useEffect(() => {
-        document.body.classList.add("login-body");
-        return () => {
-            document.body.classList.remove("login-body");
-        }
-    }, []);
 
     return(
         <Suspense>

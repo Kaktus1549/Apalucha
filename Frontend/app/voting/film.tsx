@@ -72,13 +72,6 @@ export default function Film() {
         const intervalId = setInterval(fetchData, 10000)
         return () => clearInterval(intervalId)
     }, [])
-
-    // adds "voting-body" class to body element
-    useEffect(() => {
-        document.body.classList.add("voting-body");
-        return () => document.body.classList.remove("voting-body");
-    }, []);
-
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
 
@@ -115,8 +108,10 @@ export default function Film() {
                 :
                 data.error === "Could not retrieve films"?
                 <h1 className="error-message voting-h1">{votingData.film_error}</h1>
-                : data.error === "Token not found" || data.error === "Failed to authenticate" || data.error === "null"?
+                : data.error === "Token not found" || data.error === "Failed to authenticate"?
                     <CustomError statusCode={401} />
+                : data.error === "null"?
+                null
                 :
                 data.error === "Admins can't vote"?
                 <CustomError statusCode={403} />
