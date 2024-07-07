@@ -8,7 +8,7 @@ if apalucha is None:
 path.append(apalucha)
 
 from sql.sql_init import User, BallotBox
-from backend_logging.apalucha_logging import log
+from backend_logging.apalucha_logging import log, ballot_box_log
 
 def vote_film(film_id, user_id, session, ip=None):
     try:
@@ -29,7 +29,9 @@ def ballotbox_vote(film_id, session, ip=None):
         session.add(new_vote)
         session.commit()
         log("INFO", f"Vote for film {film_id} from IP address {ip} added to ballot box")
+        ballot_box_log("INFO", f"Ballot box was used to vote for film {film_id} from IP address {ip}")
         return True
     except Exception as e:
         log("ERROR", f"Got an error while trying to add vote for film {film_id} to ballot box: {e}")
+        ballot_box_log("ERROR", f"Got an error while trying to add vote for film {film_id} to ballot box: {e}")
         return False

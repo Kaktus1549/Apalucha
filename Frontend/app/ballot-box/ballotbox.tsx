@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import LanguageConfig from '../Language/texts.json';
+import CustomError from "../_error/error";
 
 async function getToken(){
     let response = await fetch('/api/managment', {
@@ -35,7 +36,7 @@ export default function BallotBox() {
     const [data, setData] = useState<APIResponse>({error : "null"} as APIResponse)
     const [time, setTime] = useState<string>();
 
-    async function fetchData() {
+    async function fetchData(recursionPrevention: boolean = false) {
         let responseData: APIResponse
         try{
             let response = await fetch('/api/ballotbox')
@@ -50,7 +51,19 @@ export default function BallotBox() {
             setData({error: "Voting has not started"} as APIResponse)
         }
         else if (responseData.error === "Token not found" || responseData.error === "Failed to authenticate") {
-            getToken();
+            let code = await getToken();
+            if (code === "500") {
+                setData({error: "500 on token fetch"} as APIResponse)
+                return
+            }
+            else if (code === "200") {
+                if (!recursionPrevention) {
+                    fetchData(true);
+                    return
+                }
+                return
+            }
+            return
         }
         else if (responseData.error === "Failed to retrieve films") {
             setData({error: "Could not retrieve films"} as APIResponse)
@@ -118,16 +131,19 @@ export default function BallotBox() {
     }
     
     useEffect(() => {
-        if (data.error === "Voting has not started" || data.error === "Could not retrieve films" || data.error === "null") {
         fetchData();
-        const intervalId = setInterval(() => {
-            if (data.error === "Voting has not started" || data.error === "Could not retrieve films" || data.error === "null") {
+
+        let intervalId: NodeJS.Timeout | undefined;
+        if (data.error === "Voting has not started" || data.error === "Could not retrieve films" || data.error === "null") {
+            intervalId = setInterval(() => {
                 fetchData();
-            }
-        }, 10000);
-        return () => clearInterval(intervalId)
+            }, 10000);
         }
-    });
+
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
+    }, [data.error]);
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
 
@@ -167,6 +183,8 @@ export default function BallotBox() {
                 <h1 className="error-message voting-h1">{ballotData.not_started}</h1>
                 : data.error === "Could not retrieve films"?
                 <h1 className="error-message voting-h1">{ballotData.film_error}</h1>
+                : data.error === "500 on token fetch"?
+                <CustomError statusCode={500} />
                 : data.error === "You have to wait to vote again"?
                 <h1 className="error-message voting-h1">{time}</h1>
                 : renderList.length > 0?

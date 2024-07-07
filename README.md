@@ -100,13 +100,3 @@ Login page is used for admin login. You can login with username and password, wh
 ## Issues
 
 If you find any issues, please report them, I will be happy to fix them.
-
-## Things to do
-
-- [x] Ability to change settings like voting time, debug mode, etc.
-- [x] Ability to change text on the pages (like "Choose your film", "Send", etc.)
-- [x] Fix middleware on /scoreboard page (it`s not firing, maybe misspelled URL?)
-- [x] If film name exceeds certain length, it will be cut off (TestingName to TestingNa...) -> needs more testing in future
-- [x] CSS fixes
-- [x] External logging to discord via webhook
-- [x] Test container, that will test application functionality

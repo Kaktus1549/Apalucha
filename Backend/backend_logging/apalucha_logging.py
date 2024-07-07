@@ -9,6 +9,8 @@ load_dotenv()
 
 webhook_url = os.getenv('DISCORD_WEBHOOK_URL', None)
 webhook_logger = bool(os.getenv('WEBHOOK_LOGGER', False))
+ballotbox_url = os.getenv('DISCORD_WEBHOOK_BALLOT_BOX', None)
+ballotbox_logger = bool(os.getenv('WEBHOOK_BALLOT_BOX', False))
 
 #colors
 COLOR_RED = '\033[91m'
@@ -114,6 +116,41 @@ daily_file_handler.setLevel(logging.DEBUG)
 daily_file_handler.setFormatter(file_formatter)
 logger.addHandler(daily_file_handler)
 
+def ballot_box_log(level, message):
+    if ballotbox_url:
+        time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        time = f'[{time}]'
+        if level == 'DEBUG':
+            level_name = 'DEBUG'
+        elif level == 'INFO':
+            level_name = 'INFO'
+        elif level == 'WARNING':
+            level_name = 'WARNING'
+        elif level == 'ERROR':
+            level_name = 'ERROR'
+        elif level == 'CRITICAL':
+            level_name = 'CRITICAL'
+
+        space_char = "\u200B "
+        len_level = len(level_name)
+        level_name = f'[{level_name}{" "*(8-len_level)}]'
+
+        message = f'```\n{time} {level_name} {message}\n```'
+
+        webhook = DiscordWebhook(url=ballotbox_url, content=message)
+        response = webhook.execute()
+        if response.status_code == 429:
+            retry_after = response.json().get('retry_after', 1)  # default to 1 second if not specified
+            time.sleep(retry_after)
+            response = webhook.execute()
+
+        if response.status_code != 200:
+            # handle other errors if necessary
+            error_message = f'Error sending message to Discord Webhook. Status code: {response.status_code}'
+            formated = f'{time} {COLOR_RED}ERROR{COLOR_RESET}   {error_message}'
+            logger.error(formated)
+    else:
+        logger.warning('Discord Ballotbox webhook URL not set')
 def discord_log(level, message):
     if webhook_url:
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

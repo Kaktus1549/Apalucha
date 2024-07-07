@@ -44,10 +44,21 @@ read -p "Enter JWT issuer (default: https://apalucha.kaktusgame.eu): " JWT_ISSUE
 JWT_ISSUER=${JWT_ISSUER:-https://apalucha.kaktusgame.eu} # Default value if none provided
 read -p "Enter PDF login URL (default: https://apalucha.kaktusgame.eu/login): " PDF_LOGIN_URL
 PDF_LOGIN_URL=${PDF_LOGIN_URL:-https://apalucha.kaktusgame.eu/login} # Default value if none provided
+
+clear
+base64 -d <<< "ICAgIF9fXyAgICAgICAgICAgICAgICBfXyAgICAgICAgICAgX18gICAgICAgICAgICAgX19fICAgX19fXyBfX18gIF9fIF9fCiAgIC8gICB8ICBfX19fICBfX19fIF8vIC9fICBfX19fX19fLyAvXyAgX19fXyBfICAgfF9fIFwgLyBfXyBcX18gXC8gLy8gLwogIC8gL3wgfCAvIF9fIFwvIF9fIGAvIC8gLyAvIC8gX19fLyBfXyBcLyBfXyBgLyAgIF9fLyAvLyAvIC8gL18vIC8gLy8gL18KIC8gX19fIHwvIC9fLyAvIC9fLyAvIC8gL18vIC8gL19fLyAvIC8gLyAvXy8gLyAgIC8gX18vLyAvXy8gLyBfXy9fXyAgX18vCi9fLyAgfF8vIC5fX18vXF9fLF8vXy9cX18sXy9cX19fL18vIC9fL1xfXyxfLyAgIC9fX19fL1xfX19fL19fX18vIC9fLyAgIAogICAgICAvXy8gCgo="
+echo "Webhooks configuration"
+echo "----------------------"
+echo ""
+
 read -p "Do you want to send logs to discord? (true/false, default: false): " WEBHOOK_LOGGER
 WEBHOOK_LOGGER=${WEBHOOK_LOGGER:-false} # Default value if none provided
 read -p "If you want to send logs to discord, enter the webhook URL (default: none): " DISCORD_WEBHOOK_URL
 DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-none} # Default value if none provided
+read -p "Do you want to send logs of ballot-box to discord? (true/false, default: false): " WEBHOOK_BALLOT_BOX
+WEBHOOK_BALLOT_BOX=${WEBHOOK_BALLOT_BOX:-false} # Default value if none provided
+read -p "If you want to send logs of ballot-box to discord, enter the webhook URL (default: none): " DISCORD_WEBHOOK_BALLOT_BOX
+DISCORD_WEBHOOK_BALLOT_BOX=${DISCORD_WEBHOOK_BALLOT_BOX:-none} # Default value if none provided
 
 clear
 base64 -d <<< "ICAgIF9fXyAgICAgICAgICAgICAgICBfXyAgICAgICAgICAgX18gICAgICAgICAgICAgX19fICAgX19fXyBfX18gIF9fIF9fCiAgIC8gICB8ICBfX19fICBfX19fIF8vIC9fICBfX19fX19fLyAvXyAgX19fXyBfICAgfF9fIFwgLyBfXyBcX18gXC8gLy8gLwogIC8gL3wgfCAvIF9fIFwvIF9fIGAvIC8gLyAvIC8gX19fLyBfXyBcLyBfXyBgLyAgIF9fLyAvLyAvIC8gL18vIC8gLy8gL18KIC8gX19fIHwvIC9fLyAvIC9fLyAvIC8gL18vIC8gL19fLyAvIC8gLyAvXy8gLyAgIC8gX18vLyAvXy8gLyBfXy9fXyAgX18vCi9fLyAgfF8vIC5fX18vXF9fLF8vXy9cX18sXy9cX19fL18vIC9fL1xfXyxfLyAgIC9fX19fL1xfX19fL19fX18vIC9fLyAgIAogICAgICAvXy8gCgo="
@@ -119,6 +130,10 @@ PDF_URL=$PDF_URL
 VOTE_DURATION=$VOTE_DURATION
 DOCKER_WEB_PORT=$DOCKER_WEB_PORT
 DEBUG=$DEBUG
+WEBHOOK_LOGGER=$WEBHOOK_LOGGER
+DISCORD_WEBHOOK_URL=$DISCORD_WEBHOOK_URL
+WEBHOOK_BALLOT_BOX=$WEBHOOK_BALLOT_BOX
+DISCORD_WEBHOOK_BALLOT_BOX=$DISCORD_WEBHOOK_BALLOT_BOX
 EOF
 
 cat << EOF > ./Frontend/.env
