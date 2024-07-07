@@ -37,6 +37,10 @@ def remove_film(session, film_id, admin="-----", ip="-----"):
 def film_reset(session, deletion=False, admin="-----", ip="-----"):
     try:
         log("WARNING", f"Admin \"{admin}\" from IP address {ip} initiated film reset!!!")
+        # Deletes all votes from ballot box
+        log("WARNING", "Deleting all votes from ballot box")
+        session.query(BallotBox).delete()
+        session.commit()
         if deletion == False:
             # Sets films final vote count to 0
             log("WARNING", "Resetting all films to 0 votes")
@@ -49,10 +53,6 @@ def film_reset(session, deletion=False, admin="-----", ip="-----"):
             session.query(Films).delete()
             session.commit()
             log("INFO", "All films deleted")
-        # Deletes all votes from ballot box
-        log("WARNING", "Deleting all votes from ballot box")
-        session.query(BallotBox).delete()
-        session.commit()
         return True
     except Exception as e:
         log("ERROR", f"Got exception while resetting films: {e}")
