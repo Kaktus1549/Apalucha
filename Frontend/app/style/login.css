@@ -68,6 +68,18 @@
     padding-left: 15px;
     font-size: 2rem;
 }
+.login-container .option-container input::-webkit-input-placeholder{
+    font-weight: 100;
+    font-size: 1.5rem;
+    font-style: italic;
+    color: #000000;
+}
+.login-container .option-container input:-webkit-autofill{
+    font-weight: 100;
+    font-size: 1.5rem;
+    font-style: italic;
+    color: #000000;
+}
 .login-container .option-container input:focus{
     outline: none;
 }
