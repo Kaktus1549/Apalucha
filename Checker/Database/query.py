@@ -3,7 +3,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 path.append(".")
 
-from Database.tables import User, Admin, Films
+from Database.tables import User, Admin, Films, BallotBox
 
 def check_user_exists(session, user_id, is_admin):
     if is_admin:
@@ -41,3 +41,9 @@ def check_film_vote(session, film_id):
     if film.Votes == 0:
         return False
     return True
+def check_ballot_vote(session, film_id):
+    film = session.query(Films).filter_by(Title=film_id).first()
+    if film is None:
+        return False
+    ballot = session.query(BallotBox).filter_by(Vote=film.ID).first()
+    return ballot is not None

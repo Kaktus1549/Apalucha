@@ -9,6 +9,14 @@ from Database.engine import make_engine
 from Database.query import *
 from Logging.checker_loger import log
 from API.endpoints import *
+import random
+import string
+
+# Functions
+def generate_random_string(length=6):
+    characters = string.ascii_letters + string.digits  # Includes both letters and digits
+    random_string = ''.join(random.choice(characters) for i in range(length))
+    return random_string
 
 log("INFO", "Starting Apalucha checker... ")
 sleep(1.5)
@@ -79,8 +87,8 @@ log("INFO", "---- Testing /managment endpoint and admin related operations ----"
 # Film testing 
 
 log("INFO", "Testing film related operations... ")
-test_film = "IWannaBeYours"
-test_film_team = "Arctic Monkeys"
+test_film = "IWannaBeYours-" + generate_random_string()
+test_film_team = "Arctic Monkeys-" + generate_random_string()
 
 log("INFO", f"Creating film {test_film}... ")
 if api_create_film(url, token, test_film, test_film_team):
@@ -206,7 +214,7 @@ log("WARNING", "Make sure that voting is NOT running on the system before procee
 log("WARNING", "No other users should be voting while these tests are running")
 
 voting_error_list = []
-voting_time = 10
+voting_time = 18
 film_name = "IWannaBeYours"
 log("INFO", f"Setting voting time to {voting_time} seconds")
 time = api_change_settings(url, token, voting_time)
@@ -215,7 +223,7 @@ if time == False:
     exit()
 sleep(1.5)
 log("INFO", f"Creating film {film_name}... ")
-if api_create_film(url, token, film_name, "Arctic Monkeys"):
+if api_create_film(url, token, film_name, test_film_team):
     log("INFO", "Film created")
     sleep(1.5)
     log("INFO", "Creating voting user and getting voting token... ")
@@ -231,6 +239,11 @@ if api_create_film(url, token, film_name, "Arctic Monkeys"):
     sleep(1.5)
     log("INFO", "Voting token received")
     sleep(1.5)
+    log("INFO", "Getting ballot box token... ")
+    ballot_token = api_get_ballot_token(url, token)
+    if ballot_token is None:
+        log("ERROR", "Failed to get ballot token")
+        exit()
     log("INFO", "Starting voting and sending vote... ")
     vote_duration = api_start_voting(url, token)
     if vote_duration is None:
@@ -240,18 +253,24 @@ if api_create_film(url, token, film_name, "Arctic Monkeys"):
     if vote is False:
         log("ERROR", "Failed to vote")
         exit()
-    log("INFO", "Vote sent waiting for voting to end... ")
+    log("INFO", "Vote sent... ")
+    ballot = api_ballot_vote(url, user_token, ballot_token, film_name)
+    if ballot is False:
+        log("ERROR", "Failed to vote via ballot")
+        exit()
+    log("INFO", "Vote sent via ballot waiting for voting to end...")
     sleep(vote_duration)
     log("INFO", "Voting ended, getting results... ")
     results = api_check_vote_results(url, token, film_name)
-    if results is None:
+    if results is None or results == False:
         log("ERROR", "Something went wrong while getting results")
         log("INFO", "Checking if vote was registered... ")
-        user_check = check_user_vote(Session(engine), user, film_name)
+        session = Session(engine)
+        user_check = check_user_vote(session, user, film_name)
         if user_check:
             log("INFO", "Vote was registered")
             log("INFO", "Checking if final vote was registered... ")
-            film_check = check_film_vote(Session(engine), film_name)
+            film_check = check_film_vote(session, film_name)
             if film_check:
                 log("INFO", "Final vote was registered, there might be a problem with checkers results")
                 voting_error_list.append("Final vote was registered, there might be a problem with checkers results")
@@ -261,6 +280,16 @@ if api_create_film(url, token, film_name, "Arctic Monkeys"):
         else:
             log("ERROR", "Vote was not registered")
             voting_error_list.append("Failed to register vote")
+        log("INFO", "Checking if ballot vote was registered... ")
+        ballot_check = check_ballot_vote(session, film_name)
+        if ballot_check:
+            log("INFO", "Ballot vote was registered")
+        else:
+            log("ERROR", "Ballot vote was not registered")
+            voting_error_list.append("Failed to register ballot vote")
+        session.close()
+    else:
+        log("INFO", "Results are allright")
     log("INFO", "Reseting voting... ")
     reset = api_reset_voting(url, token)
     if reset is False:

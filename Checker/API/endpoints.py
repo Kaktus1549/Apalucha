@@ -136,7 +136,7 @@ def api_check_vote_results(url, token, film_id):
     # Check if film_id is in films, if yes checks if film_id has 1 vote
     for key in keys_list:
         if films_list[key] == film_id:
-            if votes[keys_list.index(key)] >= 1:
+            if votes[keys_list.index(key)] >= 2:
                 return True
             else:
                 return False
@@ -152,6 +152,47 @@ def api_reset_voting(url, token):
         }
     }
 
+    response = requests.post(url, headers={'Cookie': cookie}, json=data)
+    if response.status_code == 200:
+        return True
+    return False
+def api_get_ballot_token(url, token):
+    cookie = f"token={token}"
+    url = url + "/managment"
+    data = {
+        "action": "ballotbox",
+        "data": {}
+    }
+    response = requests.post(url, headers={'Cookie': cookie}, json=data)
+    # if response is redirected, exit
+    if response.status_code != 200:
+        return None
+    # Gets the token from the Set-Cookie header
+    ballot_token = response.headers.get('Set-Cookie').split('=')[1].split(';')[0]
+    return ballot_token
+def api_ballot_vote(url, a_token, ballot, film_id):
+    url = url + "/ballotbox"
+    cookie = f"token={a_token}; ballottoken={ballot}"
+    # First sends GET request to get json of films
+    response = requests.get(url, headers={'Cookie': cookie})
+    films = response.json()
+    # Check if film_id is in films, if yes creates vote json where "vote":"<key of film id>"
+    # Example: {"vote":"1"}
+    # {"1":"test","2":"test2"}
+
+    for key in films:
+        if films[key] == film_id:
+            vote = key
+            break
+        else:
+            vote = None
+    
+    if vote is None:
+        return False
+    
+    data = {
+        "vote": vote
+    }
     response = requests.post(url, headers={'Cookie': cookie}, json=data)
     if response.status_code == 200:
         return True

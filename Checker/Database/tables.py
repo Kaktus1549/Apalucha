@@ -22,3 +22,7 @@ class Films(Base):
     Title = Column(VARCHAR(255), nullable=False)
     Team = Column(VARCHAR(255), nullable=False)
     FinalVoteCount = Column(Integer, nullable=True, default=0)
+class BallotBox(Base):
+    __tablename__ = "Ballot-Box"
+    ID = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
+    Vote = Column(Integer, ForeignKey(f'{filmsTable}.ID'), nullable=False)
