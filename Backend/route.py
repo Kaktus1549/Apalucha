@@ -208,7 +208,8 @@ def scoreboard():
         if voteEnd == None:
             log("INFO", f"Admin \"{user}\" from IP address {request.headers.get('X-REAL-IP', request.remote_addr)} started voting")
             config["voting"]['voteInProgress'] = True
-            end = datetime.datetime.now() + datetime.timedelta(seconds=config["voting"]["voteDuration"])
+            print(config["voting"]["voteDuration"])
+            end = datetime.datetime.now() + datetime.timedelta(seconds=int(config["voting"]["voteDuration"]))
             config["voting"]['voteEnd'] = str(end)
             log("INFO", f"Scheduling end of voting for {end}")
             films = unsorted_films(session)
