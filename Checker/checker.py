@@ -261,17 +261,6 @@ if api_create_film(url, token, film_name, "Arctic Monkeys"):
         else:
             log("ERROR", "Vote was not registered")
             voting_error_list.append("Failed to register vote")
-    log("INFO", "Reseting voting... ")
-    reset = api_reset_voting(url, token)
-    if reset is False:
-        log("ERROR", "Failed to reset voting")
-        exit()
-
-log("INFO", "Resetting voting time... ")  
-time = api_change_settings(url, token, original_voting_time)
-if time == False:
-    log("ERROR", "Failed to reset voting time")
-    exit()      
 
 log("INFO", "Removing film and user... ")
 session = Session(engine)
