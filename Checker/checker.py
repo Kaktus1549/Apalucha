@@ -261,12 +261,6 @@ if api_create_film(url, token, film_name, "Arctic Monkeys"):
         else:
             log("ERROR", "Vote was not registered")
             voting_error_list.append("Failed to register vote")
-
-log("INFO", "Removing film and user... ")
-session = Session(engine)
-delete_film(session, film_name)
-delete_testing_user(session, user, False)
-session.close()
 log("INFO", "Finished voting tests")
 sleep(5)
 
