@@ -1,6 +1,6 @@
 import logging
 import os
-from time import mktime
+from time import mktime, sleep
 from datetime import datetime
 from werkzeug.serving import WSGIRequestHandler
 from discord_webhook import DiscordWebhook
@@ -141,7 +141,7 @@ def ballot_box_log(level, message):
         response = webhook.execute()
         if response.status_code == 429:
             retry_after = response.json().get('retry_after', 1)  # default to 1 second if not specified
-            time.sleep(int(retry_after))
+            sleep(int(retry_after))
             response = webhook.execute()
 
         if response.status_code != 200:
@@ -176,7 +176,7 @@ def discord_log(level, message):
         response = webhook.execute()
         if response.status_code == 429:
             retry_after = response.json().get('retry_after', 1)  # default to 1 second if not specified
-            time.sleep(retry_after)
+            sleep(int(retry_after))
             response = webhook.execute()
 
         if response.status_code != 200:
