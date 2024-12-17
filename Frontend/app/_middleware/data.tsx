@@ -1,7 +1,7 @@
 "use server";
 
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 import { headers } from "next/headers";
 
@@ -73,7 +73,8 @@ export async function SetToken(request: NextRequest) {
 
 }
 export async function errorLogin(request: NextRequest) {
-  // If /error/login is requested, redirect to /login
-  // If any parameter is passed, redirect to /login?param
-  return NextResponse.redirect(new URL('/login', request.url));
+  const { search } = new URL(request.url); // Extract the search params from the original request
+  const redirectURL = new URL(`/login${search}`, request.url); // Append them to /login
+
+  return NextResponse.redirect(redirectURL);
 }
