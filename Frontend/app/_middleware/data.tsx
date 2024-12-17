@@ -72,3 +72,10 @@ export async function SetToken(request: NextRequest) {
   }
 
 }
+export async function errorLogin(request: NextRequest) {
+  // If /error/login is requested, redirect to /login
+  // If any parameter is passed, redirect to /login?param
+  if (request.url === '/error/login') {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+}
