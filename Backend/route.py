@@ -13,6 +13,8 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 from dotenv import load_dotenv
 from os import getenv, environ
+from urllib.parse import urlparse, urljoin
+
 sys.path.append('.')
 load_dotenv()
 
@@ -71,6 +73,11 @@ pdfs_settings = config["pdfs"]
 ballotbox_time = "10"
 next_ballotbox_vote = None
 
+def is_safe_url(target):
+    """Check if the URL is safe and belongs to the same host."""
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
 def end_voting():
     global config
 
@@ -262,16 +269,18 @@ def pdf():
         return jsonify({"error": "Missing pdf parameter"}), 400
     token = request.cookies.get("token")
     if token == None:
-        return redirect("/login?origin=/pdf?user=" + requestedPdf)
+        safe_redirect = url_for('login', origin=f"/pdf?user={requestedPdf}")
+        return redirect(safe_redirect if is_safe_url(safe_redirect) else "/")
     session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
     session.close()
     if user == "500":
-        return redirect("/error/500")
-    if user == None:
-        return redirect("/login?origin=/pdf?user=" + requestedPdf)
-    if isAdmin == False:
-        return redirect("/error/403")
+        return redirect(url_for('error_500'))
+    if user is None:
+        safe_redirect = url_for('login', origin=f"/pdf?user={requestedPdf}")
+        return redirect(safe_redirect if is_safe_url(safe_redirect) else "/")
+    if not isAdmin:
+        return redirect(url_for('error_403'))
     # Returns pdf
     pdfPath = pdfs_settings["path"] + requestedPdf + ".pdf"
     try:
@@ -499,3 +508,24 @@ def ballotbox():
             return jsonify({"error": "Failed to vote"}), 500
         next_ballotbox_vote = datetime.datetime.now() + datetime.timedelta(seconds=int(ballotbox_time))
         return jsonify({"message": "OK", "remaining": ballotbox_time}), 200
+
+# If there is an /api/ in the URL, remove it and redirect
+@app.route('/login')
+def login():
+    url_without_api = request.url.replace("/api/", "/")
+    return redirect(url_without_api)
+
+@app.route('/error/500')
+def error_500():
+    url_without_api = request.url.replace("/api/", "/")
+    return redirect(url_without_api)
+
+@app.route('/error/403')
+def error_403():
+    url_without_api = request.url.replace("/api/", "/")
+    return redirect(url_without_api)
+
+@app.route('/error/404')
+def error_404():
+    url_without_api = request.url.replace("/api/", "/")
+    return redirect(url_without_api)
