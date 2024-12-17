@@ -514,6 +514,7 @@ def ballotbox():
 def error_login():
     url_without_api = request.url.replace("/api/", "/")
     url_without_api = url_without_api.replace("/error/login", "/login")
+    log("INFO", f"Redirecting to {url_without_api}")
     return redirect(url_without_api)
 
 @app.route('/error/500')
