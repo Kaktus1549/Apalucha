@@ -269,7 +269,7 @@ def pdf():
         return jsonify({"error": "Missing pdf parameter"}), 400
     token = request.cookies.get("token")
     if token == None:
-        safe_redirect = url_for('login', origin=f"/pdf?user={requestedPdf}")
+        safe_redirect = url_for('error_login', origin=f"/pdf?user={requestedPdf}")
         return redirect(safe_redirect if is_safe_url(safe_redirect) else "/")
     session = sessionmaker(bind=engine)()
     user, isAdmin = decode_jwt(jwt_settings["secret"], token, session, jwt_settings["algorithm"], jwt_settings["issuer"], ip=request.headers.get('X-REAL-IP', request.remote_addr))
@@ -510,9 +510,10 @@ def ballotbox():
         return jsonify({"message": "OK", "remaining": ballotbox_time}), 200
 
 # If there is an /api/ in the URL, remove it and redirect
-@app.route('/login')
-def login():
+@app.route('/error/login')
+def error_login():
     url_without_api = request.url.replace("/api/", "/")
+    url_without_api = url_without_api.replace("/error/login", "/login")
     return redirect(url_without_api)
 
 @app.route('/error/500')
