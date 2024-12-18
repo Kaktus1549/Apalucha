@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 from sys import path
 from time import sleep
+import random
 path.append(".")
 load_dotenv()
 
@@ -10,9 +11,13 @@ from Database.query import *
 from Logging.checker_loger import log
 from API.endpoints import *
 
+def random_string(length):
+    letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    return ''.join(random.choice(letters) for i in range(length))
+
 log("INFO", "Starting Apalucha checker... ")
 sleep(1.5)
-log("WARNING", "In order to successfully test the system, this docker container must be run with the SAME network as the API and the database!!")
+log("WARNING", "In order to successfully test the system, this docker container must be run with the SAME network as the API and the database!! (Who needs UI anyway hehe)")
 log("WARNING", "If you FAIL to do so, the tests will fail!")
 sleep(4.5)
 log("INFO", "Loading environment variables... ")
@@ -79,7 +84,7 @@ log("INFO", "---- Testing /managment endpoint and admin related operations ----"
 # Film testing 
 
 log("INFO", "Testing film related operations... ")
-test_film = "IWannaBeYours"
+test_film = "IWannaBeYours" + random_string(5)
 test_film_team = "Arctic Monkeys"
 
 log("INFO", f"Creating film {test_film}... ")
@@ -117,7 +122,7 @@ else:
 sleep(1.5)
 
 # User testing
-test_admin = "KneeSocks"
+test_admin = "KneeSocks" + random_string(5)
 test_admin_password = "Arct1cM0nk3ysF0rTheW1n?!."
 
 log("INFO", f"Creating admin {test_admin}... ")
@@ -207,7 +212,7 @@ log("WARNING", "No other users should be voting while these tests are running")
 
 voting_error_list = []
 voting_time = 10
-film_name = "IWannaBeYours"
+film_name = "IWannaBeYours" + random_string(5)
 log("INFO", f"Setting voting time to {voting_time} seconds")
 time = api_change_settings(url, token, voting_time)
 if time == False:
@@ -263,6 +268,23 @@ if api_create_film(url, token, film_name, "Arctic Monkeys"):
             voting_error_list.append("Failed to register vote")
 log("INFO", "Finished voting tests")
 sleep(5)
+
+# Reset voting time
+log("INFO", f"Resetting voting time to {original_voting_time} seconds")
+time = api_change_settings(url, token, original_voting_time)
+if time == False:
+    log("ERROR", "Failed to reset voting time")
+    exit()
+sleep(1.5)
+
+log("INFO", "Resetting system... ")
+reset = api_reset_voting(url, token)
+if reset == False:
+    log("ERROR", "Failed to reset system")
+    exit()
+
+log("INFO", "System reset")
+
 
 # Clears the screen
 print("\033c")
