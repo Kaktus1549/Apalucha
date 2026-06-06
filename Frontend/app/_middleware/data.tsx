@@ -9,9 +9,9 @@ import { headers } from "next/headers";
 const url = process.env.BACKEND_URL;
 
 export default async function CheckIfAllowed(request: NextRequest) {
-    const cookieStore = cookies()
-    const headersList = headers();
-    const ip = headersList.get("X-REAL-IP") || request.ip || "";
+    const cookieStore = await cookies()
+    const headersList = await headers();
+    const ip = headersList.get("X-REAL-IP") || headersList.get("X-Forwarded-For") || "";
     let token = cookieStore.get("token");
     if (token === undefined) {
         return NextResponse.redirect(new URL("/login", request.url));

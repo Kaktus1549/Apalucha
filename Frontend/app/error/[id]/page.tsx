@@ -1,17 +1,17 @@
-
 import CustomError from "../../_error/error";
+
 export function generateStaticParams() {
-    return [400, 401, 403, 404, 500]
+    return [
+        { id: "400" },
+        { id: "401" },
+        { id: "403" },
+        { id: "404" },
+        { id: "500" },
+    ];
 }
 
-export default function Error({ params: { id }}: { params: { id: number }}) {
-    try{
-        const errorCode: number = id;
-        return (
-            <CustomError statusCode={errorCode}/>
-        )
-    }
-    catch (e){
-        console.error(e);
-    }
+export default async function Error({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const errorCode = parseInt(id);
+    return <CustomError statusCode={errorCode} />;
 }

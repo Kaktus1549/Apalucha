@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import StartButton from "./startbutton";
 
 export default async function Scoreboard(){
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const token = cookieStore.get('token')
 
     if(token === undefined){
